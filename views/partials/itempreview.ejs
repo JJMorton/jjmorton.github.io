@@ -1,0 +1,10 @@
+<ul class="list-preview">
+	<% items.forEach(function(item) { %>
+		<li class="item-preview">
+			<a href="<%= item.href %>">
+				<p class="title"><%= item.title %></p>
+				<p class="description"><%= item.description %></p>
+			</a>
+		</li>
+	<% }); %>
+</ul>
