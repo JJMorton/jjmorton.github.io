@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<%- include("partials/head") %>
+	<link rel="stylesheet" type="text/css" href="/styles/canvas.css"/>
+	<script src="/scripts/simulations/main.js"></script>
+	<script src="/scripts/simulations/<%= script %>"></script>
+</head>
+<body>
+	<header>
+		<%- include("partials/header") %>
+	</header>
+
+	<main>
+		<h1><%= title %></h1>
+		<p><%= description %></p>
+	</main>
+
+	<section>
+		<noscript>Please enable JavaScript to view this simulation</noscript>
+		<canvas></canvas>
+		<div id="controls">
+			<button id="btn-reset">Reset</button>
+		</div>
+	</section>
+
+	<footer>
+		<%- include("partials/footer") %>
+	</footer>
+</body>
+</html>

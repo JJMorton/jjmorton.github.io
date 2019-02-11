@@ -1,3 +1,6 @@
+const fs = require("fs");
+const simulations = JSON.parse(fs.readFileSync("simulations.json", "utf8"));
+
 const express = require("express");
 const app = express();
 
@@ -6,17 +9,26 @@ app.set("view engine", "ejs");
 app.use(express.static(__dirname + "/public"));
 
 app.get("/", (req, res) => {
-	res.render("home", {
-		title: "Home",
-		simulations: [
-			{ title: "Fluids", description: "Drop a ball in different fluids and change values to see the effects", href: "/simulations/fluids" },
-			{ title: "Oscillations", description: "Simulate an oscillating spring with optional damping and a driving force", href: "/simulations/oscillations" },
-			{ title: "Placeholder", description: "This is a placeholder", href: "" }
-		]
-	});
+	res.render("home", { title: "Home", simulations });
 });
 
-app.get("/about", (req, res) => res.render("about", { title: "About" }));
+app.get("/about", (req, res) => {
+	res.render("about", { title: "About" });
+});
+
+app.get("/simulations", (req, res) => {
+	res.redirect("/");
+});
+
+for (const sim of simulations) {
+	app.get(sim.href, (req, res) => {
+		res.render("simulation", {
+			title: `Simulation - ${sim.title}`,
+			description: sim.description,
+			script: `${sim.title.toLowerCase()}.js`
+		});
+	});
+}
 
 app.use((req, res) => {
 	res.render("404", { title: "404 - Not Found", path: req.path });

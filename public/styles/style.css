@@ -7,8 +7,8 @@
 	--text-color: #444;
 	--text-size: 1em;
 	--accent-color: #a3be8c;
+	--font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 
-	--footer-color: #888;
 	--footer-size: 0.8em;
 }
 
@@ -25,7 +25,7 @@ body {
 }
 
 h1, h2, p, a {
-	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+	font-family: var(--font-family);
 }
 
 h1 {
@@ -64,7 +64,7 @@ a:active {
 }
 
 header {
-	border-bottom: 1px dashed var(--header-color);
+	/* border-bottom: 1px dashed var(--header-color); */
 }
 
 nav {
@@ -143,9 +143,10 @@ nav {
 
 
 footer {
+	opacity: 0.5;
 	margin-top: 4em;
-	border-top: 1px dashed var(--footer-color);
-	color: var(--footer-color);
+	border-top: 1px solid var(--text-color);
+	color: var(--text-color);
 }
 
 footer p {
