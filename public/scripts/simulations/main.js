@@ -1,92 +1,110 @@
-(function() {
+class Simulation {
 
-	// A bunch of variables and functons that I'll want in all the simulations
+	constructor() {
 
-	window.Sim = {};
+		// The number of metres that the canvas should cover.
+		this.scale = 4;
+		
+		// Get colours defined on root element in css
+		const style = window.getComputedStyle(document.documentElement);
+		this.colours = {
+			background: style.getPropertyValue("--background-color"),
+			foreground: style.getPropertyValue("--text-color"),
+			accent: style.getPropertyValue("--accent-color")
+		};
+
+		// These functions should be set by the simulation
+		this.render = null;
+		this.init = null;
+
+
+		// Get the canvas element and context
+		this.canvas = document.querySelector("canvas");
+		this.ctx = this.canvas.getContext("2d");
+
+		// Automatically resize the canvas with the window
+		const resizeCanvas = () => {
+			const size = Math.min(window.innerHeight * 0.8, document.body.clientWidth);
+			this.canvas.width = size;
+			this.canvas.height = size;
+		};
+		resizeCanvas();
+		window.addEventListener("resize", resizeCanvas);
+
+		// Track mouse
+		this.mouse = { pressed: -1, x: 0, y: 0 };
+		this.canvas.addEventListener("click", e => { if (this.onlick) this.onclick(e); });
+		this.canvas.addEventListener("mousedown", e => this.mouse.pressed = e.button);
+		this.canvas.addEventListener("mouseup", e => this.mouse.pressed = -1);
+		this.canvas.addEventListener("mousemove", e => {
+			this.mouse.x = e.pageX - this.canvas.offsetLeft;
+			this.mouse.y = e.pageY - this.canvas.offsetTop;
+			if (this.onmousemove) this.onmousemove();
+		});
+
+		// Init colours
+		this.ctx.strokeStyle = this.colours.accent;
+		this.ctx.fillStyle = this.colours.foreground;
+	}
+
 	
+	// Conversions between distances
 
-	// Get colours defined on root element in css
-	style = window.getComputedStyle(document.documentElement);
+	mToPx(metres) {
+		return this.canvas.height * metres / this.scale;
+	}
+	pxToM(px) {
+		return px / this.canvas.height * this.scale;
+	}
+	percToPx(perc) {
+		return this.canvas.height * perc / 100;
+	}
+	pxToPerc(px) {
+		return px / this.canvas.height * 100;
+	}
 
-	Sim.colours = {
-		background: style.getPropertyValue("--background-color"),
-		foreground: style.getPropertyValue("--text-color"),
-		accent: style.getPropertyValue("--accent-color")
-	};
-	
-
-	Sim.getLength = percent => Sim.canvas.height * percent / 100;
-
-
-	Sim.addButton = function(label, func) {
+	addButton(label, func) {
 		const container = document.getElementById("controls");
 		const btn = document.createElement("button");
 		btn.textContent = label;
 		btn.addEventListener("click", func);
 		container.appendChild(btn);
-	};
+	}
 
-	Sim.addSlider = function(label, obj, prop, min, max, step) {
+	addSlider(name, obj, prop, min, max, step) {
+		const id = `range-${prop}`;
 		const container = document.getElementById("controls");
-		const slider = document.createElement("input");
-		slider.setAttribute("type", "range");
-		slider.min = min;
-		slider.max = max;
-		slider.step = step;
-		slider.addEventListener("input", () => obj[prop] = parseFloat(slider.value));
-		slider.textContent = label;
-		container.appendChild(slider);
-	};
-
-
-	// This function should be set by the simulation
-	Sim.render = null;
-	Sim.init = null;
-	const beginRender = function() {
-	
-		const time = performance.now() - Sim.timeStart;
-		Sim.delta = time - Sim.time;
-		Sim.time = time;
-
-		if (Sim.render) Sim.render();
-		window.requestAnimationFrame(beginRender);
-	};
-
-
-	Sim.start = function() {
-
-		// Get the canvas element and context
-		Sim.canvas = document.querySelector("canvas");
-		Sim.ctx = Sim.canvas.getContext("2d");
-		
-		// Automatically resize the canvas with the window
-		const resizeCanvas = function() {
-			const size = Math.min(window.innerHeight * 0.8, document.body.clientWidth);
-			Sim.canvas.width = size;
-			Sim.canvas.height = size;
-		}
-		resizeCanvas();
-		window.addEventListener("resize", resizeCanvas);
-
-		// Track mouse
-		Sim.mouse = { pressed: -1, x: 0, y: 0 };
-		Sim.canvas.addEventListener("click", e => { if (Sim.onlick) Sim.onclick(e); });
-		Sim.canvas.addEventListener("mousedown", e => Sim.mouse.pressed = e.button);
-		Sim.canvas.addEventListener("mouseup", e => Sim.mouse.pressed = -1);
-		Sim.canvas.addEventListener("mousemove", e => {
-			Sim.mouse.x = 100 * e.clientX / Sim.canvas.height;
-			Sim.mouse.y = 100 * e.clientY / Sim.canvas.width;
-			if (Sim.onmousemove) Sim.onmousemove(e);
+		const elt = new DOMParser().parseFromString(`
+			<div class="sliderbox">
+				<label for="${id}">${name}</label>
+				<input type="range" id="${id}" min="${min}" max="${max}" step="${step}" value="${obj[prop]}"/>
+				<output for="${id}">${obj[prop]}</output>
+			</div>
+		`, "text/html").body.firstChild;
+		container.appendChild(elt);
+		elt.children.namedItem(id).addEventListener("input", e => {
+			// This might be a bit janky idk
+			obj[prop] = e.target.nextElementSibling.textContent = parseFloat(e.target.value);
 		});
+	}
 
-		// Init colours
-		Sim.ctx.strokeStyle = Sim.colours.accent;
-		Sim.ctx.fillStyle = Sim.colours.foreground;
+	start() {
+
+		const beginRender = () => {
+			// We want all the units in seconds, to make other units more realistic
+			const time = performance.now() / 1000 - this.timeStart;
+			this.delta = time - this.time;
+			this.time = time;
+
+			if (this.render) this.render();
+			window.requestAnimationFrame(beginRender);
+		}
 
 		// Start animation loop
-		Sim.timeStart = performance.now();
-		if (Sim.init) Sim.init();
+		this.timeStart = performance.now() / 1000;
+		this.delta = 0;
+		this.time = this.timeStart;
+		if (this.init) this.init();
 		beginRender();
-	};
-
-}());
+	}
+}

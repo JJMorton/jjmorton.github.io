@@ -2,56 +2,111 @@ window.addEventListener("load", function() {
 
 	'use strict';
 
-	const wavefunc = function(t, A, {m, k, b, phi}) {
-		// First convert all parameters from s to ms
-		k /= 1000000; // m s^-2
-		b /= 1000; // kg s^-1
-
-		return A * Math.exp(-(b*t) / 2*m) * Math.cos(t * Math.sqrt(k / m) + phi);
+	const sim = new Simulation();
+	
+	// Initial parameters
+	const params = {
+		density: 600, // Density of wood (ish)
+		m: 10,
+		k: 5,
+		b: 0.1,
+		d_f: 0,
+		d_a: 0
+		/*
+		 * d_a is the amplitude of the displacement of the driver.
+		 * I was going to make this the amplitude of the force, but then
+		 * the displacement of the driver depended on k, giving kind of
+		 * ridiculous displacements for the driver.
+		 */
 	};
-
-
-	Sim.params = {
-		m: 0.2, // kg
-		k: 200, // N m^-1
-		b: 0, // kg s^-1
-	};
-
-	Sim.state = {
-		pos: 40, // Percent of height
-		vel: 0
+	
+	// Initial state
+	const state = {
+		pos: 1,
+		vel: 0,
+		getSize: () => Math.cbrt(params.m / params.density)
 	};
 
 	window.getAcc = function() {
-		// First adjust units from s to ms
-		const k = Sim.params.k / 1000000;
-		const b = Sim.params.b / 1000;
-		return (-k * Sim.state.pos - b * Sim.state.vel) / Sim.params.m;
-	};
-
-	Sim.init = function() {
-		Sim.state.pos = 40;
-		Sim.state.vel = 0;
-	};
-
-	Sim.render = function() {
+		// cba to type params every time
+		const k = params.k;
+		const b = params.b;
+		const d_a = params.d_a;
+		const d_f = params.d_f;
 		
-		Sim.state.vel += getAcc();
-		Sim.state.pos += Sim.state.vel;
-		
-		if (Sim.mouse.pressed === 0) Sim.state.pos = Math.max(Math.min(Sim.mouse.y, 90), 10) - 50;
-		const pos = Sim.getLength(Sim.state.pos + 50);
+		const spring_force = -k * state.pos;
+		const damping_force = -b * state.vel;
+		const driver_force = k * d_a * Math.cos(2 * Math.PI * d_f * sim.time);
 
-		Sim.ctx.clearRect(0, 0, Sim.canvas.width, Sim.canvas.height);
-		Sim.ctx.fillRect(Sim.getLength(49.5), 0, Sim.getLength(1), pos);
-		Sim.ctx.fillRect(Sim.getLength(47), pos, Sim.getLength(6), Sim.getLength(6));
+		return (spring_force + damping_force + driver_force) / params.m;
 	};
 
-	Sim.addButton("Restart", () => Sim.init());
-	Sim.addSlider("k", Sim.params, "k", 10, 1000, 10);
-	Sim.addSlider("b", Sim.params, "b", 0, 10, 0.5);
-	Sim.addSlider("m", Sim.params, "m", 0.1, 3, 0.1);
+	sim.render = function() {
 
-	Sim.start();
+		/*
+		 * Calculations are not done if the framerate is less than
+		 * 10 per second. This is to counter the issue of the
+		 * mass 'jumping' if the script goes idle for any substantial
+		 * amount of time (e.g. if the user switches to another tab
+		 * and back).
+		 * If the rendering is running less than 10 times per
+		 * second, nothing will animate. But things would get weird
+		 * at very low framerates anyway.
+		 */
+		if (1 / sim.delta < 10) return;
+
+
+		// Calculate position of mass
+
+		state.vel += getAcc();
+		state.pos += state.vel * sim.delta;
+
+		const size = state.getSize();
+
+		if (sim.mouse.pressed === 0) {
+			state.vel = 0;
+			const mousePos = Math.max(Math.min(sim.mouse.y,
+				sim.percToPx(100) - sim.mToPx(size/2)),
+				sim.mToPx(size/2)
+			);
+			state.pos = sim.pxToM(mousePos - sim.percToPx(50) - sim.mToPx(params.d_a));
+		}
+
+		const pos = sim.mToPx(state.pos) - sim.mToPx(size/2) + sim.percToPx(50) + sim.mToPx(params.d_a);
+		
+
+		// Draw everything
+
+		sim.ctx.clearRect(0, 0, sim.canvas.width, sim.canvas.height);
+
+		// Equilibrium line
+		for (let y = sim.percToPx(50); y < sim.percToPx(100); y += sim.mToPx(1)) {
+			sim.ctx.fillRect(0, y, sim.percToPx(10), 1);
+			sim.ctx.fillText(`${Math.round((sim.pxToM(y) - sim.scale/2) * 10) / 10} m`, 0, y - 2);
+		}
+		for (let y = sim.percToPx(50); y > 0; y -= sim.mToPx(1)) {
+			sim.ctx.fillRect(0, y, sim.percToPx(10), 1);
+		}
+		sim.ctx.fillRect(0, sim.percToPx(50), sim.percToPx(100), 1);
+
+		// Mass and string
+		sim.ctx.fillRect(sim.percToPx(50) - sim.mToPx(0.01), 0, sim.mToPx(0.02), pos);
+		sim.ctx.fillRect(sim.percToPx(50) - sim.mToPx(size/2), pos, sim.mToPx(size), sim.mToPx(size));
+
+		// Driver
+		const d_f = params.d_f;
+		const d_pos = params.d_a * (1 + Math.cos(2 * Math.PI * d_f * sim.time));
+		sim.ctx.fillRect(sim.percToPx(50) - sim.mToPx(0.2), 0, sim.mToPx(0.4), sim.mToPx(d_pos));
+	};
+
+	// sim.addButton("Restart", () => sim.init());
+	sim.addSlider("k", params, "k", 1, 20, 0.1);
+	sim.addSlider("b", params, "b", 0, 1, 0.01);
+	sim.addSlider("m", params, "m", 1, 20, 0.1);
+	sim.addSlider("driving freq", params, "d_f", 0, 5, 0.01);
+	sim.addSlider("driving amp", params, "d_a", 0, 0.5, 0.01);
+	sim.addSlider("scale", sim, "scale", 1, 20, 1);
+
+	sim.start();
 
 });
