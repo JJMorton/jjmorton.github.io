@@ -3,7 +3,7 @@ class Simulation {
 	constructor() {
 
 		// The number of metres that the canvas should cover.
-		this.scale = 4;
+		this.scale = 5;
 		
 		// Get colours defined on root element in css
 		const style = window.getComputedStyle(document.documentElement);
@@ -24,7 +24,7 @@ class Simulation {
 
 		// Automatically resize the canvas with the window
 		const resizeCanvas = () => {
-			const size = Math.min(window.innerHeight * 0.8, document.body.clientWidth);
+			const size = Math.min(window.innerHeight * 0.7, document.body.clientWidth);
 			this.canvas.width = size;
 			this.canvas.height = size;
 		};
@@ -96,7 +96,17 @@ class Simulation {
 			this.delta = time - this.time;
 			this.time = time;
 
-			if (this.render) this.render();
+			/*
+			 * Calculations are not done if the framerate is less than
+			 * 10 per second. This is to counter the issue of the
+			 * mass 'jumping' if the script goes idle for any substantial
+			 * amount of time (e.g. if the user switches to another tab
+			 * and back).
+			 * If the rendering is running less than 10 times per
+			 * second, nothing will animate. But things would get weird
+			 * at very low framerates anyway.
+			 */
+			if (this.render && 1 / this.delta > 10) this.render();
 			window.requestAnimationFrame(beginRender);
 		}
 

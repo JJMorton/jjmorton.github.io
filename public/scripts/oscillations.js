@@ -6,10 +6,10 @@ window.addEventListener("load", function() {
 	
 	// Initial parameters
 	const params = {
-		density: 600, // Density of wood (ish)
-		m: 10,
-		k: 5,
-		b: 0.1,
+		density: 500,
+		m: 1,
+		k: 10,
+		b: 0.2,
 		d_f: 0,
 		d_a: 0
 		/*
@@ -27,38 +27,20 @@ window.addEventListener("load", function() {
 		getSize: () => Math.cbrt(params.m / params.density)
 	};
 
-	window.getAcc = function() {
-		// cba to type params every time
-		const k = params.k;
-		const b = params.b;
-		const d_a = params.d_a;
-		const d_f = params.d_f;
-		
-		const spring_force = -k * state.pos;
-		const damping_force = -b * state.vel;
-		const driver_force = k * d_a * Math.cos(2 * Math.PI * d_f * sim.time);
+	const getAcc = function() {
+		const spring_force = -params.k * state.pos;
+		const damping_force = -params.b * state.vel;
+		// NOT SURE IF THIS IS RIGHT
+		const driver_force = params.k * params.d_a * Math.cos(2 * Math.PI * params.d_f * sim.time);
 
 		return (spring_force + damping_force + driver_force) / params.m;
 	};
 
 	sim.render = function() {
 
-		/*
-		 * Calculations are not done if the framerate is less than
-		 * 10 per second. This is to counter the issue of the
-		 * mass 'jumping' if the script goes idle for any substantial
-		 * amount of time (e.g. if the user switches to another tab
-		 * and back).
-		 * If the rendering is running less than 10 times per
-		 * second, nothing will animate. But things would get weird
-		 * at very low framerates anyway.
-		 */
-		if (1 / sim.delta < 10) return;
-
-
 		// Calculate position of mass
 
-		state.vel += getAcc();
+		state.vel += getAcc() * sim.delta;
 		state.pos += state.vel * sim.delta;
 
 		const size = state.getSize();
@@ -99,12 +81,11 @@ window.addEventListener("load", function() {
 		sim.ctx.fillRect(sim.percToPx(50) - sim.mToPx(0.2), 0, sim.mToPx(0.4), sim.mToPx(d_pos));
 	};
 
-	// sim.addButton("Restart", () => sim.init());
-	sim.addSlider("k", params, "k", 1, 20, 0.1);
-	sim.addSlider("b", params, "b", 0, 1, 0.01);
-	sim.addSlider("m", params, "m", 1, 20, 0.1);
-	sim.addSlider("driving freq", params, "d_f", 0, 5, 0.01);
-	sim.addSlider("driving amp", params, "d_a", 0, 0.5, 0.01);
+	sim.addSlider("k (N/m)", params, "k", 1, 20, 0.1);
+	sim.addSlider("b (kg/s)", params, "b", 0, 2, 0.01);
+	sim.addSlider("m (kg)", params, "m", 0.1, 5, 0.1);
+	sim.addSlider("driving freq (Hz)", params, "d_f", 0, 5, 0.01);
+	sim.addSlider("driving amp (m)", params, "d_a", 0, 0.5, 0.01);
 	sim.addSlider("scale", sim, "scale", 1, 20, 1);
 
 	sim.start();
