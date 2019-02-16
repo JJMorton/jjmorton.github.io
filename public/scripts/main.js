@@ -31,14 +31,24 @@ class Simulation {
 		resizeCanvas();
 		window.addEventListener("resize", resizeCanvas);
 
-		// Track mouse
+		// Track mouse and touches
 		this.mouse = { pressed: -1, x: 0, y: 0 };
 		this.canvas.addEventListener("click", e => {
 			if (this.onlick) this.onclick();
 		});
+		this.canvas.addEventListener("touchstart", e => {
+			this.mouse.pressed = 0;
+			this.mouse.x = e.changedTouches[0].pageX - this.canvas.offsetLeft;
+			this.mouse.y = e.changedTouches[0].pageY - this.canvas.offsetTop;
+			if (this.onmousedown) this.onmousedown();
+		});
 		this.canvas.addEventListener("mousedown", e => {
 			this.mouse.pressed = e.button;
 			if (this.onmousedown) this.onmousedown();
+		});
+		window.addEventListener("touchend", () => {
+			this.mouse.pressed = -1;
+			if (this.onmouseup) this.onmouseup();
 		});
 		window.addEventListener("mouseup", e => {
 			/*
@@ -47,6 +57,11 @@ class Simulation {
 			 */
 			this.mouse.pressed = -1;
 			if (this.onmouseup) this.onmouseup();
+		});
+		this.canvas.addEventListener("touchmove", e => {
+			this.mouse.x = e.changedTouches[0].pageX - this.canvas.offsetLeft;
+			this.mouse.y = e.changedTouches[0].pageY - this.canvas.offsetTop;
+			if (this.onmousemove) this.onmousemove();
 		});
 		this.canvas.addEventListener("mousemove", e => {
 			this.mouse.x = e.pageX - this.canvas.offsetLeft;
