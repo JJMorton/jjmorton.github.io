@@ -33,9 +33,21 @@ class Simulation {
 
 		// Track mouse
 		this.mouse = { pressed: -1, x: 0, y: 0 };
-		this.canvas.addEventListener("click", e => { if (this.onlick) this.onclick(e); });
-		this.canvas.addEventListener("mousedown", e => this.mouse.pressed = e.button);
-		this.canvas.addEventListener("mouseup", e => this.mouse.pressed = -1);
+		this.canvas.addEventListener("click", e => {
+			if (this.onlick) this.onclick();
+		});
+		this.canvas.addEventListener("mousedown", e => {
+			this.mouse.pressed = e.button;
+			if (this.onmousedown) this.onmousedown();
+		});
+		window.addEventListener("mouseup", e => {
+			/*
+			 * Listen for this on the window to prevent issues when the mouse is
+			 * dragged outside of the canvas.
+			 */
+			this.mouse.pressed = -1;
+			if (this.onmouseup) this.onmouseup();
+		});
 		this.canvas.addEventListener("mousemove", e => {
 			this.mouse.x = e.pageX - this.canvas.offsetLeft;
 			this.mouse.y = e.pageY - this.canvas.offsetTop;
@@ -61,6 +73,12 @@ class Simulation {
 	}
 	pxToPerc(px) {
 		return px / this.canvas.height * 100;
+	}
+	percToM(perc) {
+		return this.pxToM(this.percToPx(perc));
+	}
+	mToPerc(m) {
+		return this.pxToPerc(this.mToPx(m));
 	}
 
 	addButton(label, func) {
