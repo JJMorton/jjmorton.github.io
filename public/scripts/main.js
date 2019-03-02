@@ -1,3 +1,5 @@
+const strToElt = str => new DOMParser().parseFromString(str, "text/html").body.firstChild;
+
 class Simulation {
 
 	constructor() {
@@ -13,9 +15,9 @@ class Simulation {
 		// Automatically resize the canvas with the window
 		this.resize();
 		window.addEventListener("resize", () => this.resize());
-
-		// Initialise empty array of objects to render
-		this.objects = [];
+		
+		// The sliders in the controls panel
+		this.controls = [];
 
 		// The number of metres that the canvas should cover.
 		this.scale = 5;
@@ -41,12 +43,14 @@ class Simulation {
 		this.canvas.addEventListener("touchmove", e => mousemove(e.changedTouches[0]));
 		this.canvas.addEventListener("mousemove", e => mousemove(e));
 		this.canvas.addEventListener("touchstart", e => {
-			mousepress(0);
 			mousemove(e.changedTouches[0]);
+			mousepress(0);
+			e.preventDefault();
 		});
 		this.canvas.addEventListener("mousedown", e => {
-			mousepress(e.button);
 			mousemove(e);
+			mousepress(e.button);
+			e.preventDefault();
 		});
 
 	}
@@ -70,7 +74,7 @@ class Simulation {
 	}
 
 	resize() {
-		const size = Math.min(window.innerHeight * 0.7, document.body.clientWidth);
+		const size = Math.min(window.innerHeight * 0.7, document.body.clientWidth) - 10;
 		this.canvas.width = size;
 		this.canvas.height = size;
 		this.setColours();
@@ -102,26 +106,51 @@ class Simulation {
 
 	addButton(label, func) {
 		const container = document.getElementById("controls");
-		const btn = document.createElement("button");
-		btn.textContent = label;
+		const btn = strToElt(`<button>${label}</button>`);
 		btn.addEventListener("click", func);
 		container.appendChild(btn);
 	}
 
-	addSlider(name, obj, prop, min, max, step) {
+	addSlider(name, units, obj, prop, min, max, step) {
 		const id = `range-${prop}`;
 		const container = document.getElementById("controls");
-		const elt = new DOMParser().parseFromString(`
-			<div class="sliderbox">
-				<label for="${id}">${name}</label>
-				<input type="range" id="${id}" min="${min}" max="${max}" step="${step}" value="${obj[prop]}"/>
-				<output for="${id}">${obj[prop]}</output>
-			</div>
-		`, "text/html").body.firstChild;
-		container.appendChild(elt);
-		elt.children.namedItem(id).addEventListener("input", e => {
-			// This might be a bit janky idk
-			obj[prop] = e.target.nextElementSibling.textContent = parseFloat(e.target.value);
+		
+		// Create the slider with its labels
+		const slider = strToElt(`
+			<input
+				type="range"
+				id="${id}"
+				min="${min}"
+				max="${max}"
+				step="${step}" 
+				value="${obj[prop]}"
+				disabled="true"
+			/>
+		`);
+		const label = strToElt(`<label for="${id}" disabled="true"></label>`);
+		const namelabel = strToElt(`<span class="name">${name}<br></span>`);
+		const outputlabel = strToElt(`<output for="${id}">${obj[prop]}</output>`);
+		const unitslabel = strToElt(`<span class="units">${units}</span>`);
+		label.appendChild(namelabel);
+		label.appendChild(outputlabel);
+		label.appendChild(unitslabel);
+		
+		// Show the slider when the label is clicked
+		this.controls.push({ slider, label });
+		label.addEventListener("click", () => {
+			this.controls.forEach(x => {
+				x.slider.disabled = x.slider !== slider;
+				x.label.setAttribute("disabled", x.label !== label);
+			});
+		});
+		
+		// Add them to the document
+		container.querySelector("#labels").appendChild(label);
+		container.querySelector("#sliders").appendChild(slider);
+		
+		// Change the label and the object property on input
+		slider.addEventListener("input", e => {
+			outputlabel.textContent = obj[prop] = parseFloat(e.target.value);
 		});
 	}
 

@@ -80,10 +80,10 @@ window.addEventListener("load", function() {
 	sim.render = function() {
 
 		// Calculate new position
+		const acc = getAcc();
 		if (sim.mouse.pressed === 0) {
 			state.vel = [0, 0]
 		} else {
-			const acc = getAcc();
 			state.vel[0] += acc[0] * sim.delta;
 			state.vel[1] += acc[1] * sim.delta;
 			state.pos[0] += state.vel[0] * sim.delta;
@@ -164,11 +164,11 @@ window.addEventListener("load", function() {
 	};
 
 
-	sim.addSlider("m (kg)", params, "mass", 0.1, 5, 0.1);
-	sim.addSlider("ball density (kg/m^3)", params, "b_density", 50, 1500, 10);
-	sim.addSlider("liquid density (kg/m^3)", params, "f_density", 50, 1500, 10);
-	sim.addSlider("elasticity", params, "elasticity", 0, 1, 0.01);
-	sim.addSlider("g (m/s^2)", params, "gravity", 0, 20, 0.01);
+	sim.addSlider("ball mass", "kg", params, "mass", 0.1, 5, 0.1);
+	sim.addSlider("ball density", "kg/m^3", params, "b_density", 50, 1500, 10);
+	sim.addSlider("liquid density", "kg/m^3", params, "f_density", 50, 1500, 10);
+	sim.addSlider("elasticity", "", params, "elasticity", 0, 1, 0.01);
+	sim.addSlider("g", "m/s^2", params, "gravity", 0, 20, 0.01);
 	
 
 	sim.start();

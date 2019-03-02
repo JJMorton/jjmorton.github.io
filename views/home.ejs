@@ -23,7 +23,16 @@
 
 	<section>
 		<h2>Simulations</h2>
-		<%- include('partials/itempreview', {items: simulations}); %>
+		<ul class="list-preview">
+			<% simulations.forEach(function(item) { %>
+				<li class="item-preview">
+					<a href="<%= item.href %>">
+						<p class="title"><%= item.title %></p>
+						<p class="description"><%= item.description %></p>
+					</a>
+				</li>
+			<% }); %>
+		</ul>
 	</section>
 
 	<footer>

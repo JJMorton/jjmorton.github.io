@@ -64,7 +64,7 @@ window.addEventListener("load", function() {
 		// Equilibrium line
 		for (let y = sim.percToPx(50); y < sim.percToPx(100); y += sim.mToPx(1)) {
 			sim.ctx.fillRect(0, y, sim.percToPx(10), 1);
-			sim.ctx.fillText(`${Math.round((sim.pxToM(y) - sim.scale/2) * 10) / 10} m`, 0, y - 2);
+			sim.ctx.fillText(`${Math.round((sim.pxToM(y) - sim.scale/2) * 10) / 10} m`, 5, y - 3);
 		}
 		for (let y = sim.percToPx(50); y > 0; y -= sim.mToPx(1)) {
 			sim.ctx.fillRect(0, y, sim.percToPx(10), 1);
@@ -81,12 +81,12 @@ window.addEventListener("load", function() {
 		sim.ctx.fillRect(sim.percToPx(50) - sim.mToPx(0.2), 0, sim.mToPx(0.4), sim.mToPx(d_pos));
 	};
 
-	sim.addSlider("k (N/m)", params, "k", 1, 20, 0.1);
-	sim.addSlider("b (kg/s)", params, "b", 0, 2, 0.01);
-	sim.addSlider("m (kg)", params, "m", 0.1, 5, 0.1);
-	sim.addSlider("driving freq (Hz)", params, "d_f", 0, 5, 0.01);
-	sim.addSlider("driving amp (m)", params, "d_a", 0, 0.5, 0.01);
-	sim.addSlider("scale", sim, "scale", 1, 20, 1);
+	sim.addSlider("k", "N/m", params, "k", 1, 20, 0.1);
+	sim.addSlider("b", "kg/s", params, "b", 0, 2, 0.01);
+	sim.addSlider("m", "kg", params, "m", 0.1, 5, 0.1);
+	sim.addSlider("driving freq", "Hz", params, "d_f", 0, 5, 0.01);
+	sim.addSlider("driving amp", "m", params, "d_a", 0, 0.5, 0.01);
+	sim.addSlider("scale", "m", sim, "scale", 1, 20, 1);
 
 	sim.start();
 

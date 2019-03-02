@@ -3,58 +3,109 @@ canvas {
 	left: 0;
 	right: 0;
 	margin: 0 auto;
-	border: 2px solid var(--accent-color);
-	border-radius: 2px;
+	border: 5px solid var(--accent-color);
+	box-sizing: border-box;
 }
 
 div#controls {
-	margin: 30px 0;
+	margin: 20px 0;
 	padding: 20px;
 }
 
-div#controls .sliderbox {
-	background-color: var(--accent-color);
-	padding: 5px 10px;
-	margin: 0 10px 10px 0;
-	display: inline-block;
-	border-radius: 2px;
+
+/* LABELS AND VALUES */
+
+div#controls > #labels {
+	display: flex;
+	flex-direction: column;
+	margin-bottom: 20px;
 }
 
-.sliderbox > input[type=range] {
+#labels label {
+	padding: 5px 10px;
+	flex: 1;
+	border-left: 5px solid rgba(0, 0, 0, 0.2);
+	transition: background-color 100ms, border-left-width 100ms, border-left-color 100ms;
+}
+
+#labels label:nth-child(odd) {
+	border-left: 5px solid rgba(0, 0, 0, 0.4);
+}
+
+#labels label[disabled="false"] {
+	color: black;
+	background-color: var(--accent-color);
+}
+
+#labels label[disabled="true"] {
+	color: var(--text-color);
+	cursor: pointer;
+}
+
+#labels label:hover,
+#labels label[disabled="false"] {
+	border-left: 10px solid var(--text-color);
+}
+
+#labels label > output {
+	margin-right: 5px;
+	font-weight: bold;
+}
+
+
+/* SLIDERS */
+
+div#controls > #sliders {
+	position: relative;
+}
+
+div#controls > #sliders input[type=range] {
+	width: 50%;
+	min-width: 200px;
+	left: 0;
+	right: 0;
+	margin: auto;
+	position: absolute;
+}
+
+div#controls > #sliders input[type=range]:disabled {
+	display: none;
+}
+
+input[type=range] {
     -webkit-appearance: none;
-	margin: 0 20px;
 	background: none;
 	display: table-cell;
 	vertical-align: middle;
 }
 
-.sliderbox > input[type=range]::-webkit-slider-runnable-track,
-.sliderbox > input[type=range]::-moz-range-track {
+input[type=range]::-webkit-slider-runnable-track,
+input[type=range]::-moz-range-track {
     height: 5px;
     background: var(--text-color);
     border: none;
 }
 
-.sliderbox > input[type=range]::-webkit-slider-thumb,
-.sliderbox > input[type=range]::-moz-range-thumb {
+input[type=range]::-webkit-slider-thumb,
+input[type=range]::-moz-range-thumb {
     -webkit-appearance: none;
     border: none;
     height: 100%;
-    width: 10px;
-	border-radius: 2px;
+    width: 20px;
+	border-radius: 10px;
     background: var(--text-color);
     margin-top: -4px;
 }
 
-.sliderbox > input[type=range]:focus {
+input[type=range]:focus {
     outline: none;
 }
 
-.sliderbox > input[type=range]:focus::-webkit-slider-runnable-track {
+input[type=range]:focus::-webkit-slider-runnable-track {
     background: #ccc;
 }
 
-div#controls button {
+button {
 	border: 3px solid var(--text-color);
 	border-radius: 0;
 	background-color: var(--background-color);
@@ -64,14 +115,14 @@ div#controls button {
 	margin: 0 20px;
 }
 
-div#controls button:not(:disabled):active {
+button:not(:disabled):active {
 	transform: translate(2px, 2px);
 }
 
-div#controls button:not(disabled):hover {
+button:not(disabled):hover {
 	background-color: var(--accent-color);
 }
 
-div#controls button::-moz-focus-inner {
+button::-moz-focus-inner {
 	border: none;
 }

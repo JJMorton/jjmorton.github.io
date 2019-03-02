@@ -92,6 +92,10 @@ nav {
 	font-size: var(--header-size);
 }
 
+#nav-bar > li > a:hover {
+	color: var(--text-color);
+}
+
 
 .list-preview {
 	margin-left: 20px;
