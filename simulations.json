@@ -1,7 +1,7 @@
 [
 	{
 		"title": "Fluids",
-		"description": "Drop a ball in different fluids and change values to see the effects",
+		"description": "Drop a ball in a fluid and observe the effects of drag, upthrust and the viscosity.",
 		"href": "/simulations/fluids"
 	},
 	{

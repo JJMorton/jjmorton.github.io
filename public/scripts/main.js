@@ -124,29 +124,29 @@ class Simulation {
 				max="${max}"
 				step="${step}" 
 				value="${obj[prop]}"
-				disabled="true"
 			/>
 		`);
-		const label = strToElt(`<label for="${id}" disabled="true"></label>`);
+		const label = strToElt(`<label for="${id}"></label>`);
 		const namelabel = strToElt(`<span class="name">${name}<br></span>`);
 		const outputlabel = strToElt(`<output for="${id}">${obj[prop]}</output>`);
 		const unitslabel = strToElt(`<span class="units">${units}</span>`);
 		label.appendChild(namelabel);
 		label.appendChild(outputlabel);
 		label.appendChild(unitslabel);
+		label.appendChild(slider);
+
+		// Add them to the document
+		container.appendChild(label);
 		
 		// Show the slider when the label is clicked
-		this.controls.push({ slider, label });
-		label.addEventListener("click", () => {
-			this.controls.forEach(x => {
-				x.slider.disabled = x.slider !== slider;
-				x.label.setAttribute("disabled", x.label !== label);
-			});
+		this.controls.push(label);
+		label.addEventListener("click", e => {
+			if (e.target === slider) return;
+			// Toggle clicked label and contract all others
+			this.controls.forEach(x => x.classList[
+				x.htmlFor === label.htmlFor ? "toggle" : "remove"
+			]("expanded"));
 		});
-		
-		// Add them to the document
-		container.querySelector("#labels").appendChild(label);
-		container.querySelector("#sliders").appendChild(slider);
 		
 		// Change the label and the object property on input
 		slider.addEventListener("input", e => {

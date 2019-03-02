@@ -81,12 +81,12 @@ window.addEventListener("load", function() {
 		sim.ctx.fillRect(sim.percToPx(50) - sim.mToPx(0.2), 0, sim.mToPx(0.4), sim.mToPx(d_pos));
 	};
 
-	sim.addSlider("k", "N/m", params, "k", 1, 20, 0.1);
-	sim.addSlider("b", "kg/s", params, "b", 0, 2, 0.01);
-	sim.addSlider("m", "kg", params, "m", 0.1, 5, 0.1);
-	sim.addSlider("driving freq", "Hz", params, "d_f", 0, 5, 0.01);
-	sim.addSlider("driving amp", "m", params, "d_a", 0, 0.5, 0.01);
-	sim.addSlider("scale", "m", sim, "scale", 1, 20, 1);
+	sim.addSlider("Spring Constant", "N/m", params, "k", 1, 20, 0.1);
+	sim.addSlider("Damping", "kg/s", params, "b", 0, 2, 0.01);
+	sim.addSlider("Mass", "kg", params, "m", 0.1, 5, 0.1);
+	sim.addSlider("Driving Frequency", "Hz", params, "d_f", 0, 5, 0.01);
+	sim.addSlider("Driving Amplitude", "m", params, "d_a", 0, 0.5, 0.01);
+	sim.addSlider("Scale", "m", sim, "scale", 1, 20, 1);
 
 	sim.start();
 

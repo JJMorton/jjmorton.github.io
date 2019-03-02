@@ -7,47 +7,48 @@ canvas {
 	box-sizing: border-box;
 }
 
-div#controls {
+#controls {
 	margin: 20px 0;
 	padding: 20px;
-}
-
-
-/* LABELS AND VALUES */
-
-div#controls > #labels {
 	display: flex;
 	flex-direction: column;
-	margin-bottom: 20px;
 }
 
-#labels label {
+#controls label {
 	padding: 5px 10px;
 	flex: 1;
 	border-left: 5px solid rgba(0, 0, 0, 0.2);
-	transition: background-color 100ms, border-left-width 100ms, border-left-color 100ms;
+	transition: border-left-width 100ms, border-left-color 100ms;
+	cursor: pointer;
 }
 
-#labels label:nth-child(odd) {
+#controls label:nth-child(odd) {
 	border-left: 5px solid rgba(0, 0, 0, 0.4);
 }
 
-#labels label[disabled="false"] {
+#controls label.expanded {
 	color: black;
 	background-color: var(--accent-color);
 }
 
-#labels label[disabled="true"] {
+#controls label:not(.expanded) {
 	color: var(--text-color);
-	cursor: pointer;
 }
 
-#labels label:hover,
-#labels label[disabled="false"] {
+#controls label:hover,
+#controls label.expanded {
 	border-left: 10px solid var(--text-color);
 }
 
-#labels label > output {
+#controls label > .name {
+	display: block;
+	width: 100%;
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+}
+
+#controls label > output {
 	margin-right: 5px;
 	font-weight: bold;
 }
@@ -55,20 +56,16 @@ div#controls > #labels {
 
 /* SLIDERS */
 
-div#controls > #sliders {
-	position: relative;
-}
-
-div#controls > #sliders input[type=range] {
-	width: 50%;
-	min-width: 200px;
+div#controls input[type=range] {
+	width: 100%;
 	left: 0;
 	right: 0;
-	margin: auto;
-	position: absolute;
+	margin: 10px auto 10px auto;
+	/* transition: transform 200ms, margin 200ms; */
+	background-color: var(--accent-color);
 }
 
-div#controls > #sliders input[type=range]:disabled {
+div#controls label:not(.expanded) input[type=range] {
 	display: none;
 }
 
@@ -77,6 +74,7 @@ input[type=range] {
 	background: none;
 	display: table-cell;
 	vertical-align: middle;
+	cursor: ew-resize;
 }
 
 input[type=range]::-webkit-slider-runnable-track,

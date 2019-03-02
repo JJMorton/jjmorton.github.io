@@ -9,8 +9,9 @@ window.addEventListener("load", function() {
 		mass: 1,
 		b_density: 600,
 		f_density: 1000,
+		f_viscosity: 0.001,
 		elasticity: 0.7,
-		gravity: 9.81,
+		gravity: 9.81
 	};
 
 	// Initial state
@@ -66,7 +67,8 @@ window.addEventListener("load", function() {
 				// Drag
 				const vel2 = Math.pow(state.vel[0], 2) + Math.pow(state.vel[1], 2);
 				if (vel2 > 0) {
-					const drag = 0.5 * 0.47 * params.f_density * vel2 * area;
+					const drag = 6 * Math.PI * params.f_viscosity * radius * Math.sqrt(vel2)
+					             + 0.5 * 0.47 * params.f_density * vel2 * area;
 					acc[0] += (-drag * state.vel[0] / vel2) / params.mass;
 					acc[1] += (-drag * state.vel[1] / vel2) / params.mass;
 				}
@@ -164,11 +166,12 @@ window.addEventListener("load", function() {
 	};
 
 
-	sim.addSlider("ball mass", "kg", params, "mass", 0.1, 5, 0.1);
-	sim.addSlider("ball density", "kg/m^3", params, "b_density", 50, 1500, 10);
-	sim.addSlider("liquid density", "kg/m^3", params, "f_density", 50, 1500, 10);
-	sim.addSlider("elasticity", "", params, "elasticity", 0, 1, 0.01);
-	sim.addSlider("g", "m/s^2", params, "gravity", 0, 20, 0.01);
+	sim.addSlider("Ball Mass", "kg", params, "mass", 0.1, 5, 0.1);
+	sim.addSlider("Ball Density", "kg/m^3", params, "b_density", 50, 1500, 10);
+	sim.addSlider("Liquid Density", "kg/m^3", params, "f_density", 50, 1500, 10);
+	sim.addSlider("Liquid Viscocity", "Pa s", params, "f_viscosity", 0.001, 10, 0.001);
+	sim.addSlider("Elasticity", "", params, "elasticity", 0, 1, 0.01);
+	sim.addSlider("Gravitational Acceleration", "m/s^2", params, "gravity", 0, 20, 0.01);
 	
 
 	sim.start();
