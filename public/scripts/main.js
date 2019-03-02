@@ -2,9 +2,60 @@ class Simulation {
 
 	constructor() {
 
+		// These functions should be set by the simulation
+		this.render = null;
+		this.init = null;
+
+		// Get the canvas element and context
+		this.canvas = document.querySelector("canvas");
+		this.ctx = this.canvas.getContext("2d");
+
+		// Automatically resize the canvas with the window
+		this.resize();
+		window.addEventListener("resize", () => this.resize());
+
+		// Initialise empty array of objects to render
+		this.objects = [];
+
 		// The number of metres that the canvas should cover.
 		this.scale = 5;
-		
+
+
+		// Track mouse and touches through event listeners
+
+		this.mouse = { pressed: -1, x: 0, y: 0 };
+
+		const mousemove = ({ pageX, pageY }) => {
+			this.mouse.x = pageX - this.canvas.offsetLeft;
+			this.mouse.y = pageY - this.canvas.offsetTop;
+			if (this.onmousemove) this.onmousemove();
+		};
+		const mousepress = button => {
+			this.mouse.pressed = button;
+			if (button === -1 && this.onmouseup) this.onmouseup();
+			else if (this.onmousedown) this.onmousedown();
+		};
+
+		window.addEventListener("touchend", () => mousepress(-1));
+		window.addEventListener("mouseup", () => mousepress(-1));
+		this.canvas.addEventListener("touchmove", e => mousemove(e.changedTouches[0]));
+		this.canvas.addEventListener("mousemove", e => mousemove(e));
+		this.canvas.addEventListener("touchstart", e => {
+			mousepress(0);
+			mousemove(e.changedTouches[0]);
+		});
+		this.canvas.addEventListener("mousedown", e => {
+			mousepress(e.button);
+			mousemove(e);
+		});
+
+	}
+
+
+
+	// Initialising canvas properties
+
+	setColours() {
 		// Get colours defined on root element in css
 		const style = window.getComputedStyle(document.documentElement);
 		this.colours = {
@@ -12,66 +63,18 @@ class Simulation {
 			foreground: style.getPropertyValue("--text-color"),
 			accent: style.getPropertyValue("--accent-color")
 		};
-
-		// These functions should be set by the simulation
-		this.render = null;
-		this.init = null;
-
-
-		// Get the canvas element and context
-		this.canvas = document.querySelector("canvas");
-		this.ctx = this.canvas.getContext("2d");
-
-		// Automatically resize the canvas with the window
-		const resizeCanvas = () => {
-			const size = Math.min(window.innerHeight * 0.7, document.body.clientWidth);
-			this.canvas.width = size;
-			this.canvas.height = size;
-		};
-		resizeCanvas();
-		window.addEventListener("resize", resizeCanvas);
-
-		// Track mouse and touches
-		this.mouse = { pressed: -1, x: 0, y: 0 };
-		this.canvas.addEventListener("click", e => {
-			if (this.onlick) this.onclick();
-		});
-		this.canvas.addEventListener("touchstart", e => {
-			this.mouse.pressed = 0;
-			this.mouse.x = e.changedTouches[0].pageX - this.canvas.offsetLeft;
-			this.mouse.y = e.changedTouches[0].pageY - this.canvas.offsetTop;
-			if (this.onmousedown) this.onmousedown();
-		});
-		this.canvas.addEventListener("mousedown", e => {
-			this.mouse.pressed = e.button;
-			if (this.onmousedown) this.onmousedown();
-		});
-		window.addEventListener("touchend", () => {
-			this.mouse.pressed = -1;
-			if (this.onmouseup) this.onmouseup();
-		});
-		window.addEventListener("mouseup", e => {
-			/*
-			 * Listen for this on the window to prevent issues when the mouse is
-			 * dragged outside of the canvas.
-			 */
-			this.mouse.pressed = -1;
-			if (this.onmouseup) this.onmouseup();
-		});
-		this.canvas.addEventListener("touchmove", e => {
-			this.mouse.x = e.changedTouches[0].pageX - this.canvas.offsetLeft;
-			this.mouse.y = e.changedTouches[0].pageY - this.canvas.offsetTop;
-			if (this.onmousemove) this.onmousemove();
-		});
-		this.canvas.addEventListener("mousemove", e => {
-			this.mouse.x = e.pageX - this.canvas.offsetLeft;
-			this.mouse.y = e.pageY - this.canvas.offsetTop;
-			if (this.onmousemove) this.onmousemove();
-		});
-
+		
 		// Init colours
 		this.ctx.strokeStyle = this.colours.accent;
 		this.ctx.fillStyle = this.colours.foreground;
+	}
+
+	resize() {
+		const size = Math.min(window.innerHeight * 0.7, document.body.clientWidth);
+		this.canvas.width = size;
+		this.canvas.height = size;
+		this.setColours();
+		return this.canvas;
 	}
 
 	
@@ -95,6 +98,7 @@ class Simulation {
 	mToPerc(m) {
 		return this.pxToPerc(this.mToPx(m));
 	}
+
 
 	addButton(label, func) {
 		const container = document.getElementById("controls");
@@ -121,9 +125,10 @@ class Simulation {
 		});
 	}
 
+
 	start() {
 
-		const beginRender = () => {
+		const render = () => {
 			// We want all the units in seconds, to make other units more realistic
 			const time = performance.now() / 1000 - this.timeStart;
 			this.delta = time - this.time;
@@ -139,8 +144,10 @@ class Simulation {
 			 * second, nothing will animate. But things would get weird
 			 * at very low framerates anyway.
 			 */
-			if (this.render && 1 / this.delta > 10) this.render();
-			window.requestAnimationFrame(beginRender);
+			if (this.render && 1 / this.delta >= 10) {
+				this.render();
+			}
+			window.requestAnimationFrame(render);
 		}
 
 		// Start animation loop
@@ -148,6 +155,6 @@ class Simulation {
 		this.delta = 0;
 		this.time = this.timeStart;
 		if (this.init) this.init();
-		beginRender();
+		render();
 	}
 }
