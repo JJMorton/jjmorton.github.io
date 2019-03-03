@@ -15,6 +15,7 @@ canvas {
 }
 
 #controls label {
+	font-family: var(--font-family);
 	padding: 5px 10px;
 	flex: 1;
 	border-left: 5px solid rgba(0, 0, 0, 0.2);
