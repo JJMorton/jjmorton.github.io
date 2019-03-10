@@ -125,7 +125,7 @@ window.addEventListener("load", function() {
 				const centreLineStart = objGeo.y2 - objGeo.x2 * centreGrad;
 
 				// Draw the two lines, dotted
-				sim.ctx.setLineDash([5, 5]);
+				sim.ctx.setLineDash([5, 10]);
 				drawLine(c, 0, focalLineStart, CENTRE, objGeo.y2).stroke();
 				drawLine(c, 0, centreLineStart, objGeo.x2, objGeo.y2).stroke();
 				sim.ctx.setLineDash([]);
