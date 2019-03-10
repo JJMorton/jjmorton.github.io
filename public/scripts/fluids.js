@@ -18,6 +18,7 @@ window.addEventListener("load", function() {
 	const state = {
 		pos: [ sim.percToM(50), sim.percToM(30) ],
 		vel: [ 0, 0 ],
+		acc: [ 0, 0 ],
 		getVolume: () => params.mass / params.b_density,
 		getRadius: () => Math.cbrt(3/(4 * Math.PI) * state.getVolume()),
 		getArea: () => Math.PI * Math.pow(state.getRadius(), 2)
@@ -27,6 +28,37 @@ window.addEventListener("load", function() {
 	const regions = [
 		[ 0, 50, 100, 50 ]
 	];
+
+	const getRegionIntersect = function([x, y, w, h], radius) {
+		// Made complicated by handling the cases where the ball is not fully submerged
+		const isAbove = state.pos[1] - radius < y;
+		const isBelow = state.pos[1] + radius > y + h;
+		let volume;
+		if (isAbove && isBelow) {
+			const r1 = Math.pow(radius, 2) - Math.pow(state.pos[1] - y, 2);
+			const r2 = Math.pow(radius, 2) - Math.pow(state.pos[1] - y + h, 2);
+			volume = 1/6 * Math.PI * h * (3 * r1 + 3 * r2 + Math.pow(h, 2));
+		} else if (isAbove) {
+			const rel_h = state.pos[1] + radius - y;
+			volume = 1/3 * Math.PI * Math.pow(rel_h, 2) * (3 * radius - rel_h);
+		} else if (isBelow) {
+			const rel_h = y + h - state.pos[1] - radius;
+			volume = 1/3 * Math.PI * Math.pow(rel_h, 2) * (3 * radius - rel_h);
+		} else {
+			volume = state.getVolume();
+		}
+		return volume;
+	};
+
+	const getFluidDrag = function([x, y, w, h], radius, area) {
+		const vel2 = Math.pow(state.vel[0], 2) + Math.pow(state.vel[1], 2);
+		if (vel2 > 0) {
+			const drag = 6 * Math.PI * params.f_viscosity * radius / Math.sqrt(vel2)
+			             + 0.5 * 0.47 * params.f_density * area;
+			return drag;
+		}
+		return 0;
+	};
 
 	const getAcc = function() {
 
@@ -43,35 +75,15 @@ window.addEventListener("load", function() {
 				y <= state.pos[1] + radius && y + h >= state.pos[1] - radius ;
 
 			if (inside) {
-
+				
 				// Upthrust
-				// Made complicated by handling the cases where the ball is not fully submerged
-				const isAbove = state.pos[1] - radius < y;
-				const isBelow = state.pos[1] + radius > y + h;
-				let volume;
-				if (isAbove && isBelow) {
-					const r1 = Math.pow(radius, 2) - Math.pow(state.pos[1] - y, 2);
-					const r2 = Math.pow(radius, 2) - Math.pow(state.pos[1] - y + h, 2);
-					volume = 1/6 * Math.PI * h * (3 * r1 + 3 * r2 + Math.pow(h, 2));
-				} else if (isAbove) {
-					const rel_h = state.pos[1] + radius - y;
-					volume = 1/3 * Math.PI * Math.pow(rel_h, 2) * (3 * radius - rel_h);
-				} else if (isBelow) {
-					const rel_h = y + h - state.pos[1] - radius;
-					volume = 1/3 * Math.PI * Math.pow(rel_h, 2) * (3 * radius - rel_h);
-				} else {
-					volume = state.getVolume();
-				}
-				acc[1] += -params.f_density * volume * params.gravity / params.mass;
+				const volume = getRegionIntersect([x, y, w, h], radius);
+				acc[1] -= params.f_density * volume * params.gravity / params.mass;
 				
 				// Drag
-				const vel2 = Math.pow(state.vel[0], 2) + Math.pow(state.vel[1], 2);
-				if (vel2 > 0) {
-					const drag = 6 * Math.PI * params.f_viscosity * radius * Math.sqrt(vel2)
-					             + 0.5 * 0.47 * params.f_density * vel2 * area;
-					acc[0] += (-drag * state.vel[0] / vel2) / params.mass;
-					acc[1] += (-drag * state.vel[1] / vel2) / params.mass;
-				}
+				const drag = getFluidDrag([x, y, w, h], radius, area);
+				acc[0] -= (drag * state.vel[0]) / params.mass;
+				acc[1] -= (drag * state.vel[1]) / params.mass;
 			}
 		});
 
@@ -81,18 +93,23 @@ window.addEventListener("load", function() {
 
 	sim.render = function() {
 
+		// Update acceleration
+		state.acc = getAcc();
+
 		// Calculate new position
-		const acc = getAcc();
 		if (sim.mouse.pressed === 0) {
 			state.vel = [0, 0]
 		} else {
-			state.vel[0] += acc[0] * sim.delta;
-			state.vel[1] += acc[1] * sim.delta;
+			state.vel[0] += state.acc[0] * sim.delta;
+			state.vel[1] += state.acc[1] * sim.delta;
 			state.pos[0] += state.vel[0] * sim.delta;
 			state.pos[1] += state.vel[1] * sim.delta;
 		}
 		
-		const pos = [ sim.mToPx(state.pos[0]), sim.mToPx(state.pos[1]) ];
+		const pos = [
+			sim.mToPx(state.pos[0]),
+			sim.mToPx(state.pos[1])
+		];
 		const radius = sim.mToPx(state.getRadius());
 
 		// Check collisions
@@ -154,7 +171,10 @@ window.addEventListener("load", function() {
 	let mouseDownPos = { x: 0, y: 0 };
 	sim.onmousedown = function() {
 		mouseDownPos = { x: sim.mouse.x, y: sim.mouse.y };
-		state.pos = [sim.pxToM(sim.mouse.x), sim.pxToM(sim.mouse.y)];
+		state.pos = [
+			sim.pxToM(sim.mouse.x),
+			sim.pxToM(sim.mouse.y)
+		];
 	};
 	sim.onmouseup = function() {
 		if (!mouseDownPos.x || !mouseDownPos.y) return;

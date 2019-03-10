@@ -10,8 +10,8 @@
 		"href": "/simulations/oscillations"
 	},
 	{
-		"title": "Placeholder",
-		"description": "This is a placeholder",
-		"href": ""
+		"title": "Lenses",
+		"description": "Simulate a lens with adjustable properties",
+		"href": "/simulations/lenses"
 	}
 ]

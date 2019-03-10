@@ -19,7 +19,7 @@ window.addEventListener("load", function() {
 		 * ridiculous displacements for the driver.
 		 */
 	};
-	
+
 	// Initial state
 	const state = {
 		pos: 1,

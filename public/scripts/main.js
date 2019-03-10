@@ -81,28 +81,6 @@ class Simulation {
 		return this.canvas;
 	}
 
-	
-	// Conversions between distances
-
-	mToPx(metres) {
-		return this.canvas.height * metres / this.scale;
-	}
-	pxToM(px) {
-		return px / this.canvas.height * this.scale;
-	}
-	percToPx(perc) {
-		return this.canvas.height * perc / 100;
-	}
-	pxToPerc(px) {
-		return px / this.canvas.height * 100;
-	}
-	percToM(perc) {
-		return this.pxToM(this.percToPx(perc));
-	}
-	mToPerc(m) {
-		return this.pxToPerc(this.mToPx(m));
-	}
-
 
 	addButton(label, func) {
 		const container = document.getElementById("controls");
@@ -174,7 +152,7 @@ class Simulation {
 			 * at very low framerates anyway.
 			 */
 			if (this.render && 1 / this.delta >= 10) {
-				this.render();
+				this.render(this.ctx);
 			}
 			window.requestAnimationFrame(render);
 		}
@@ -186,4 +164,26 @@ class Simulation {
 		if (this.init) this.init();
 		render();
 	}
+
+	// Conversions between distances
+	
+	mToPx(metres) {
+		return this.canvas.height * metres / this.scale;
+	}
+	pxToM(px) {
+		return px / this.canvas.height * this.scale;
+	}
+	percToPx(perc) {
+		return this.canvas.height * perc / 100;
+	}
+	pxToPerc(px) {
+		return px / this.canvas.height * 100;
+	}
+	percToM(perc) {
+		return this.pxToM(this.percToPx(perc));
+	}
+	mToPerc(m) {
+		return this.pxToPerc(this.mToPx(m));
+	}
 }
+
