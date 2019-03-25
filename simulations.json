@@ -13,10 +13,5 @@
 		"title": "Lenses",
 		"description": "Simulate a lens with adjustable properties",
 		"id": "lenses"
-	},
-	{
-		"title": "Elastic Bonds",
-		"description": "A lattice of particles with elastic bonds",
-		"id": "bonds"
 	}
 ]
