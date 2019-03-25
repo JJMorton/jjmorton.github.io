@@ -137,11 +137,16 @@ window.addEventListener("load", function() {
 		drawArc(c, CENTRE - sim.mToPx(params.focal_length), CENTRE, 3, 0, 2 * Math.PI).fill();
 	};
 
-	sim.addSlider("Focal length", "m", params, "focal_length", -0.75, 0.75, 0.05);
-	sim.addSlider("Refractive Index", "", params, "ref_index", 1.3, 3, 0.01);
-	sim.addSlider("Object Distance", "m", params, "object_pos", 0, 2, 0.005);
-	sim.addSlider("Object Size", "m", params, "object_height", 0.05, 0.3, 0.01);
-	sim.addSlider("Scale", "m", sim, "scale", 0.05, 5, 0.01);
+	sim.addSlider("Focal length", "m", params.focal_length, -0.75, 0.75, 0.05)
+		.addEventListener("update", e => params.focal_length = e.detail);
+	// sim.addSlider("Refractive Index", "", params.ref_index, 1.3, 3, 0.01)
+	// 	.addEventListener("update", e => params.ref_index = e.detail);
+	sim.addSlider("Object Distance", "m", params.object_pos, 0, 2, 0.005)
+		.addEventListener("update", e => params.object_pos = e.detail);
+	sim.addSlider("Object Size", "m", params.object_height, 0.05, 0.3, 0.01)
+		.addEventListener("update", e => params.object_height = e.detail);
+	sim.addSlider("Scale", "m", sim.scale, 0.05, 5, 0.01)
+		.addEventListener("update", e => sim.scale = e.detail);
 
 	sim.start();
 

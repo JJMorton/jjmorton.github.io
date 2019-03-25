@@ -21,11 +21,11 @@ app.get("/simulations", (req, res) => {
 });
 
 for (const sim of simulations) {
-	app.get(sim.href, (req, res) => {
+	app.get(`/simulations/${sim.id}`, (req, res) => {
 		res.render("simulation", {
 			title: `Simulation - ${sim.title}`,
 			description: sim.description,
-			script: `${sim.title.toLowerCase()}.js`
+			script: `${sim.id}.js`
 		});
 	});
 }

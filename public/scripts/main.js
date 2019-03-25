@@ -89,29 +89,28 @@ class Simulation {
 		container.appendChild(btn);
 	}
 
-	addSlider(name, units, obj, prop, min, max, step) {
-		const id = `range-${prop}`;
+	addSlider(name, units, init, min, max, step, setter) {
+		const id = "range-" + name.replace(' ', '-');
 		const container = document.getElementById("controls");
 		
-		// Create the slider with its labels
-		const slider = strToElt(`
-			<input
-				type="range"
-				id="${id}"
-				min="${min}"
-				max="${max}"
-				step="${step}" 
-				value="${obj[prop]}"
-			/>
+		// Create the DOM elements
+		const label = strToElt(`
+			<label for="${id}">
+				<span class="name">${name}</span>
+				<output for="${id}">${init}</output>
+				<span class="units">${units}</span>
+				<input
+					type="range"
+					id="${id}"
+					min="${min}"
+					max="${max}"
+					step="${step}" 
+					value="${init}"
+				/>
+			</label>
 		`);
-		const label = strToElt(`<label for="${id}"></label>`);
-		const namelabel = strToElt(`<span class="name">${name}<br></span>`);
-		const outputlabel = strToElt(`<output for="${id}">${obj[prop]}</output>`);
-		const unitslabel = strToElt(`<span class="units">${units}</span>`);
-		label.appendChild(namelabel);
-		label.appendChild(outputlabel);
-		label.appendChild(unitslabel);
-		label.appendChild(slider);
+		const slider = label.querySelector("input");
+		const output = label.querySelector("output");
 
 		// Add them to the document
 		container.appendChild(label);
@@ -128,8 +127,11 @@ class Simulation {
 		
 		// Change the label and the object property on input
 		slider.addEventListener("input", e => {
-			outputlabel.textContent = obj[prop] = parseFloat(e.target.value);
+			output.textContent = e.target.value;
+			slider.dispatchEvent(new CustomEvent("update", { detail: e.target.valueAsNumber }));
 		});
+
+		return slider;
 	}
 
 
