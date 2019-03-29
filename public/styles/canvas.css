@@ -7,6 +7,18 @@ canvas {
 	box-sizing: border-box;
 }
 
+.left-border {
+	border-left: 5px solid rgba(0, 0, 0, 0.4);
+	border-color: rgba(0, 0, 0, 0.4);
+	transition: border-left-width 100ms, border-color 100ms;
+}
+
+.left-border:hover,
+.left-border.expanded {
+	border-left-width: 10px !important;
+	border-color: var(--text-color) !important;
+}
+
 #controls {
 	margin: 20px 0;
 	padding: 20px;
@@ -14,34 +26,27 @@ canvas {
 	flex-direction: column;
 }
 
-#controls label {
+#controls label.slider {
 	font-family: var(--font-family);
 	padding: 5px 10px;
 	flex: 1;
-	border-left: 5px solid rgba(0, 0, 0, 0.2);
-	transition: border-left-width 100ms, border-left-color 100ms;
 	cursor: pointer;
 }
 
-#controls label:nth-child(odd) {
-	border-left: 5px solid rgba(0, 0, 0, 0.4);
+#controls label.slider:not(:hover):nth-child(odd) {
+	border-left: 5px solid rgba(0, 0, 0, 0.2);
 }
 
-#controls label.expanded {
+#controls label.slider.expanded {
 	color: black;
 	background-color: var(--accent-color);
 }
 
-#controls label:not(.expanded) {
+#controls label.slider:not(.expanded) {
 	color: var(--text-color);
 }
 
-#controls label:hover,
-#controls label.expanded {
-	border-left: 10px solid var(--text-color);
-}
-
-#controls label > .name {
+#controls label.slider > .name {
 	display: block;
 	width: 100%;
 	overflow: hidden;
@@ -49,7 +54,7 @@ canvas {
 	text-overflow: ellipsis;
 }
 
-#controls label > output {
+#controls label.slider > output {
 	margin-right: 5px;
 	font-weight: bold;
 }
@@ -62,11 +67,10 @@ div#controls input[type=range] {
 	left: 0;
 	right: 0;
 	margin: 10px auto 10px auto;
-	/* transition: transform 200ms, margin 200ms; */
 	background-color: var(--accent-color);
 }
 
-div#controls label:not(.expanded) input[type=range] {
+div#controls label.slider:not(.expanded) input[type=range] {
 	display: none;
 }
 
@@ -104,24 +108,85 @@ input[type=range]:focus::-webkit-slider-runnable-track {
     background: #ccc;
 }
 
+/* BUTTONS */
+
+.control-group {
+	display: flex;
+	flex-direction: row;
+}
+
+.control-group > * {
+	flex: 1;
+}
+
 button {
-	border: 3px solid var(--text-color);
-	border-radius: 0;
-	background-color: var(--background-color);
 	color: var(--text-color);
 	font-family: var(--font-family);
 	padding: 1em;
-	margin: 0 20px;
+	left: 0; right: 0;
+	margin: 0 auto;
+	border-radius: 0;
+	background-color: var(--background-color);
+	width: 100%;
 }
 
-button:not(:disabled):active {
-	transform: translate(2px, 2px);
+.button {
+	border: 2px solid rgba(0, 0, 0, 0.4);
+	max-width: 400px;
+	margin: 10px auto;
 }
 
-button:not(disabled):hover {
+.button:disabled {
+	border-color: transparent;
+	cursor: default;
+}
+
+.button:not(:disabled):active {
+	transform: translate(1px, 0);
 	background-color: var(--accent-color);
 }
 
 button::-moz-focus-inner {
 	border: none;
 }
+
+/* SELECTOR */
+
+.selector {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	width: 100%;
+	max-width: 400px;
+	left: 0; right: 0;
+	margin: 10px auto;
+}
+
+.selector .selector-name {
+	text-align: right;
+	margin-right: 2px;
+	font-family: var(--font-family);
+}
+
+.selector output {
+	margin-left: 2px;
+}
+
+.selector .selector-name,
+.selector output {
+	flex: 1;
+}
+
+.selector button:disabled {
+	color: transparent;
+}
+
+.selector button {
+	flex: 0;
+	border: none;
+}
+
+.selector button:not(:disabled) {
+	cursor: pointer;
+}
+

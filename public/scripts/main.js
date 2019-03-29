@@ -82,20 +82,31 @@ class Simulation {
 	}
 
 
-	addButton(label, func) {
+	groupControls(elts) {
 		const container = document.getElementById("controls");
-		const btn = strToElt(`<button>${label}</button>`);
-		btn.addEventListener("click", func);
-		container.appendChild(btn);
+		const innerContainer = strToElt(`<div class="control-group"></div>`);
+		for (const elt of elts) {
+			console.log(elt);
+			innerContainer.appendChild(elt);
+		}
+		container.appendChild(innerContainer);
 	}
 
-	addSlider(name, units, init, min, max, step, setter) {
-		const id = "range-" + name.replace(' ', '-');
+	addButton(label, func) {
+		const container = document.getElementById("controls");
+		const btn = strToElt(`<button class="button left-border">${label}</button>`);
+		btn.addEventListener("click", func);
+		container.appendChild(btn);
+		return btn;
+	}
+
+	addSlider(name, units, init, min, max, step) {
+		const id = "range-" + name.toLowerCase().replace(' ', '-');
 		const container = document.getElementById("controls");
 		
 		// Create the DOM elements
 		const label = strToElt(`
-			<label for="${id}">
+			<label class="slider left-border" for="${id}">
 				<span class="name">${name}</span>
 				<output for="${id}">${init}</output>
 				<span class="units">${units}</span>
@@ -126,12 +137,57 @@ class Simulation {
 		});
 		
 		// Change the label and the object property on input
-		slider.addEventListener("input", e => {
-			output.textContent = e.target.value;
-			slider.dispatchEvent(new CustomEvent("update", { detail: e.target.valueAsNumber }));
-		});
+		const inputHandler = val => {
+			output.textContent = val;
+			slider.dispatchEvent(new CustomEvent("update", { detail: val }));
+		};
+		slider.addEventListener("input", e => inputHandler(e.target.valueAsNumber))
+		slider.update = val => {
+			slider.value = val;
+			inputHandler(val);
+		};
 
 		return slider;
+	}
+
+	addSelector(name, arr, init) {
+	
+		const id = "selector-" + name.toLowerCase().replace(' ', '-');
+		const container = document.getElementById("controls");
+
+		const label = strToElt(`
+			<label class="selector" for="${id}">
+				<button class="selector-left selector-arrow">&lt;</button>
+				<span class="selector-label">
+					<span class="selector-name">${name}</span>
+					<output>${init}</output>
+				</span>
+				<button class="selector-right selector-arrow">&gt;</button>
+			</label>
+		`);
+
+		const validateValue = value => value >= 1 && value <= arr.length;
+		const dispatchUpdate = adjustment => {
+			// Map to zero-based range
+			label.dispatchEvent(new CustomEvent("update", { detail: adjustment }));
+		};
+
+		const leftArrow = label.querySelector(".selector-left");
+		const rightArrow = label.querySelector(".selector-right");
+		const output = label.querySelector("output");
+		leftArrow.addEventListener("click", () => dispatchUpdate(-1));
+		rightArrow.addEventListener("click", () => dispatchUpdate(1));
+
+		label.updateDisplay = value => {
+			if (!validateValue(value)) return;
+			leftArrow.disabled = !validateValue(value - 1);
+			rightArrow.disabled = !validateValue(value + 1);
+			output.value = value;
+		};
+
+		container.appendChild(label);
+
+		return label;
 	}
 
 
