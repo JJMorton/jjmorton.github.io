@@ -13,5 +13,10 @@
 		"title": "Lenses",
 		"description": "Simulate a lens with adjustable properties",
 		"id": "lenses"
+	},
+	{
+		"title": "Wave packets",
+		"description": "See how waves interact when they interfere, and how adding many waves together can create a wave packet",
+		"id": "wavepackets"
 	}
 ]
