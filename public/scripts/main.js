@@ -86,7 +86,6 @@ class Simulation {
 		const container = document.getElementById("controls");
 		const innerContainer = strToElt(`<div class="control-group"></div>`);
 		for (const elt of elts) {
-			console.log(elt);
 			innerContainer.appendChild(elt);
 		}
 		container.appendChild(innerContainer);
@@ -94,7 +93,7 @@ class Simulation {
 
 	addButton(label, func) {
 		const container = document.getElementById("controls");
-		const btn = strToElt(`<button class="button left-border">${label}</button>`);
+		const btn = strToElt(`<button class="button box-shadow">${label}</button>`);
 		btn.addEventListener("click", func);
 		container.appendChild(btn);
 		return btn;
@@ -157,12 +156,12 @@ class Simulation {
 
 		const label = strToElt(`
 			<label class="selector" for="${id}">
-				<button class="selector-left selector-arrow">&lt;</button>
+				<button class="selector-left box-shadow">&lt;</button>
 				<span class="selector-label">
 					<span class="selector-name">${name}</span>
 					<output>${init}</output>
 				</span>
-				<button class="selector-right selector-arrow">&gt;</button>
+				<button class="selector-right box-shadow">&gt;</button>
 			</label>
 		`);
 

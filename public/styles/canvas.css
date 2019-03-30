@@ -128,26 +128,30 @@ button {
 	border-radius: 0;
 	background-color: var(--background-color);
 	width: 100%;
-}
-
-.button {
 	border: 2px solid rgba(0, 0, 0, 0.4);
-	max-width: 400px;
-	margin: 10px auto;
 }
 
-.button:disabled {
+button:not(:disabled):hover {
+	background-color: var(--accent-color);
+}
+
+button:not(:disabled):active {
+	transform: translate(1px, 0);
+}
+
+button:disabled {
 	border-color: transparent;
 	cursor: default;
-}
-
-.button:not(:disabled):active {
-	transform: translate(1px, 0);
-	background-color: var(--accent-color);
+	box-shadow: none;
 }
 
 button::-moz-focus-inner {
 	border: none;
+}
+
+.button {
+	max-width: 400px;
+	margin: 10px auto;
 }
 
 /* SELECTOR */
@@ -165,16 +169,18 @@ button::-moz-focus-inner {
 .selector .selector-name {
 	text-align: right;
 	margin-right: 2px;
-	font-family: var(--font-family);
 }
 
 .selector output {
 	margin-left: 2px;
+	font-size: 120%;
+	font-weight: bold;
 }
 
 .selector .selector-name,
 .selector output {
 	flex: 1;
+	font-family: var(--font-family);
 }
 
 .selector button:disabled {
@@ -183,7 +189,6 @@ button::-moz-focus-inner {
 
 .selector button {
 	flex: 0;
-	border: none;
 }
 
 .selector button:not(:disabled) {
