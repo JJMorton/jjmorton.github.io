@@ -79,6 +79,7 @@ window.addEventListener("load", function() {
 		c.clearRect(0, 0, sim.canvas.width, sim.canvas.height);
 		c.globalAlpha = 0.3;
 		const halfHeight = sim.canvas.height / 2;
+		const halfWidth = sim.canvas.width / 2;
 		let sums = new Array(sim.canvas.width);
 		sums.fill(0);
 		for (const wave of state.waves) {
@@ -88,7 +89,7 @@ window.addEventListener("load", function() {
 			if (drawWave) c.moveTo(0, halfHeight + sim.mToPx(origin));
 			sums[0] += origin;
 			for (let x = 1; x < sim.canvas.width; x++) {
-				const y = getDisplacement(wave, sim.pxToM(x), sim.time);
+				const y = getDisplacement(wave, sim.pxToM(x - halfWidth), sim.time);
 				sums[x] += y;
 				if (drawWave) c.lineTo(x, halfHeight + sim.mToPx(y));
 			}
