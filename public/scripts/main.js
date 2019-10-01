@@ -52,6 +52,9 @@ class Simulation {
 			mousepress(e.button);
 			e.preventDefault();
 		});
+        this.canvas.addEventListener("contextmenu", e => {
+            e.preventDefault();
+        });
 
 	}
 
