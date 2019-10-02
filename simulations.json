@@ -20,7 +20,7 @@
         "id": "wavepackets"
     },
     {
-        "title": "Electric Field Lines",
+        "title": "Electric Field Lines (beta)",
         "description": "Visualise electric field lines from multiple point sources",
         "id": "fieldlines"
     }
