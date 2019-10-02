@@ -27,6 +27,7 @@ class Simulation {
 
 		this.mouse = { pressed: -1, x: 0, y: 0 };
 
+        // These two functions are called from the event listeners when needed
 		const mousemove = ({ pageX, pageY }) => {
 			this.mouse.x = pageX - this.canvas.offsetLeft;
 			this.mouse.y = pageY - this.canvas.offsetTop;
@@ -93,6 +94,13 @@ class Simulation {
 		}
 		container.appendChild(innerContainer);
 	}
+
+    addProgressBar(label) {
+        const container = document.getElementById("controls");
+        const progress = strToElt(`<progress max="100" value="0">${label}</progress>`);
+        container.appendChild(progress);
+        return progress;
+    }
 
 	addButton(label, func) {
 		const container = document.getElementById("controls");

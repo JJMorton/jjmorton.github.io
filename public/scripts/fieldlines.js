@@ -5,17 +5,17 @@ window.addEventListener("load", function() {
     const sim = new Simulation();
 
     const params = {
-        maxcharges: 5,
+        maxcharges: 4,
         chargeradius: 0.05,
         particlecount: 50, // Number of particles tracing out from each charge
         stepcount: 1000, // How many times the particles are moved
         stepsize: 0.01, // How far they move each time
-        stepbatchsize: 5 // How many steps per frame
     };
 
     const state = {
         charges: [],
-        clearcanvas: false
+        drawcanvas: false,
+        progress: 0
     };
 
     // Every particle keeps all its previous positions in its 'path' property
@@ -59,6 +59,7 @@ window.addEventListener("load", function() {
     };
 
     const addToPaths = function(charge) {
+        // Adds one step to every particle's path
         const particlecharge = -Math.sign(charge.strength);
 
         for (const particle of charge.particles) {
@@ -89,6 +90,15 @@ window.addEventListener("load", function() {
 
     };
 
+    const createAllPaths = function() {
+        for (let i = 0; i < params.stepcount; i++) {
+            for (const charge of state.charges) {
+                addToPaths(charge);
+            }
+        }
+        state.drawcanvas = true;
+    };
+
     sim.canvas.addEventListener("mousedown", function(e) {
         const x = sim.pxToM(sim.mouse.x);
         const y = sim.pxToM(sim.mouse.y);
@@ -99,37 +109,42 @@ window.addEventListener("load", function() {
         for (const charge of state.charges) {
             createParticles(charge);
         }
-        state.clearcanvas = true;
+
+        createAllPaths();
+    });
+    
+    window.addEventListener("resize", function() {
+        state.drawcanvas = true;
     });
 
     sim.render = function() {
         const c = sim.ctx;
-        if (state.clearcanvas) {
-            state.clearcanvas = false;
-            c.clearRect(0, 0, c.canvas.width, c.canvas.height);
+        if (!state.drawcanvas) return;
+        state.drawcanvas = false;
+
+        c.clearRect(0, 0, c.canvas.width, c.canvas.height);
+
+        for (const charge of state.charges) {
+
+            c.beginPath();
+            for (const particle of charge.particles) {
+                const point = particle.path[0];
+                c.moveTo(sim.mToPx(point.x), sim.mToPx(point.y));
+                for (let i = 1; i < particle.path.length; i++) {
+                    const p = particle.path[i];
+                    c.lineTo(sim.mToPx(p.x), sim.mToPx(p.y));
+                }
+            }
+            c.stroke();
+            c.closePath();
         }
 
-        for (let i = 0; i < params.stepbatchsize; i++) {
-            for (const charge of state.charges) {
-                if (charge.pathlength < params.stepcount) {
-                    addToPaths(charge);
-                    c.beginPath();
-                    for (const particle of charge.particles) {
-                        if (particle.path.length === 0) continue;
-                        const p1 = particle.path[particle.path.length - 1];
-                        const p2 = particle.pos;
-                        c.moveTo(sim.mToPx(p1.x), sim.mToPx(p1.y));
-                        c.lineTo(sim.mToPx(p2.x), sim.mToPx(p2.y));
-                    }
-                    c.stroke();
-                    c.closePath();
-                }
-                c.beginPath();
-                c.arc(sim.mToPx(charge.pos.x), sim.mToPx(charge.pos.y), sim.mToPx(params.chargeradius), 0, 2 * Math.PI);
-                c.closePath();
-                c.fillStyle = charge.strength > 0 ? "#ff0000" : "#0000ff";
-                c.fill();
-            }
+        for (const charge of state.charges) {
+            c.beginPath();
+            c.arc(sim.mToPx(charge.pos.x), sim.mToPx(charge.pos.y), sim.mToPx(params.chargeradius), 0, 2 * Math.PI);
+            c.closePath();
+            c.fillStyle = charge.strength > 0 ? "#ff0000" : "#0000ff";
+            c.fill();
         }
 
     };
