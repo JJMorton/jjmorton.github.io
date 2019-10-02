@@ -1,22 +1,27 @@
 [
-	{
-		"title": "Fluids",
-		"description": "Drop a ball in a fluid and observe the effects of drag, upthrust and the viscosity.",
-		"id": "fluids"
-	},
-	{
-		"title": "Oscillations",
-		"description": "Simulate an oscillating spring with optional damping and a driving force",
-		"id": "oscillations"
-	},
-	{
-		"title": "Lenses",
-		"description": "Simulate a lens with adjustable properties",
-		"id": "lenses"
-	},
-	{
-		"title": "Wave packets",
-		"description": "See how waves interact when they interfere, and how adding many waves together can create a wave packet",
-		"id": "wavepackets"
-	}
+    {
+        "title": "Fluids",
+        "description": "Drop a ball in a fluid and observe the effects of drag, upthrust and the viscosity.",
+        "id": "fluids"
+    },
+    {
+        "title": "Oscillations",
+        "description": "Simulate an oscillating spring with optional damping and a driving force",
+        "id": "oscillations"
+    },
+    {
+        "title": "Lenses",
+        "description": "Simulate a lens with adjustable properties",
+        "id": "lenses"
+    },
+    {
+        "title": "Wave packets",
+        "description": "See how waves interact when they interfere, and how adding many waves together can create a wave packet",
+        "id": "wavepackets"
+    },
+    {
+        "title": "Electric Field Lines (beta)",
+        "description": "Visualise electric field lines from multiple point sources",
+        "id": "fieldlines"
+    }
 ]
