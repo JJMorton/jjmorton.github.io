@@ -3,31 +3,36 @@ const strToElt = str => new DOMParser().parseFromString(str, "text/html").body.f
 class Simulation {
 
 	constructor() {
-
-		// These functions should be set by the simulation
+		// These functions should be set by the simulation using this class
 		this.render = null;
 		this.init = null;
 
-		// Get the canvas element and context
+		// Get the canvas element and drawing context
 		this.canvas = document.querySelector("canvas");
 		this.ctx = this.canvas.getContext("2d");
+
+		// Get colours defined on root element in css
+		const style = window.getComputedStyle(document.documentElement);
+		this.colours = {
+			background: style.getPropertyValue("--background-color"),
+			foreground: style.getPropertyValue("--text-color"),
+			accent: style.getPropertyValue("--accent-color")
+		};
 
 		// Automatically resize the canvas with the window
 		this.resize();
 		window.addEventListener("resize", () => this.resize());
 		
-		// The sliders in the controls panel
+		// The sliders, buttons etc in the controls panel
 		this.controls = [];
 
 		// The number of metres that the canvas should cover.
 		this.scale = 5;
 
-
 		// Track mouse and touches through event listeners
-
 		this.mouse = { pressed: -1, x: 0, y: 0 };
 
-        // These two functions are called from the event listeners when needed
+		// These two functions are called from the event listeners when needed
 		const mousemove = ({ pageX, pageY }) => {
 			this.mouse.x = pageX - this.canvas.offsetLeft;
 			this.mouse.y = pageY - this.canvas.offsetTop;
@@ -39,6 +44,7 @@ class Simulation {
 			else if (this.onmousedown) this.onmousedown();
 		};
 
+		// Attach all the event listeners for inputs from the user
 		window.addEventListener("touchend", () => mousepress(-1));
 		window.addEventListener("mouseup", () => mousepress(-1));
 		this.canvas.addEventListener("touchmove", e => mousemove(e.changedTouches[0]));
@@ -53,40 +59,91 @@ class Simulation {
 			mousepress(e.button);
 			e.preventDefault();
 		});
-        this.canvas.addEventListener("contextmenu", e => {
-            e.preventDefault();
-        });
-
-	}
-
-
-
-	// Initialising canvas properties
-
-	setColours() {
-		// Get colours defined on root element in css
-		const style = window.getComputedStyle(document.documentElement);
-		this.colours = {
-			background: style.getPropertyValue("--background-color"),
-			foreground: style.getPropertyValue("--text-color"),
-			accent: style.getPropertyValue("--accent-color")
-		};
-		
-		// Init colours
-		this.ctx.strokeStyle = this.colours.accent;
-		this.ctx.fillStyle = this.colours.foreground;
+		this.canvas.addEventListener("contextmenu", e => {
+			e.preventDefault();
+		});
 	}
 
 	resize() {
 		const size = Math.min(window.innerHeight * 0.7, document.body.clientWidth) - 10;
 		this.canvas.width = size;
 		this.canvas.height = size;
-		this.setColours();
+
+		// When the window is resized, stroke and fill styles are lost so we need to set them again
+		this.ctx.strokeStyle = this.colours.accent;
+		this.ctx.fillStyle = this.colours.foreground;
+
 		return this.canvas;
 	}
 
 
+	/*
+	 * A wrapper for the main animation loop
+	 */
+
+	start() {
+
+		const render = () => {
+			// We want all the units in seconds, to make other units more realistic
+			const time = performance.now() / 1000 - this.timeStart;
+			this.delta = time - this.time;
+			this.time = time;
+
+			/*
+			 * Calculations are not done if the framerate is less than
+			 * 10 per second. This is to counter the issue of the
+			 * mass 'jumping' if the script goes idle for any substantial
+			 * amount of time (e.g. if the user switches to another tab
+			 * and back).
+			 * If the rendering is running less than 10 times per
+			 * second, nothing will animate. But things would get weird
+			 * at very low framerates anyway.
+			 */
+			if (this.render && 1 / this.delta >= 10) {
+				this.render(this.ctx);
+			}
+			window.requestAnimationFrame(render);
+		}
+
+		// Start animation loop
+		this.timeStart = performance.now() / 1000;
+		this.delta = 0;
+		this.time = this.timeStart;
+		if (this.init) this.init();
+		render();
+	}
+
+
+	/*
+	 * Conversions between different length units
+	 */
+	
+	mToPx(metres) {
+		return this.canvas.height * metres / this.scale;
+	}
+	pxToM(px) {
+		return px / this.canvas.height * this.scale;
+	}
+	percToPx(perc) {
+		return this.canvas.height * perc / 100;
+	}
+	pxToPerc(px) {
+		return px / this.canvas.height * 100;
+	}
+	percToM(perc) {
+		return this.pxToM(this.percToPx(perc));
+	}
+	mToPerc(m) {
+		return this.pxToPerc(this.mToPx(m));
+	}
+
+
+	/*
+	 * Methods to add various types of controls to the DOM
+	 */
+
 	groupControls(elts) {
+		// Puts all the given control elements into a div container
 		const container = document.getElementById("controls");
 		const innerContainer = strToElt(`<div class="control-group"></div>`);
 		for (const elt of elts) {
@@ -95,12 +152,12 @@ class Simulation {
 		container.appendChild(innerContainer);
 	}
 
-    addProgressBar(label) {
-        const container = document.getElementById("controls");
-        const progress = strToElt(`<progress max="100" value="0">${label}</progress>`);
-        container.appendChild(progress);
-        return progress;
-    }
+	addProgressBar(label) {
+		const container = document.getElementById("controls");
+		const progress = strToElt(`<progress max="100" value="0">${label}</progress>`);
+		container.appendChild(progress);
+		return progress;
+	}
 
 	addButton(label, func) {
 		const container = document.getElementById("controls");
@@ -111,8 +168,9 @@ class Simulation {
 	}
 
 	addSlider(name, units, init, min, max, step) {
-		const id = "range-" + name.toLowerCase().replace(' ', '-');
+		// A slider that can be used to choose a float value
 		const container = document.getElementById("controls");
+		const id = "range-" + name.toLowerCase().replace(' ', '-');
 		
 		// Create the DOM elements
 		const label = strToElt(`
@@ -161,7 +219,7 @@ class Simulation {
 	}
 
 	addSelector(name, arr, init) {
-	
+		// A selector has two arrow buttons that can be used to select on of the options given in arr
 		const id = "selector-" + name.toLowerCase().replace(' ', '-');
 		const container = document.getElementById("controls");
 
@@ -198,60 +256,6 @@ class Simulation {
 		container.appendChild(label);
 
 		return label;
-	}
-
-
-	start() {
-
-		const render = () => {
-			// We want all the units in seconds, to make other units more realistic
-			const time = performance.now() / 1000 - this.timeStart;
-			this.delta = time - this.time;
-			this.time = time;
-
-			/*
-			 * Calculations are not done if the framerate is less than
-			 * 10 per second. This is to counter the issue of the
-			 * mass 'jumping' if the script goes idle for any substantial
-			 * amount of time (e.g. if the user switches to another tab
-			 * and back).
-			 * If the rendering is running less than 10 times per
-			 * second, nothing will animate. But things would get weird
-			 * at very low framerates anyway.
-			 */
-			if (this.render && 1 / this.delta >= 10) {
-				this.render(this.ctx);
-			}
-			window.requestAnimationFrame(render);
-		}
-
-		// Start animation loop
-		this.timeStart = performance.now() / 1000;
-		this.delta = 0;
-		this.time = this.timeStart;
-		if (this.init) this.init();
-		render();
-	}
-
-	// Conversions between distances
-	
-	mToPx(metres) {
-		return this.canvas.height * metres / this.scale;
-	}
-	pxToM(px) {
-		return px / this.canvas.height * this.scale;
-	}
-	percToPx(perc) {
-		return this.canvas.height * perc / 100;
-	}
-	pxToPerc(px) {
-		return px / this.canvas.height * 100;
-	}
-	percToM(perc) {
-		return this.pxToM(this.percToPx(perc));
-	}
-	mToPerc(m) {
-		return this.pxToPerc(this.mToPx(m));
 	}
 }
 
