@@ -25,7 +25,7 @@ for (const sim of simulations) {
 		res.render("simulation", {
 			title: `Simulation - ${sim.title}`,
 			description: sim.description,
-			script: `${sim.id}.js`
+			id: sim.id
 		});
 	});
 }
