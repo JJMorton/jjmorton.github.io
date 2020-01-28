@@ -33,7 +33,7 @@ canvas {
 	cursor: pointer;
 }
 
-#controls label.slider:not(:hover):nth-child(odd) {
+#controls .left-border:not(:hover):nth-of-type(odd) {
 	border-left: 5px solid rgba(0, 0, 0, 0.2);
 }
 
@@ -136,13 +136,15 @@ button:not(:disabled):hover {
 }
 
 button:not(:disabled):active {
-	transform: translate(1px, 0);
+	transform: translate(2px, 2px);
 }
 
 button:disabled {
 	border-color: transparent;
 	cursor: default;
 	box-shadow: none;
+	border: 2px solid rgba(0, 0, 0, 0.4);
+	opacity: 0.6;
 }
 
 button::-moz-focus-inner {
@@ -193,5 +195,17 @@ button::-moz-focus-inner {
 
 .selector button:not(:disabled) {
 	cursor: pointer;
+}
+
+/* COMBO BOX */
+
+.combobox {
+	padding: 5px 10px;
+	color: var(--text-color) !important;
+	font-family: var(--font-family);
+}
+
+.combobox > * {
+	display: block;
 }
 

@@ -257,5 +257,30 @@ class Simulation {
 
 		return label;
 	}
+
+	addComboBox(label, arr, init) {
+		const name = label.toLowerCase().replace(' ', '-');
+		const id = "combo-" + name;
+		const container = document.getElementById("controls");
+
+		const elt = strToElt(`
+			<label class="combobox left-border" for="${id}">
+				${label}
+				<select name="${name}" id="${id}">
+					${ arr.map(x => `<option>${x}</option>`).join("") }
+				</select>
+			</label>
+		`);
+
+		const select = elt.querySelector("select");
+		select.addEventListener("input", () => {
+			select.dispatchEvent(new CustomEvent("update", { detail: select.selectedIndex }));
+		});
+
+		container.appendChild(elt);
+
+		return select;
+	}
+
 }
 
