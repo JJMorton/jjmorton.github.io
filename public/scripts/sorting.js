@@ -25,6 +25,14 @@ window.addEventListener("load", function() {
 		}
 	};
 
+	const swap = async (arr, i, j, setter) => {
+		[ arr[i], arr[j] ] = [ arr[j], arr[i] ];
+		state.swaps++;
+		state.highlights = [i, j];
+		setter(arr);
+		await delay();
+	};
+
 	const sortmethods = {
 
 		bubble: async (arr, setter) => {
@@ -32,17 +40,23 @@ window.addEventListener("load", function() {
 			let sorted = true;
 			for (let i = 1; i < arr.length; i++) {
 
-				state.comparisons++;
-				if (arr[i] < arr[i - 1]) {
-					state.swaps++;
-					[arr[i - 1], arr[i]] = [arr[i], arr[i - 1]];
+				if (++state.comparisons && arr[i] < arr[i - 1]) {
+					await swap(arr, i, i - 1, setter);
 					sorted = false;
-					setter(arr);
-					await delay();
 				}
 			}
 
 			if (!sorted) await sortmethods.bubble(arr, setter);
+		},
+
+		insertion: async (arr, setter) => {
+			for (let i = 1; i < arr.length; i++) {
+				let j = i;
+				while (++state.comparisons && j > 0 && arr[j] < arr[j - 1]) {
+					await swap(arr, j, j - 1, setter);
+					j--;
+				}
+			}
 		},
 
 		quick: async (arr, setter) => {
@@ -55,19 +69,14 @@ window.addEventListener("load", function() {
 				while (true) {
 					do {
 						i++;
-						state.comparisons++;
-					} while (arr[i] < pivot)
+					} while (++state.comparisons && arr[i] < pivot)
 					do {
 						j--;
-						state.comparisons++;
-					} while (arr[j] > pivot)
-					if (i >= j) {
+					} while (++state.comparisons && arr[j] > pivot)
+					if (++state.comparisons && i >= j) {
 						return j;
 					}
-					[ arr[i], arr[j] ] = [ arr[j], arr[i] ];
-					state.swaps++;
-					setter(arr);
-					await delay();
+					await swap(arr, i, j, setter);
 				}
 
 			};
@@ -97,6 +106,8 @@ window.addEventListener("load", function() {
 		comparisons: 0,
 		swaps: 0,
 		redraw: true,
+		highlights: [ -1, -1 ],
+		sorted: true,
 		setter: arr => {
 			state.data = arr;
 			state.redraw = true;
@@ -112,26 +123,49 @@ window.addEventListener("load", function() {
 		startbutton.disabled = true;
 		state.comparisons = 0;
 		state.swaps = 0;
+		state.highlights = [ -1, -1 ];
+		state.sorted = false;
 		state.setter(arr);
+
 		await method(arr, state.setter);
+
 		startbutton.disabled = false;
+		state.highlights = [ -1, -1 ];
+		state.sorted = true;
+		state.redraw = true;
 	};
 
 	/* We need to redraw the canvas when the window is resized */
 	window.addEventListener("resize", () => state.redraw = true);
 
+	const drawWithFillStyle = (fillStyle, drawFunc) => {
+		const fillStyleOrig = sim.ctx.fillStyle;
+		sim.ctx.fillStyle = fillStyle;
+		drawFunc(fillStyle);
+		sim.ctx.fillStyle = fillStyleOrig;
+	};
+
 	sim.render = function() {
 
 		if (!state.redraw) return;
 		state.redraw = false;
-	
+
 		sim.ctx.clearRect(0, 0, sim.canvas.width, sim.canvas.height);
 
-		const barwidth = sim.canvas.width / state.data.length;
-		state.data
-			.map(h => h * sim.canvas.height)
-			.forEach((h, i) => sim.ctx.fillRect(barwidth * i, sim.canvas.height - h, barwidth, h));
+		drawWithFillStyle(state.sorted ? sim.colours.accent : sim.ctx.fillStyle, fillStyle => {
 
+			const barwidth = sim.canvas.width / state.data.length;
+			state.data
+				.map(h => h * sim.canvas.height)
+				.forEach((h, i) => {
+					drawWithFillStyle(
+						i == state.highlights[0] || i == state.highlights[1] ? sim.colours.accent: fillStyle,
+						() => sim.ctx.fillRect(barwidth * i, sim.canvas.height - h, barwidth, h)
+					);
+				});
+
+		});
+	
 		sim.ctx.fillText(`comparisons: ${state.comparisons}, swaps: ${state.swaps}`, 10, 20);
 
 	};
@@ -152,17 +186,18 @@ window.addEventListener("load", function() {
 		}
 	});
 
-	const methodoptions = [ "Bubble Sort", "Quick Sort" ];
+	const methodoptions = [ "Bubble Sort", "Quick Sort", "Insertion Sort" ];
 	sim.addComboBox("Sorting Method", methodoptions, 0).addEventListener("update", e => {
 		switch (e.detail) {
 			case 0: params.method = sortmethods.bubble; break;
 			case 1: params.method = sortmethods.quick; break;
+			case 2: params.method = sortmethods.insertion; break;
 		}
 	});
 
 	const startbutton = sim.addButton("Sort", () => runsort(params.datagen(params.datalength), params.method));
 
-	sim.addSlider("Speed", "", 10 - params.delay, 0, 10, 1).addEventListener("update", e => params.delay = 10 - e.detail);
+	sim.addSlider("Speed", "", (50 - params.delay) / 5, 0, 10, 1).addEventListener("update", e => params.delay = 10 - 5 * e.detail);
 
 	sim.start();
 
