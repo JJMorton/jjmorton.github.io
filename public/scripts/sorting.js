@@ -32,7 +32,7 @@ window.addEventListener("load", function() {
 			while (!sorted) {
 				sorted = true;
 				for (let i = 1; i < arr.length; i++) {
-					if (await isinorder(arr, i, i - 1)) {
+					if (await islessthan(arr, i, i - 1)) {
 						await swap(arr, i, i - 1);
 						sorted = false;
 					}
@@ -43,7 +43,7 @@ window.addEventListener("load", function() {
 		insertion: async (arr) => {
 			for (let i = 1; i < arr.length; i++) {
 				let j = i;
-				while (j > 0 && !await isinorder(arr, j - 1, j)) {
+				while (j > 0 && !await islessthan(arr, j - 1, j)) {
 					await swap(arr, j, j - 1);
 					j--;
 				}
@@ -54,7 +54,7 @@ window.addEventListener("load", function() {
 			for (let i = 0; i < arr.length - 1; i++) {
 				let minimum = i;
 				for (let j = i + 1; j < arr.length; j++) {
-					if (!await isinorder(arr, minimum, j)) minimum = j;
+					if (!await islessthan(arr, minimum, j)) minimum = j;
 				}
 				if (minimum != i) await swap(arr, i, minimum);
 			}
@@ -70,10 +70,10 @@ window.addEventListener("load", function() {
 				while (true) {
 					do {
 						i++;
-					} while (await isinorder(arr, i, p))
+					} while (await islessthan(arr, i, p))
 					do {
 						j--;
-					} while (await isinorder(arr, p, j))
+					} while (await islessthan(arr, p, j))
 					if (i >= j) {
 						return j;
 					}
@@ -141,15 +141,15 @@ window.addEventListener("load", function() {
 		await delay();
 	};
 
-	// Tests that arr[hi] > arr[lo]
-	async function isinorder(arr, lo, hi) {
+	// Tests that arr[lo] < arr[hi]
+	async function islessthan(arr, lo, hi) {
 		state.comparisons++;
 		if (params.showcompare) {
 			state.hicompare = [lo, hi];
 			state.redraw = true;
 			await delay();
 		}
-		return arr[hi] > arr[lo];
+		return arr[lo] < arr[hi];
 	};
 
 	async function runsort(arr, method) {
