@@ -174,10 +174,12 @@ class Simulation {
 		
 		// Create the DOM elements
 		const label = strToElt(`
-			<label class="slider left-border" for="${id}">
-				<span class="name">${name}</span>
-				<output for="${id}">${init}</output>
-				<span class="units">${units}</span>
+			<div class="slider left-border">
+				<label for="${id}">
+					<span class="name">${name}</span>
+					<output for="${id}">${init}</output>
+					<span class="units">${units}</span>
+				</label>
 				<input
 					type="range"
 					id="${id}"
@@ -186,7 +188,7 @@ class Simulation {
 					step="${step}" 
 					value="${init}"
 				/>
-			</label>
+			</div>
 		`);
 		const slider = label.querySelector("input");
 		const output = label.querySelector("output");
@@ -200,7 +202,7 @@ class Simulation {
 			if (e.target === slider) return;
 			// Toggle clicked label and contract all others
 			this.controls.forEach(x => x.classList[
-				x.htmlFor === label.htmlFor ? "toggle" : "remove"
+				x == label ? "toggle" : "remove"
 			]("expanded"));
 		});
 		
@@ -264,12 +266,12 @@ class Simulation {
 		const container = document.getElementById("controls");
 
 		const elt = strToElt(`
-			<label class="combobox left-border" for="${id}">
-				${label}
+			<div class="combobox left-border">
+				<label for="${id}">${label}</label>
 				<select name="${name}" id="${id}">
 					${ arr.map(x => `<option>${x}</option>`).join("") }
 				</select>
-			</label>
+			</div>
 		`);
 
 		const select = elt.querySelector("select");
@@ -280,6 +282,28 @@ class Simulation {
 		container.appendChild(elt);
 
 		return select;
+	}
+
+	addCheckbox(label, init) {
+		const name = label.toLowerCase().replace(' ', '-');
+		const id = "checkbox-" + name;
+		const container = document.getElementById("controls");
+
+		const elt = strToElt(`
+			<div class="checkbox left-border">
+				<label for="${id}">${label}</label>
+				<input type="checkbox" id="${id}" name="${name}" ${init ? "checked" : ""}></input>
+			</div>
+		`);
+
+		const checkbox = elt.querySelector("input");
+		checkbox.addEventListener("input", () => {
+			elt.dispatchEvent(new CustomEvent("update", { detail: checkbox.checked }))
+		});
+
+		container.appendChild(elt);
+
+		return elt;
 	}
 
 }

@@ -25,58 +25,70 @@ window.addEventListener("load", function() {
 		}
 	};
 
-	const swap = async (arr, i, j, setter) => {
-		[ arr[i], arr[j] ] = [ arr[j], arr[i] ];
-		state.swaps++;
-		state.highlights = [i, j];
-		setter(arr);
-		await delay();
-	};
-
 	const sortmethods = {
 
-		bubble: async (arr, setter) => {
-
-			let sorted = true;
-			for (let i = 1; i < arr.length; i++) {
-
-				if (++state.comparisons && arr[i] < arr[i - 1]) {
-					await swap(arr, i, i - 1, setter);
-					sorted = false;
+		bubble: async (arr) => {
+			let sorted = false;
+			while (!sorted) {
+				sorted = true;
+				for (let i = 1; i < arr.length; i++) {
+					if (await isinorder(arr, i, i - 1)) {
+						await swap(arr, i, i - 1);
+						sorted = false;
+					}
 				}
 			}
-
-			if (!sorted) await sortmethods.bubble(arr, setter);
 		},
 
-		insertion: async (arr, setter) => {
+		insertion: async (arr) => {
 			for (let i = 1; i < arr.length; i++) {
 				let j = i;
-				while (++state.comparisons && j > 0 && arr[j] < arr[j - 1]) {
-					await swap(arr, j, j - 1, setter);
+				while (j > 0 && !await isinorder(arr, j - 1, j)) {
+					await swap(arr, j, j - 1);
 					j--;
 				}
 			}
 		},
 
-		quick: async (arr, setter) => {
+		selection: async (arr) => {
+			for (let i = 0; i < arr.length - 1; i++) {
+				let minimum = i;
+				for (let j = i + 1; j < arr.length; j++) {
+					if (!await isinorder(arr, minimum, j)) minimum = j;
+				}
+				if (minimum != i) await swap(arr, i, minimum);
+			}
+		},
+
+		quick: async (arr) => {
 
 			const partition = async (lo, hi) => {
-				const pivot = arr[Math.floor((lo + hi) / 2)];
+				let p = Math.floor((lo + hi) / 2);
 				let i = lo - 1,
 				    j = hi + 1;
 
 				while (true) {
 					do {
 						i++;
-					} while (++state.comparisons && arr[i] < pivot)
+					} while (await isinorder(arr, i, p))
 					do {
 						j--;
-					} while (++state.comparisons && arr[j] > pivot)
-					if (++state.comparisons && i >= j) {
+					} while (await isinorder(arr, p, j))
+					if (i >= j) {
 						return j;
 					}
-					await swap(arr, i, j, setter);
+
+					/*
+					 * Because we want to highlight the values that are being compared,
+					 * we have to know the index of the pivot. This is why we defined
+					 * p as the index of the pivot, rather than its value.
+					 * Due to this, if the pivot is swapped, we need to update p to address
+					 * the new position of the pivot value.
+					 */
+					if (p == j) p = i;
+					else if (p == i) p = j;
+
+					await swap(arr, i, j);
 				}
 
 			};
@@ -95,8 +107,10 @@ window.addEventListener("load", function() {
 	};
 
 	const params = {
+		showswap: true,
+		showcompare: false,
 		datalength: 50,
-		delay: 0,
+		delay: 20,
 		datagen: gendata.random,
 		method: sortmethods.bubble
 	};
@@ -106,44 +120,65 @@ window.addEventListener("load", function() {
 		comparisons: 0,
 		swaps: 0,
 		redraw: true,
-		highlights: [ -1, -1 ],
+		hiswap: [ -1, -1 ],
+		hicompare: [ -1, -1 ],
 		sorted: true,
-		setter: arr => {
-			state.data = arr;
-			state.redraw = true;
-		}
 	};
 
-	const delay = () => {
+
+	function delay() {
 		return new Promise(res => setTimeout(res, params.delay));
 	};
 
+	async function swap(arr, i, j) {
+		[ arr[i], arr[j] ] = [ arr[j], arr[i] ];
+		state.swaps++;
+		state.arr = arr;
+		if (params.showswap) {
+			state.hiswap = [i, j];
+		}
+		state.redraw = true;
+		await delay();
+	};
+
+	// Tests that arr[hi] > arr[lo]
+	async function isinorder(arr, lo, hi) {
+		state.comparisons++;
+		if (params.showcompare) {
+			state.hicompare = [lo, hi];
+			state.redraw = true;
+			await delay();
+		}
+		return arr[hi] > arr[lo];
+	};
 
 	async function runsort(arr, method) {
 		startbutton.disabled = true;
 		state.comparisons = 0;
 		state.swaps = 0;
-		state.highlights = [ -1, -1 ];
+		state.hiswap = [ -1, -1 ];
+		state.hicompare = [ -1, -1 ];
 		state.sorted = false;
-		state.setter(arr);
+		state.data = arr;
 
-		await method(arr, state.setter);
+		await method(arr);
 
 		startbutton.disabled = false;
-		state.highlights = [ -1, -1 ];
+		state.hiswap = [ -1, -1 ];
+		state.hicompare = [ -1, -1 ];
 		state.sorted = true;
 		state.redraw = true;
 	};
 
-	/* We need to redraw the canvas when the window is resized */
-	window.addEventListener("resize", () => state.redraw = true);
-
-	const drawWithFillStyle = (fillStyle, drawFunc) => {
+	function drawWithFillStyle(fillStyle, drawFunc) {
 		const fillStyleOrig = sim.ctx.fillStyle;
 		sim.ctx.fillStyle = fillStyle;
 		drawFunc(fillStyle);
 		sim.ctx.fillStyle = fillStyleOrig;
 	};
+
+
+	/* Main render loop */
 
 	sim.render = function() {
 
@@ -155,20 +190,26 @@ window.addEventListener("load", function() {
 		drawWithFillStyle(state.sorted ? sim.colours.accent : sim.ctx.fillStyle, fillStyle => {
 
 			const barwidth = sim.canvas.width / state.data.length;
-			state.data
-				.map(h => h * sim.canvas.height)
-				.forEach((h, i) => {
-					drawWithFillStyle(
-						i == state.highlights[0] || i == state.highlights[1] ? sim.colours.accent: fillStyle,
-						() => sim.ctx.fillRect(barwidth * i, sim.canvas.height - h, barwidth, h)
-					);
-				});
+			state.data.map(h => h * sim.canvas.height).forEach((h, i) => {
+				let barcolor = fillStyle;
+				if (state.hiswap.includes(i)) barcolor = "#ff0000";
+				else if (state.hicompare.includes(i)) barcolor = sim.colours.accent;
+				drawWithFillStyle(
+					barcolor,
+					() => sim.ctx.fillRect(barwidth * i, sim.canvas.height - h, barwidth, h)
+				);
+			});
 
 		});
 	
 		sim.ctx.fillText(`comparisons: ${state.comparisons}, swaps: ${state.swaps}`, 10, 20);
 
 	};
+
+
+	/* We need to redraw the canvas when the window is resized */
+
+	window.addEventListener("resize", () => state.redraw = true);
 
 
 	/* Create controls */
@@ -186,18 +227,30 @@ window.addEventListener("load", function() {
 		}
 	});
 
-	const methodoptions = [ "Bubble Sort", "Quick Sort", "Insertion Sort" ];
+	const methodoptions = [ "Bubble Sort", "Quick Sort", "Insertion Sort", "Selection Sort" ];
 	sim.addComboBox("Sorting Method", methodoptions, 0).addEventListener("update", e => {
 		switch (e.detail) {
 			case 0: params.method = sortmethods.bubble; break;
 			case 1: params.method = sortmethods.quick; break;
 			case 2: params.method = sortmethods.insertion; break;
+			case 3: params.method = sortmethods.selection; break;
 		}
 	});
 
 	const startbutton = sim.addButton("Sort", () => runsort(params.datagen(params.datalength), params.method));
 
-	sim.addSlider("Speed", "", (50 - params.delay) / 5, 0, 10, 1).addEventListener("update", e => params.delay = 10 - 5 * e.detail);
+	sim.addCheckbox("Show swaps", params.showswap).addEventListener("update", e => {
+		params.showswap = e.detail;
+		state.hiswap = [ -1, -1 ];
+		state.redraw = true;
+	});
+	sim.addCheckbox("Show comparisons", params.showcompare).addEventListener("update", e => {
+		params.showcompare = e.detail;
+		state.hicompare = [ -1, -1 ];
+		state.redraw = true;
+	});
+
+	sim.addSlider("Speed", "", (200 - params.delay) / 2, 0, 100, 1).addEventListener("update", e => params.delay = 200 - 2 * e.detail);
 
 	sim.start();
 

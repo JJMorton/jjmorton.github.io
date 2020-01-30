@@ -11,6 +11,8 @@ canvas {
 	border-left: 5px solid rgba(0, 0, 0, 0.4);
 	border-color: rgba(0, 0, 0, 0.4);
 	transition: border-left-width 100ms, border-color 100ms;
+	padding: 5px 10px;
+	font-family: var(--font-family);
 }
 
 .left-border:hover,
@@ -26,27 +28,22 @@ canvas {
 	flex-direction: column;
 }
 
-#controls label.slider {
-	font-family: var(--font-family);
-	padding: 5px 10px;
-	flex: 1;
-	cursor: pointer;
-}
-
 #controls .left-border:not(:hover):nth-of-type(odd) {
 	border-left: 5px solid rgba(0, 0, 0, 0.2);
 }
 
-#controls label.slider.expanded {
+/* SLIDERS */
+
+#controls .slider.expanded > label {
 	color: black;
 	background-color: var(--accent-color);
 }
 
-#controls label.slider:not(.expanded) {
+#controls .slider:not(.expanded) > label {
 	color: var(--text-color);
 }
 
-#controls label.slider > .name {
+#controls .slider > label > .name {
 	display: block;
 	width: 100%;
 	overflow: hidden;
@@ -54,13 +51,24 @@ canvas {
 	text-overflow: ellipsis;
 }
 
-#controls label.slider > output {
+#controls .slider > label > output {
 	margin-right: 5px;
 	font-weight: bold;
 }
 
+#controls .slider > label {
+	font-family: var(--font-family);
+	flex: 1;
+	cursor: pointer;
+}
 
-/* SLIDERS */
+div#controls .slider.expanded {
+	background-color: var(--accent-color);
+}
+
+div#controls .slider:not(.expanded) input[type=range] {
+	display: none;
+}
 
 div#controls input[type=range] {
 	width: 100%;
@@ -68,10 +76,6 @@ div#controls input[type=range] {
 	right: 0;
 	margin: 10px auto 10px auto;
 	background-color: var(--accent-color);
-}
-
-div#controls label.slider:not(.expanded) input[type=range] {
-	display: none;
 }
 
 input[type=range] {
@@ -199,13 +203,19 @@ button::-moz-focus-inner {
 
 /* COMBO BOX */
 
-.combobox {
-	padding: 5px 10px;
-	color: var(--text-color) !important;
-	font-family: var(--font-family);
-}
-
 .combobox > * {
 	display: block;
 }
+
+/* CHECKBOX */
+
+.checkbox {
+	color: var(--text-color);
+}
+
+.checkbox > input[type="checkbox"],
+.checkbox > label {
+	cursor: pointer;
+}
+
 
