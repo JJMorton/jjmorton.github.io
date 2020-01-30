@@ -43,7 +43,7 @@ window.addEventListener("load", function() {
 		insertion: async (arr) => {
 			for (let i = 1; i < arr.length; i++) {
 				let j = i;
-				while (j > 0 && !await islessthan(arr, j - 1, j)) {
+				while (j > 0 && await islessthan(arr, j, j - 1)) {
 					await swap(arr, j, j - 1);
 					j--;
 				}
@@ -54,7 +54,7 @@ window.addEventListener("load", function() {
 			for (let i = 0; i < arr.length - 1; i++) {
 				let minimum = i;
 				for (let j = i + 1; j < arr.length; j++) {
-					if (!await islessthan(arr, minimum, j)) minimum = j;
+					if (await islessthan(arr, j, minimum)) minimum = j;
 				}
 				if (minimum != i) await swap(arr, i, minimum);
 			}
