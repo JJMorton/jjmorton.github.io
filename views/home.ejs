@@ -9,8 +9,9 @@
 		<%- include("partials/header") %>
 	</header>
 	
+	<h1><%= title %></h1>
+
 	<main>
-		<h1><%= title %></h1>
 		<p>On this website, you can find simulations of various physical systems as well as any other odd things I've made.</p>
 		<p>
 			You must have JavaScript enbled in your browser to view them, as they use the
@@ -22,7 +23,6 @@
 	</main>
 
 	<section>
-		<h2>Simulations</h2>
 		<ul class="list-preview">
 			<% simulations.forEach(function(item) { %>
 				<li class="item-preview box-shadow">

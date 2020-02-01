@@ -102,8 +102,10 @@ nav {
 
 
 .list-preview {
+	margin-top: 2em;
 	margin-left: 20px;
 	padding: 0;
+	font-size: 0;
 }
 
 .item-preview {
@@ -111,10 +113,23 @@ nav {
 	vertical-align: top;
 	list-style: none;
 	width: calc(33% - 20px);
-	min-width: 200px;
 	height: 200px;
 	margin-bottom: 20px;
 	margin-right: 20px;
+	font-size: initial;
+}
+
+@media (max-width: 1300px) {
+	.item-preview {
+		width: calc(50% - 20px);
+	}
+}
+
+@media (max-width: 800px) {
+	.item-preview {
+		width: calc(100% - 20px);
+		min-width: 200px;
+	}
 }
 
 .item-preview a {
