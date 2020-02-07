@@ -1,4 +1,4 @@
 ### My Personal Website
 
-Hosted with heroku at [jjmorton.xyz](http://jjmorton.xyz)
+Hosted with heroku at [jjmorton.com](http://jjmorton.com)
 
