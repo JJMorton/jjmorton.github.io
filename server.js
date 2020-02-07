@@ -4,9 +4,7 @@ const simulations = JSON.parse(fs.readFileSync("simulations.json", "utf8"));
 const express = require("express");
 const app = express();
 
-const commithash = require('child_process')
-  .execSync('git rev-parse HEAD')
-  .toString().trim();
+const commithash = process.env.GIT_SHA || "unknown";
 
 app.set("view engine", "ejs");
 
