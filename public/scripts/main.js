@@ -40,7 +40,9 @@ class Simulation {
 		};
 		const mousepress = button => {
 			this.mouse.pressed = button;
-			if (button === -1 && this.onmouseup) this.onmouseup();
+			if (button === -1) {
+				if (this.onmouseup) this.onmouseup();
+			}
 			else if (this.onmousedown) this.onmousedown();
 		};
 
