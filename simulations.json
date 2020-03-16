@@ -28,5 +28,10 @@
 		"title": "Sorting algorithms",
 		"description": "Watch how different sorting algorithms work on different data sets",
 		"id": "sorting"
+	},
+	{
+		"title": "Elastic pendulum",
+		"description": "A simulation of a pendulum with a spring in place of the rod",
+		"id": "elasticpendulum"
 	}
 ]
