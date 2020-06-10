@@ -14,12 +14,16 @@ app.get("/", (req, res) => {
 	res.render("home", { title: "Home", simulations, commithash });
 });
 
-app.get("/about", (req, res) => {
-	res.render("about", { title: "About", commithash });
-});
-
 app.get("/simulations", (req, res) => {
 	res.redirect("/");
+});
+
+app.get("/lmc", (req, res) => {
+	res.render("lmc", { title: "Little Man Computer", commithash });
+});
+
+app.get("/about", (req, res) => {
+	res.render("about", { title: "About", commithash });
 });
 
 for (const sim of simulations) {

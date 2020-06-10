@@ -5,6 +5,7 @@
 	
 	--background-color: #fff;
 	--text-color: #444;
+	--text-color-dim: #888;
 	--text-size: 1em;
 	--accent-color: #a3be8c;
 	--font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -20,16 +21,25 @@ html, body {
 body {
 	margin: 5% auto;
 	width: 73%;
-	min-width: 240px;
+	min-width: 350px;
 	background-color: var(--background-color);
+}
+
+main, section {
+	width: 100%;
 }
 
 .box-shadow {
 	box-shadow: 3px 3px 0 0 rgba(0, 0, 0, 0.2);
 }
 
-h1, h2, p, a {
+h1, h2, h3, p, a, td, th, input, label {
 	font-family: var(--font-family);
+}
+
+.code {
+	font-family: monospace;
+	font-size: 120%;
 }
 
 h1 {
@@ -109,11 +119,12 @@ nav {
 }
 
 .item-preview {
-	display: inline-block;
+	display: inline-flex;
+	flex-direction: column;
 	vertical-align: top;
 	list-style: none;
 	width: calc(33% - 20px);
-	height: 200px;
+	min-height: 200px;
 	margin-bottom: 20px;
 	margin-right: 20px;
 	font-size: initial;
@@ -132,32 +143,39 @@ nav {
 	}
 }
 
-.item-preview a {
+.item-preview * {
 	width: 100%;
-	height: 100%;
+}
+
+.item-preview > :first-child {
+	flex: 1;
 	display: block;
-	padding: 0.5em 1.5em;
+	padding: 1em 1.5em;
 	box-sizing: border-box;
 	background-color: var(--accent-color);
 	text-decoration: none;
 	color: var(--text-color);
-	transition: background-color 200ms, color 200ms;
 	overflow-y: hidden;
 	text-overflow: ellipsis;
 }
 
-.item-preview a:hover {
+.item-preview > a {
+	transition: background-color 200ms, color 200ms;
+}
+
+.item-preview > a:hover {
 	background-color: var(--text-color);
 	color: var(--background-color);
 }
 
-.item-preview a > p {
+.item-preview > a > p {
 	color: inherit;
 }
 
 .item-preview .title {
 	font-size: 100%;
 	font-weight: 500;
+	margin: 8px 0 16px 0;
 }
 
 .item-preview .description {
@@ -166,14 +184,14 @@ nav {
 
 
 footer {
-	opacity: 0.5;
+	/* opacity: 0.5; */
 	margin-top: 4em;
-	border-top: 1px solid var(--text-color);
-	color: var(--text-color);
+	border-top: 1px solid var(--text-color-dim);
+	color: var(--text-color-dim);
 }
 
 footer p {
-	color: var(--footer-color);
+	color: var(--text-color-dim);
 	font-size: var(--footer-size);
 }
 
