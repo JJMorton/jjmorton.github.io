@@ -35,6 +35,7 @@ main, section {
 
 h1, h2, h3, p, a, td, th, input, label {
 	font-family: var(--font-family);
+	color: var(--text-color);
 }
 
 .code {
@@ -48,10 +49,6 @@ h1 {
 h2 {
 	font-size: 1.5em;
 	font-weight: 500;
-}
-
-h1, h2, p {
-	color: var(--text-color);
 }
 
 h1, h2 {

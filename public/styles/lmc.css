@@ -60,6 +60,7 @@ table#lmc-memory td > input[highlight="true"] {
  * BUTTONS AND INPUTS
  */
 
+.list-preview select,
 .list-preview button {
 	border-radius: 0;
 	border: 2px solid var(--text-color-dim);
@@ -85,6 +86,7 @@ table#lmc-memory td > input[highlight="true"] {
 
 /* Make the button appear disabled when after an invalid input field */
 .list-preview input:invalid + button,
+.list-preview select:disabled,
 .list-preview button:disabled {
 	opacity: 0.7;
 	background-color: var(--background-color);

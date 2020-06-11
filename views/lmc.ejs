@@ -18,30 +18,7 @@
 			The Little Man Computer is a model of a von Neumann architecture computer (the same as most modern computers).
 			It is extremely simple, with a small instruction set, so is often used to teach students.
 			This model is programmed in machine code, with instructions in base 10.
-		</p>
-		<h3>How it works & how to program it</h3>
-		<p>
-			Shown below is the memory (RAM) of the computer.
-			It has 99 'slots' which are each able to hold one integer value.
-			These values can represent either instructions for the computer, or data put there by the running program.
-			The instructions available are known as the processor's instruction set.
-			The instruction set for the LMC is tabulated at the bottom of this page for reference.
-		</p>
-		<p>
-		A program can be written for the computer by writing a list of instructions (machine code), ending with <span class="code">000</span> to end the program.
-			After writing such a program in the box below, you must load it into memory with the button labeled 'Load'.
-			When the computer is started, it runs through the instructions in memory, executing them one by one.
-			The processor's 'program counter' (also called the 'instruction pointer') stores the address in memory of the instruction to be executed next.
-			Its value can be changed using the branch instructions (<span class="code">6xx</span> - <span class="code">8xx</span> in the table below), which allow for conditional logic and looping.
-		</p>
-		<p>
-			The accumulator is a register which is used to perform arithmetic and store inputs given to the program (using instruction <span class="code">901</span>).
-			Values can be loaded into it from memory and vice versa using <span class="code">3xx</span> and <span class="code">5xx</span>.
-		</p>
-		<p>
-			Data can be placed in the memory by providing a line in the machine code which does not represent any instruction.
-			The data is placed in the memory at the same position that it appears in the code, and can be pulled into the accumulator with the load command (<span class="code">5xx</span>) as normal.
-			You must be careful to prevent data from being executed as an instruction, as doing so will crash the computer.
+			An explanation can be found at the bottom of this page, should you need help.
 		</p>
 	</main>
 
@@ -77,6 +54,7 @@
 					<button id="lmc-btn-stop" class="box-shadow" title="Stop execution">Stop</button>
 					<button id="lmc-btn-reset" class="box-shadow" title="Clear the memory and registers">Reset</button>
 					<button id="lmc-btn-load" class="box-shadow" title="Load the written machine code into the memory">Load</button>
+					<button id="lmc-btn-assemble" class="box-shadow" title="Translate the assembly code into machine code">Assemble</button>
 				</div>
 			</li>
 
@@ -103,6 +81,20 @@
 					<textarea id="lmc-code-input" class="box-shadow code" rows="10" placeholder="Enter machine code here"></textarea>
 				</div>
 			</li>
+			<li class="item-preview box-shadow">
+				<div>
+					<p class="title">Assembly Code</p>
+					<textarea id="lmc-assembly-input" class="box-shadow code" rows="10" placeholder="Enter assembly code here"></textarea>
+					<label for="examples">Load an example</label>
+					<select name="examples" id="lmc-example" class="box-shadow">
+						<option value="0" selected>Empty</option>
+						<option value="1">Input output</option>
+						<option value="2">Add</option>
+						<option value="3">Multiply</option>
+						<option value="4">Compare</option>
+					</select>
+				</div>
+			</li>
 		</ul>
 	</section>
 
@@ -111,43 +103,43 @@
 		<p>This is the set of instructions understood by the LMC.</p>
 		<table id="lmc-instructions">
 			<tr>
-				<th>Instruction</th>
-				<th>Assembly Mnemonic</th>
+				<th>Machine Code</th>
+				<th>Assembly</th>
 				<th>Description</th>
 			</tr>
 			<tr>
 				<td><span class="code">1xx</span></td>
-				<td class="code">ADD</td>
+				<td class="code">ADD xx</td>
 				<td>Add memory address <span class="code">xx</span> to the accumulator</td>
 			</tr>
 			<tr>
 				<td><span class="code">2xx</span></td>
-				<td class="code">SUB</td>
+				<td class="code">SUB xx</td>
 				<td>Subtract memory address <span class="code">xx</span> from the accumulator</td>
 			</tr>
 			<tr>
 				<td><span class="code">3xx</span></td>
-				<td class="code">STA</td>
+				<td class="code">STA xx</td>
 				<td>Store the value of the accumulator at memory address <span class="code">xx</span></td>
 			</tr>
 			<tr>
 				<td><span class="code">5xx</span></td>
-				<td class="code">LDA</td>
+				<td class="code">LDA xx</td>
 				<td>Load memory address <span class="code">xx</span> into the accumulator</td>
 			</tr>
 			<tr>
 				<td><span class="code">6xx</span></td>
-				<td class="code">BRA</td>
+				<td class="code">BRA xx</td>
 				<td>Set the program counter to the address <span class="code">xx</span></td>
 			</tr>
 			<tr>
 				<td><span class="code">7xx</span></td>
-				<td class="code">BRZ</td>
+				<td class="code">BRZ xx</td>
 				<td>Set the program counter to the address <span class="code">xx</span> if the accumulator is zero</td>
 			</tr>
 			<tr>
 				<td><span class="code">8xx</span></td>
-				<td class="code">BRP</td>
+				<td class="code">BRP xx</td>
 				<td>Set the program counter to the address <span class="code">xx</span> if the accumulator is zero or positive</td>
 			</tr>
 			<tr>
@@ -166,15 +158,54 @@
 				<td>Halt the program</td>
 			</tr>
 			<tr>
-				<td class="code"></td>
-				<td class="code">DAT</td>
+				<td class="code">xxx</td>
+				<td class="code">DAT xxx</td>
 				<td>
-					Any other positive integers will be loaded into memory as data.
-					They should not be executed as an instruction.
-					Recommended to place after the HLT statement to prevent accidental execution.
+					<span class="code">xxx</span> will be loaded into memory as data.
+					It should not be executed as an instruction.
 				</td>
 			</tr>
 		</table>
+	</section>
+
+	<section>
+		<h2>How it works & how to program it</h2>
+		<p>
+			Shown below is the memory (RAM) of the computer.
+			It has 99 'slots' which are each able to hold one integer value.
+			These values can represent either instructions for the computer, or data put there by the running program.
+			The instructions available are known as the processor's instruction set.
+			The instruction set for the LMC is tabulated above for reference.
+		</p>
+		<p>
+			A program can be written for the computer by writing a list of instructions (machine code), ending with <span class="code">000</span> to end the program.
+			Alternatively, it can be written in assembly and translated into machine code using the 'Assemble' button.
+			Assembly uses mnemonics to refer to different instructions, making the code easier to read.
+			In assembly, 'labels' can be used to give a name to a memory address by writing the desired name of the label at the beginning of the line.
+			Any uses of the label will be translated into the associated memory address.
+		</p>
+		<p>
+			After writing a program in the box below, you must load it into memory with the button labeled 'Load'.
+			When the computer is started, it runs through the instructions in memory, executing them one by one.
+			The processor's 'program counter' (also called the 'instruction pointer') stores the address in memory of the instruction to be executed next.
+			Its value can be changed using the branch instructions (<span class="code">6xx</span> - <span class="code">8xx</span> in the table below), which allow for conditional logic and looping.
+		</p>
+		<p>
+			The accumulator is a register which is used to perform arithmetic and store inputs given to the program (using instruction <span class="code">901</span>).
+			Values can be loaded into it from memory and vice versa using <span class="code">3xx</span> and <span class="code">5xx</span>.
+		</p>
+		<p>
+			Data can be placed in the memory by providing a line in the machine code which does not represent any instruction.
+			The data is placed in the memory at the same position that it appears in the code, and can be pulled into the accumulator with the load command (<span class="code">5xx</span>) as normal.
+			You must be careful to prevent data from being executed as an instruction, as doing so will crash the computer.
+		</p>
+		<h3>tl;dr</h3>
+		<p>
+			Using the reference table above, either write assembly code and press 'Assemble' or write the machine code directly.
+			Load the machine code into memory and start the computer.
+			Inputs that require attention will be given a red border.
+		</p>
+	
 	</section>
 
 	<footer>
