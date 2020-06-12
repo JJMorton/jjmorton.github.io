@@ -4,7 +4,7 @@ const examples = [
 	[ "" ],
 	[ "INP", "OUT", "HLT" ],
 	[ "// Get inputs", "INP", "STA num", "INP", "", "// Add together", "ADD num", "", "// Output", "OUT", "HLT", "num DAT 0" ],
-	[ "// Get inputs", "INP", "STA numa", "INP", "STA numb", "STA result", "", "// Loop adding", "loop LDA numa", "SUB one", "STA numa", "BRZ end", "LDA numb", "ADD result", "STA result", "BRA loop", "", "// Print result", "end LDA result", "OUT", "HLT", "", "// Data", "result DAT 0", "numa DAT 0", "numb DAT 0", "one DAT 1" ],
+	[ "// Get inputs", "INP", "STA numa", "INP", "STA numb", "STA result", "", "// Loop adding", "loop LDA numa", "SUB one", "STA numa", "BRZ end", "LDA result", "ADD numb", "STA result", "BRA loop", "", "// Print result", "end LDA result", "OUT", "HLT", "", "// Data", "result DAT 0", "numa DAT 0", "numb DAT 0", "one DAT 1" ],
 	[ "// Outputs 1 if the first number is less,", "// 0 otherwise", "INP", "STA first", "INP", "SUB first", "BRP less", "", "LDA zero", "OUT", "HLT", "", "less LDA one", "OUT", "HLT", "", "first DAT 0", "zero DAT 0", "one DAT 1" ]
 ];
 
@@ -240,7 +240,8 @@ window.addEventListener("load", function() {
 		pc: document.getElementById("lmc-program-counter"),
 		acc: document.getElementById("lmc-accumulator")
 	};
-	const memoryboxes = Array.from(document.getElementsByClassName("lmc-memory"));
+	const stateDisplay = document.getElementById("lmc-state");
+	const memoryBoxes = Array.from(document.getElementsByClassName("lmc-memory"));
 
 
 	/*
@@ -256,13 +257,13 @@ window.addEventListener("load", function() {
 
 	computer.setMemory = function(addr, val) {
 		computer.memory[addr] = val;
-		memoryboxes[addr].value = val;
+		memoryBoxes[addr].value = val;
 	};
 
 	computer.setProgramCounter = function(addr) {
 		computer.pc = addr;
 		textboxes.pc.value = addr;
-		memoryboxes.forEach((elt, addr) => {
+		memoryBoxes.forEach((elt, addr) => {
 			elt.setAttribute("highlight", addr === computer.pc);
 		});
 	};
@@ -272,11 +273,12 @@ window.addEventListener("load", function() {
 		textboxes.acc.value = val;
 	};
 
+
 	computer.start = function() {
 		computer.timerID = window.setInterval(function() {
 			switch (computer.execute()) {
 				case 0:
-					statemachine.dispatch("stop");
+					statemachine.dispatch("finish");
 					break;
 				case 1:
 					break;
@@ -289,11 +291,7 @@ window.addEventListener("load", function() {
 
 	computer.stop = function() {
 		window.clearInterval(computer.timerID);
-	};
-
-	computer.giveInput = function(input) {
-		computer.setAccumulator(input);
-		computer.start();
+		computer.timerID = 0;
 	};
 
 	// Returns the state of the computer:
@@ -359,10 +357,11 @@ window.addEventListener("load", function() {
 
 		// Available states for the computer to be in
 		const states = {
-			EMPTY: "empty",     // No code has been loaded, memory is all zero
-			IDLE: "idle",       // Code has been loaded, but computer is not running
-			RUNNING: "running", // Computer is running
-			WAITING: "waiting"      // An input is required
+			EMPTY: "empty",       // No code has been loaded, memory is all zero
+			IDLE: "idle",         // Code has been loaded, but computer is not running
+			RUNNING: "running",   // Computer is running
+			WAITING: "waiting",   // An input is required
+			FINISHED: "finished", // The program halted
 		};
 
 		// State currently occupied
@@ -409,12 +408,10 @@ window.addEventListener("load", function() {
 
 			[states.IDLE]: {
 				start: () => {
-					// Start running the computer from the current instruction
 					computer.start();
 					changeStateTo(states.RUNNING);
 				},
 				reset: () => {
-					// Reset the computer
 					for (let addr = 0; addr < computer.memory.length; addr++) computer.setMemory(addr, 0);
 					computer.setProgramCounter(0);
 					computer.setAccumulator(0);
@@ -433,15 +430,27 @@ window.addEventListener("load", function() {
 					computer.stop();
 					changeStateTo(states.WAITING);
 				},
+				finish: () => {
+					computer.stop();
+					changeStateTo(states.FINISHED);
+				}
 			},
 
 			[states.WAITING]: {
 				input: () => {
 					// Get an input from the user
 					if (!textboxes.input.checkValidity()) return;
-					computer.giveInput(parseInt(textboxes.input.value));
+					computer.setAccumulator(parseInt(textboxes.input.value));
 					textboxes.input.value = "";
+					computer.start();
 					changeStateTo(states.RUNNING);
+				}
+			},
+
+			[states.FINISHED]: {
+				reset: () => {
+					changeStateTo(states.IDLE);
+					statemachine.dispatch("reset");
 				}
 			}
 
@@ -451,6 +460,7 @@ window.addEventListener("load", function() {
 		function changeStateTo(newstate) {
 			console.info(`[STATE] Changing to state "${newstate}"`);
 			state = newstate;
+			stateDisplay.textContent = state.toUpperCase();
 			// These elements get enabled when the respective action is available
 			buttons.start.disabled = !transitions[state].hasOwnProperty("start");
 			buttons.stop.disabled = !transitions[state].hasOwnProperty("stop");
@@ -461,8 +471,6 @@ window.addEventListener("load", function() {
 			buttons.input.disabled = !transitions[state].hasOwnProperty("input");
 			textboxes.program.disabled = !transitions[state].hasOwnProperty("load");
 			textboxes.assembly.disabled = !transitions[state].hasOwnProperty("assemble");
-			textboxes.pc.disabled = !transitions[state].hasOwnProperty("start");
-			textboxes.acc.disabled = !transitions[state].hasOwnProperty("start");
 			textboxes.input.disabled = !transitions[state].hasOwnProperty("input");
 		};
 
@@ -481,13 +489,9 @@ window.addEventListener("load", function() {
 
 	})();
 
-	buttons.start.addEventListener("click", () => statemachine.dispatch("start"));
-	buttons.stop.addEventListener("click", () => statemachine.dispatch("stop"));
-	buttons.reset.addEventListener("click", () => statemachine.dispatch("reset"));
-	buttons.load.addEventListener("click", () => statemachine.dispatch("load"));
-	buttons.assemble.addEventListener("click", () => statemachine.dispatch("assemble"));
-	buttons.input.addEventListener("click", () => statemachine.dispatch("input"));
-	buttons.example.addEventListener("input", () => statemachine.dispatch("example"));
+	for (const name in buttons) {
+		buttons[name].addEventListener("click", () => statemachine.dispatch(name));
+	}
 
 });
 

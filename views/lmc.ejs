@@ -50,11 +50,10 @@
 			<li class="item-preview box-shadow">
 				<div>
 					<p class="title">Controls</p>
+					<p class="description">Current state: <strong><span id="lmc-state"></span></strong></p>
 					<button id="lmc-btn-start" class="box-shadow" title="Start execution from the current instruction">Start</button>
 					<button id="lmc-btn-stop" class="box-shadow" title="Stop execution">Stop</button>
 					<button id="lmc-btn-reset" class="box-shadow" title="Clear the memory and registers">Reset</button>
-					<button id="lmc-btn-load" class="box-shadow" title="Load the written machine code into the memory">Load</button>
-					<button id="lmc-btn-assemble" class="box-shadow" title="Translate the assembly code into machine code">Assemble</button>
 				</div>
 			</li>
 
@@ -62,9 +61,9 @@
 				<div>
 					<p class="title">Registers</p>
 					<label class="lmc-register-label" for="lmc-program-counter">Program Counter</label>
-					<input type="text" class="lmc-register box-shadow code" id="lmc-program-counter" name="lmc-program-counter"/>
+					<input type="text" class="lmc-register box-shadow code" id="lmc-program-counter" name="lmc-program-counter" disabled/>
 					<label class="lmc-register-label" for="lmc-accumulator">Accumulator</label>
-					<input type="text" class="lmc-register box-shadow code" id="lmc-accumulator" name="lmc-accumulator"/>
+					<input type="text" class="lmc-register box-shadow code" id="lmc-accumulator" name="lmc-accumulator" disabled/>
 				</div>
 			</li>
 			<li class="item-preview box-shadow">
@@ -79,12 +78,12 @@
 				<div>
 					<p class="title">Machine Code</p>
 					<textarea id="lmc-code-input" class="box-shadow code" rows="10" placeholder="Enter machine code here"></textarea>
+					<button id="lmc-btn-load" class="box-shadow" title="Load the written machine code into the memory">Load</button>
 				</div>
 			</li>
 			<li class="item-preview box-shadow">
 				<div>
 					<p class="title">Assembly Code</p>
-					<textarea id="lmc-assembly-input" class="box-shadow code" rows="10" placeholder="Enter assembly code here"></textarea>
 					<label for="examples">Load an example</label>
 					<select name="examples" id="lmc-example" class="box-shadow">
 						<option value="0" selected>Empty</option>
@@ -93,6 +92,8 @@
 						<option value="3">Multiply</option>
 						<option value="4">Compare</option>
 					</select>
+					<textarea id="lmc-assembly-input" class="box-shadow code" rows="10" placeholder="Enter assembly code here"></textarea>
+					<button id="lmc-btn-assemble" class="box-shadow" title="Translate the assembly code into machine code">Assemble</button>
 				</div>
 			</li>
 		</ul>
@@ -171,7 +172,7 @@
 	<section>
 		<h2>How it works & how to program it</h2>
 		<p>
-			Shown below is the memory (RAM) of the computer.
+			Shown above is the memory (RAM) of the computer.
 			It has 99 'slots' which are each able to hold one integer value.
 			These values can represent either instructions for the computer, or data put there by the running program.
 			The instructions available are known as the processor's instruction set.
@@ -185,10 +186,10 @@
 			Any uses of the label will be translated into the associated memory address.
 		</p>
 		<p>
-			After writing a program in the box below, you must load it into memory with the button labeled 'Load'.
+			After writing a program in the box above, you must load it into memory with the button labeled 'Load'.
 			When the computer is started, it runs through the instructions in memory, executing them one by one.
 			The processor's 'program counter' (also called the 'instruction pointer') stores the address in memory of the instruction to be executed next.
-			Its value can be changed using the branch instructions (<span class="code">6xx</span> - <span class="code">8xx</span> in the table below), which allow for conditional logic and looping.
+			Its value can be changed using the branch instructions (<span class="code">6xx</span> - <span class="code">8xx</span> in the table), which allow for conditional logic and looping.
 		</p>
 		<p>
 			The accumulator is a register which is used to perform arithmetic and store inputs given to the program (using instruction <span class="code">901</span>).
