@@ -130,13 +130,26 @@ table#lmc-memory td > input[highlight="true"] {
 	min-height: 4em;
 }
 
-.list-preview textarea[invalid],
-input#lmc-input:not(:disabled):invalid {
+textarea[invalid],
+input:not(:disabled):invalid {
 	border: 2px solid red;
 }
 
-input#lmc-input:not(:disabled):valid {
+input:not(:disabled):valid {
 	border: 2px solid green;
+}
+
+.validate ~ .validate-message {
+	opacity: 0.9;
+	background-color: red;
+	color: var(--text-color);
+	margin: 0 0 10px 0;
+	padding: 5px;
+	box-sizing: border-box;
+}
+
+.validate:not([invalid]) ~ .validate-message {
+	display: none;
 }
 
 

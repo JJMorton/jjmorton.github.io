@@ -101,15 +101,14 @@ function assemble(lines, onerror) {
 		const commentIndex = line.indexOf("//");
 		return commentIndex > -1 ? line.substring(0, commentIndex) : line;
 	});
-	const lineNums = [];
+	const lineNums = []; // The line numbers of the original input corresponding to the valid lines of code
 	lines = lines.filter((line, i) => {
 		const empty = line === "";
 		if (!empty) lineNums.push(i);
 		return !empty;
 	});
 	if (lines.length === 0) {
-		console.error("[ASSEMBLER] No instructions found");
-		onerror(0);
+		onerror(0, "No instructions entered");
 		return null;
 	}
 
@@ -137,8 +136,7 @@ function assemble(lines, onerror) {
 
 			// Add any instructions, addresses or data to the result and save labels for resolving later
 			if (state === states.INVALID) {
-				console.error(`[ASSEMBLER] Invalid input on line ${lineNums[lineIndex]} at symbol ${symbol}`);
-				onerror(lineNums[lineIndex]);
+				onerror(lineNums[lineIndex], `Invalid input at symbol ${symbol}`);
 				return 0;
 			} else if (transition === transitions.INSTR || transition === transitions.INSTR_ADDR) {
 				return translatedSymbol + instructionCodes[symbol];
@@ -156,8 +154,7 @@ function assemble(lines, onerror) {
 		}, 0);
 
 		if (state != states.VALID) {
-			console.error(`[ASSEMBLER] Invalid syntax on line ${lineNums[lineIndex]}`);
-			onerror(lineNums[lineIndex]);
+			onerror(lineNums[lineIndex], `Invalid syntax`);
 			return null;
 		} else {
 			return translatedLine;
@@ -177,12 +174,10 @@ function assemble(lines, onerror) {
 	for (const label of needLabels) {
 		const matches = knownLabels.filter(x => x.name === label.name);
 		if (matches.length === 0) {
-			console.error(`[ASSEMBLER] Undefined reference to label ${label.name}`);
-			onerror(lineNums[label.address]);
+			onerror(lineNums[label.address], `Undefined reference to label ${label.name}`);
 			return null;
 		} else if (matches.length > 1) {
-			console.error(`[ASSEMBLER] Conflicting definitions of label ${label.name}`);
-			onerror(lineNums[label.address]);
+			onerror(lineNums[matches[1].address], `Conflicting definitions of label ${label.name}`);
 			return null;
 		} else {
 			code[label.address] += matches[0].address;
@@ -214,15 +209,13 @@ function parseMachineCode(lines, onerror) {
 		if (instructionExp.test(line) || datExp.test(line)) {
 			codes.push(parseInt(line));
 		} else if (!ignoreExp.test(line)) {
-			console.error(`[MACHINE CODE] Error on line ${lineIndex}`);
-			onerror(lineIndex);
+			onerror(lineIndex, "Invalid input");
 			valid = false;
 		}
 	});
 	if (codes.length === 0) {
 		valid = false;
-		console.error("[MACHINE CODE] No instructions found");
-		onerror(lineIndex);
+		onerror(0, "No instructions found");
 	}
 
 	if (valid) console.info("[MACHINE CODE] Success");
@@ -238,6 +231,16 @@ function selectLine(textbox, lineNum) {
 	const selectionEnd = selectionStart + lines[lineNum].length;
 	textbox.focus();
 	textbox.setSelectionRange(selectionStart, selectionEnd);
+}
+
+function setValidateMessage(textbox, message) {
+// Sets the content of the validation message for a textarea
+
+	if (!textbox.classList.contains("validate")) return;
+	const elt = Array.from(textbox.parentElement.children).find(elt => elt.classList.contains("validate-message"));
+	if (elt) {
+		elt.textContent = message;
+	}
 }
 
 
@@ -398,7 +401,10 @@ window.addEventListener("load", function() {
 				load: () => {
 					// Load the written machine code into the computer's memory
 
-					const codes = parseMachineCode(textboxes.program.value.split("\n"), lineNum => selectLine(textboxes.program, lineNum));
+					const codes = parseMachineCode(textboxes.program.value.split("\n"), (lineNum, msg) => {
+						selectLine(textboxes.program, lineNum);
+						setValidateMessage(textboxes.program, `Line ${lineNum + 1}: ${msg}`);
+					});
 
 					if (codes === null) {
 						textboxes.program.setAttribute("invalid", "");
@@ -414,7 +420,10 @@ window.addEventListener("load", function() {
 				assemble: () => {
 					textboxes.program.value = "";
 					const lines = textboxes.assembly.value.split("\n");
-					const code = assemble(lines, lineNum => selectLine(textboxes.assembly, lineNum));
+					const code = assemble(lines, (lineNum, msg) => {
+						selectLine(textboxes.assembly, lineNum);
+						setValidateMessage(textboxes.assembly, `Line ${lineNum + 1}: ${msg}`);
+					});
 					if (code === null) {
 						textboxes.assembly.setAttribute("invalid", "");
 					} else {

@@ -77,7 +77,10 @@
 			<li class="item-preview box-shadow">
 				<div>
 					<p class="title">Machine Code</p>
-					<textarea id="lmc-code-input" class="box-shadow code" rows="10" placeholder="Enter machine code here"></textarea>
+					<div class="validate-container">
+						<textarea id="lmc-code-input" class="box-shadow code validate" rows="10" placeholder="Enter machine code here"></textarea>
+						<p class="validate-message box-shadow">Invalid input</p>
+					</div>
 					<button id="lmc-btn-load" class="box-shadow" title="Load the written machine code into the memory">Load</button>
 				</div>
 			</li>
@@ -92,7 +95,10 @@
 						<option value="3">Multiply</option>
 						<option value="4">Compare</option>
 					</select>
-					<textarea id="lmc-assembly-input" class="box-shadow code" rows="10" placeholder="Enter assembly code here"></textarea>
+					<div class="validate-container">
+						<textarea id="lmc-assembly-input" class="box-shadow code validate" rows="10" placeholder="Enter assembly code here"></textarea>
+						<p class="validate-message box-shadow">Invalid input</p>
+					</div>
 					<button id="lmc-btn-assemble" class="box-shadow" title="Translate the assembly code into machine code">Assemble</button>
 				</div>
 			</li>
