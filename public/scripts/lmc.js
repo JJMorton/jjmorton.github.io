@@ -9,9 +9,8 @@ const examples = [
 ];
 
 
+function assemble(lines, onerror) {
 // Translates assembly code into machine code
-const assemble = function(lines) {
-	
 
 	/*
 	 * 1. Set up the state machine
@@ -102,9 +101,15 @@ const assemble = function(lines) {
 		const commentIndex = line.indexOf("//");
 		return commentIndex > -1 ? line.substring(0, commentIndex) : line;
 	});
-	lines = lines.filter(line => line != "");
+	const lineNums = [];
+	lines = lines.filter((line, i) => {
+		const empty = line === "";
+		if (!empty) lineNums.push(i);
+		return !empty;
+	});
 	if (lines.length === 0) {
 		console.error("[ASSEMBLER] No instructions found");
+		onerror(0);
 		return null;
 	}
 
@@ -132,7 +137,8 @@ const assemble = function(lines) {
 
 			// Add any instructions, addresses or data to the result and save labels for resolving later
 			if (state === states.INVALID) {
-				console.error(`[ASSEMBLER] Invalid input on code line ${lineIndex + 1} at symbol ${symbol}`);
+				console.error(`[ASSEMBLER] Invalid input on line ${lineNums[lineIndex]} at symbol ${symbol}`);
+				onerror(lineNums[lineIndex]);
 				return 0;
 			} else if (transition === transitions.INSTR || transition === transitions.INSTR_ADDR) {
 				return translatedSymbol + instructionCodes[symbol];
@@ -150,7 +156,8 @@ const assemble = function(lines) {
 		}, 0);
 
 		if (state != states.VALID) {
-			console.error(`[ASSEMBLER] Invalid syntax on code line ${lineIndex + 1}`);
+			console.error(`[ASSEMBLER] Invalid syntax on line ${lineNums[lineIndex]}`);
+			onerror(lineNums[lineIndex]);
 			return null;
 		} else {
 			return translatedLine;
@@ -171,9 +178,11 @@ const assemble = function(lines) {
 		const matches = knownLabels.filter(x => x.name === label.name);
 		if (matches.length === 0) {
 			console.error(`[ASSEMBLER] Undefined reference to label ${label.name}`);
+			onerror(lineNums[label.address]);
 			return null;
 		} else if (matches.length > 1) {
 			console.error(`[ASSEMBLER] Conflicting definitions of label ${label.name}`);
+			onerror(lineNums[label.address]);
 			return null;
 		} else {
 			code[label.address] += matches[0].address;
@@ -183,9 +192,11 @@ const assemble = function(lines) {
 	console.info("[ASSEMBLER] Assembled successfully");
 
 	return code;
-};
+}
 
-const parseMachineCode = function(lines) {
+function parseMachineCode(lines, onerror) {
+// Checks that the given array of strings is valid machine code
+
 	console.info("[MACHINE CODE] Checking machine code...");
 	let valid = true;
 
@@ -203,19 +214,32 @@ const parseMachineCode = function(lines) {
 		if (instructionExp.test(line) || datExp.test(line)) {
 			codes.push(parseInt(line));
 		} else if (!ignoreExp.test(line)) {
-			console.error(`[MACHINE CODE] Error on line ${lineIndex + 1}`);
+			console.error(`[MACHINE CODE] Error on line ${lineIndex}`);
+			onerror(lineIndex);
 			valid = false;
 		}
 	});
 	if (codes.length === 0) {
 		valid = false;
 		console.error("[MACHINE CODE] No instructions found");
+		onerror(lineIndex);
 	}
 
 	if (valid) console.info("[MACHINE CODE] Success");
 
 	return valid ? codes : null;
-};
+}
+
+function selectLine(textbox, lineNum) {
+// Selects a line in a textarea element
+
+	const lines = textbox.value.split("\n");
+	const selectionStart = lines.slice(0, lineNum).reduce((acc, line) => acc + line.length + 1, 0);
+	const selectionEnd = selectionStart + lines[lineNum].length;
+	textbox.focus();
+	textbox.setSelectionRange(selectionStart, selectionEnd);
+}
+
 
 window.addEventListener("load", function() {
 
@@ -374,7 +398,7 @@ window.addEventListener("load", function() {
 				load: () => {
 					// Load the written machine code into the computer's memory
 
-					const codes = parseMachineCode(textboxes.program.value.split("\n"));
+					const codes = parseMachineCode(textboxes.program.value.split("\n"), lineNum => selectLine(textboxes.program, lineNum));
 
 					if (codes === null) {
 						textboxes.program.setAttribute("invalid", "");
@@ -389,7 +413,8 @@ window.addEventListener("load", function() {
 				},
 				assemble: () => {
 					textboxes.program.value = "";
-					const code = assemble(textboxes.assembly.value.split("\n"));
+					const lines = textboxes.assembly.value.split("\n");
+					const code = assemble(lines, lineNum => selectLine(textboxes.assembly, lineNum));
 					if (code === null) {
 						textboxes.assembly.setAttribute("invalid", "");
 					} else {
