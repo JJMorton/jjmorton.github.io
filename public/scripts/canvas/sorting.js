@@ -214,11 +214,11 @@ window.addEventListener("load", function() {
 
 	/* Create controls */
 
-	sim.addSlider("Data points", "", params.datalength, 10, 500, 1).addEventListener("update", e => params.datalength = e.detail);
+	sim.addSlider("Data points", "", params.datalength, 10, 500, 1, value => params.datalength = value);
 
 	const datagenoptions = [ "Random", "Backwards", "Triangle", "Single Swap", "Sorted" ];
-	sim.addComboBox("Data distribution", datagenoptions, 0).addEventListener("update", e => {
-		switch (e.detail) {
+	sim.addComboBox("Data distribution", datagenoptions, 0, value => {
+		switch (value) {
 			case 0: params.datagen = gendata.random; break;
 			case 1: params.datagen = gendata.backwards; break;
 			case 2: params.datagen = gendata.triangle; break;
@@ -228,8 +228,8 @@ window.addEventListener("load", function() {
 	});
 
 	const methodoptions = [ "Bubble Sort", "Quick Sort", "Insertion Sort", "Selection Sort" ];
-	sim.addComboBox("Sorting Method", methodoptions, 0).addEventListener("update", e => {
-		switch (e.detail) {
+	sim.addComboBox("Sorting Method", methodoptions, 0, value => {
+		switch (value) {
 			case 0: params.method = sortmethods.bubble; break;
 			case 1: params.method = sortmethods.quick; break;
 			case 2: params.method = sortmethods.insertion; break;
@@ -239,18 +239,18 @@ window.addEventListener("load", function() {
 
 	const startbutton = sim.addButton("Sort", () => runsort(params.datagen(params.datalength), params.method));
 
-	sim.addCheckbox("Show swaps", params.showswap).addEventListener("update", e => {
-		params.showswap = e.detail;
+	sim.addCheckbox("Show swaps", params.showswap, value => {
+		params.showswap = value;
 		state.hiswap = [ -1, -1 ];
 		state.redraw = true;
 	});
-	sim.addCheckbox("Show comparisons", params.showcompare).addEventListener("update", e => {
-		params.showcompare = e.detail;
+	sim.addCheckbox("Show comparisons", params.showcompare, value => {
+		params.showcompare = value;
 		state.hicompare = [ -1, -1 ];
 		state.redraw = true;
 	});
 
-	sim.addSlider("Speed", "", (200 - params.delay) / 2, 0, 100, 1).addEventListener("update", e => params.delay = 200 - 2 * e.detail);
+	sim.addSlider("Speed", "", (200 - params.delay) / 2, 0, 100, 1, value => params.delay = 200 - 2 * value);
 
 	sim.start();
 

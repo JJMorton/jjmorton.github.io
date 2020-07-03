@@ -102,16 +102,11 @@ window.addEventListener("load", function() {
 
 	}
 
-	sim.addSlider("Scale", "m", sim.scale, 0.05, 20, 0.01)
-		.addEventListener("update", e => sim.scale = e.detail);
-	sim.addSlider("Mass", "kg", params.m, 0.01, 5, 0.01)
-		.addEventListener("update", e => params.m = e.detail);
-	sim.addSlider("Spring Constant", "N/m", params.k, 0.1, 20, 0.1)
-		.addEventListener("update", e => params.k = e.detail);
-	sim.addSlider("Equilibrium Length", "m", params.l, 0.1, 5, 0.01)
-		.addEventListener("update", e => params.l = e.detail);
-	sim.addSlider("Gravity", "m/s^2", params.g, 0, 20, 0.1)
-		.addEventListener("update", e => params.g = e.detail);
+	sim.addSlider("Scale", "m", sim.scale, 0.05, 20, 0.01, value => sim.scale = value);
+	sim.addSlider("Mass", "kg", params.m, 0.01, 5, 0.01, value => params.m = value);
+	sim.addSlider("Spring Constant", "N/m", params.k, 0.1, 20, 0.1, value => params.k = value);
+	sim.addSlider("Equilibrium Length", "m", params.l, 0.1, 5, 0.01, value => params.l = value);
+	sim.addSlider("Gravity", "m/s^2", params.g, 0, 20, 0.1, value => params.g = value);
 
 	sim.start();
 

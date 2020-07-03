@@ -161,20 +161,20 @@ class Simulation {
 		return progress;
 	}
 
-	addButton(label, func) {
+	addButton(label, onclick) {
 		const container = document.getElementById("controls");
 		const btn = strToElt(`<button class="button box-shadow">${label}</button>`);
-		btn.addEventListener("click", func);
+		btn.addEventListener("click", onclick);
 		container.appendChild(btn);
 		return btn;
 	}
 
-	addSlider(name, units, init, min, max, step) {
+	addSlider(name, units, init, min, max, step, onupdate) {
 		// A slider that can be used to choose a float value
+
+		// Create DOM elements
 		const container = document.getElementById("controls");
 		const id = "range-" + name.toLowerCase().replace(' ', '-');
-		
-		// Create the DOM elements
 		const label = strToElt(`
 			<div class="slider left-border">
 				<label for="${id}">
@@ -194,9 +194,18 @@ class Simulation {
 		`);
 		const slider = label.querySelector("input");
 		const output = label.querySelector("output");
-
-		// Add them to the document
 		container.appendChild(label);
+		
+		// External control
+		let value = init;
+		const control = {
+			getValue: () => value,
+			setValue: newValue => {
+				slider.value = newValue;
+				output.textContent = newValue;
+				value = newValue;
+			}
+		};
 		
 		// Show the slider when the label is clicked
 		this.controls.push(label);
@@ -207,66 +216,70 @@ class Simulation {
 				x == label ? "toggle" : "remove"
 			]("expanded"));
 		});
-		
-		// Change the label and the object property on input
-		const inputHandler = val => {
-			output.textContent = val;
-			slider.dispatchEvent(new CustomEvent("update", { detail: val }));
-		};
-		slider.addEventListener("input", e => inputHandler(e.target.valueAsNumber))
-		slider.update = val => {
-			slider.value = val;
-			inputHandler(val);
-		};
 
-		return slider;
+		// Input event listener
+		slider.addEventListener("input", e => {
+			output.textContent = e.target.valueAsNumber;
+			onupdate(e.target.valueAsNumber);
+		});
+
+		return control;
 	}
 
-	addSelector(name, arr, init) {
+	addSelector(name, arr, onupdate) {
 		// A selector has two arrow buttons that can be used to select on of the options given in arr
+
+		// Create DOM elements
 		const id = "selector-" + name.toLowerCase().replace(' ', '-');
 		const container = document.getElementById("controls");
-
 		const label = strToElt(`
 			<label class="selector" for="${id}">
 				<button class="selector-left box-shadow">&lt;</button>
 				<span class="selector-label">
 					<span class="selector-name">${name}</span>
-					<output>${init}</output>
+					<output>0</output>
 				</span>
 				<button class="selector-right box-shadow">&gt;</button>
 			</label>
 		`);
-
-		const validateValue = value => value >= 1 && value <= arr.length;
-		const dispatchUpdate = adjustment => {
-			// Map to zero-based range
-			label.dispatchEvent(new CustomEvent("update", { detail: adjustment }));
-		};
-
 		const leftArrow = label.querySelector(".selector-left");
 		const rightArrow = label.querySelector(".selector-right");
 		const output = label.querySelector("output");
-		leftArrow.addEventListener("click", () => dispatchUpdate(-1));
-		rightArrow.addEventListener("click", () => dispatchUpdate(1));
-
-		label.updateDisplay = value => {
-			if (!validateValue(value)) return;
-			leftArrow.disabled = !validateValue(value - 1);
-			rightArrow.disabled = !validateValue(value + 1);
-			output.value = value;
-		};
-
 		container.appendChild(label);
 
-		return label;
+		const validateValue = value => value >= 0 && value < arr.length;
+
+		// External control
+		let value = 0;
+		const control = {
+			getValue: () => value,
+			setValue: newValue => {
+				leftArrow.disabled = !validateValue(newValue - 1);
+				rightArrow.disabled = !validateValue(newValue + 1);
+				output.value = newValue + 1;
+				value = newValue;
+				onupdate(newValue);
+			}
+		};
+
+		// Event listeners
+		const onclick = newValue => {
+			if (!validateValue(newValue)) return;
+			onupdate(newValue);
+			control.setValue(newValue);
+		};
+		leftArrow.addEventListener("click", () => onclick(value - 1));
+		rightArrow.addEventListener("click", () => onclick(value + 1));
+
+		return control;
 	}
 
-	addComboBox(label, arr, init) {
+	addComboBox(label, arr, init, onupdate) {
+
+		// Create DOM elements
 		const name = label.toLowerCase().replace(' ', '-');
 		const id = "combo-" + name;
 		const container = document.getElementById("controls");
-
 		const elt = strToElt(`
 			<div class="combobox left-border">
 				<label for="${id}">${label}</label>
@@ -275,37 +288,48 @@ class Simulation {
 				</select>
 			</div>
 		`);
-
 		const select = elt.querySelector("select");
-		select.addEventListener("input", () => {
-			select.dispatchEvent(new CustomEvent("update", { detail: select.selectedIndex }));
-		});
-
 		container.appendChild(elt);
 
-		return select;
+		// External control
+		const control = {
+			getValue: () => select.selectedIndex,
+			setValue: newValue => {
+				select.selectedIndex = newValue;
+			}
+		};
+
+		// Event listener
+		select.addEventListener("input", () => onupdate(select.selectedIndex));
+
+		return control;
 	}
 
-	addCheckbox(label, init) {
+	addCheckbox(label, init, onupdate) {
+
+		// Create DOM elements
 		const name = label.toLowerCase().replace(' ', '-');
 		const id = "checkbox-" + name;
 		const container = document.getElementById("controls");
-
 		const elt = strToElt(`
 			<div class="checkbox left-border">
 				<label for="${id}">${label}</label>
 				<input type="checkbox" id="${id}" name="${name}" ${init ? "checked" : ""}></input>
 			</div>
 		`);
-
 		const checkbox = elt.querySelector("input");
-		checkbox.addEventListener("input", () => {
-			elt.dispatchEvent(new CustomEvent("update", { detail: checkbox.checked }))
-		});
-
 		container.appendChild(elt);
 
-		return elt;
+		// External control
+		const control = {
+			getValue: () => checkbox.checked,
+			setValue: newValue => checkbox.checked = newValue
+		};
+
+		// Event listener
+		checkbox.addEventListener("input", () => onupdate(checkbox.checked));
+
+		return control;
 	}
 
 }

@@ -23,14 +23,10 @@ window.addEventListener("load", function() {
 
 	/* Create DOM elements */
 
-	const scaleSlider = sim.addSlider("Scale", "m", sim.scale, 1, 20, 0.1);
-	scaleSlider.addEventListener("update", e => sim.scale = e.detail);
+	const scaleSlider = sim.addSlider("Scale", "m", sim.scale, 1, 20, 0.1, value => sim.scale = value);
 
-	const waveSelector = sim.addSelector("Wave", state.waves, 1);
-	waveSelector.addEventListener("update", e => {
-		state.selectedIndex += e.detail;
-		selectWave(state.selectedIndex);
-		waveSelector.updateDisplay(state.selectedIndex + 1);
+	const waveSelector = sim.addSelector("Wave", state.waves, value => {
+		selectWave(value);
 	});
 
 	const addBtn = sim.addButton("Add Wave", () => {
@@ -45,22 +41,17 @@ window.addEventListener("load", function() {
 		if (state.waves.length <= 1) return;
 		state.waves.splice(state.selectedIndex, 1);
 		selectWave(state.selectedIndex - 1 < 0 ? 0 : state.selectedIndex - 1);
-		waveSelector.updateDisplay(state.selectedIndex + 1);
+		waveSelector.setValue(state.selectedIndex);
 	});
 
 	sim.groupControls([addBtn, dupeBtn, remBtn]);
 
 	const sliders = {
-		wavelength: sim.addSlider("Wavelength", "m", 0, 0.1, 10, 0.01),
-		freq: sim.addSlider("Frequency", "Hz", 0, 0.1, 10, 0.1),
-		amp: sim.addSlider("Amplitude", "m", 0, 0.1, 5, 0.1),
-		offset: sim.addSlider("Phase Offset", "", 0, 0, 2 * Math.PI, 0.01)
+		wavelength: sim.addSlider("Wavelength", "m", 0, 0.1, 10, 0.01, value => state.selected.wavelength = value),
+		freq: sim.addSlider("Frequency", "Hz", 0, 0.1, 10, 0.1, value => state.selected.freq = value),
+		amp: sim.addSlider("Amplitude", "m", 0, 0.1, 5, 0.1, value => state.selected.amp = value),
+		offset: sim.addSlider("Phase Offset", "", 0, 0, 2 * Math.PI, 0.01, value => state.selected.offset = value)
 	};
-
-	// Make each slider change its corresponding property of the selected wave
-	for (const prop in sliders) {
-		if (sliders.hasOwnProperty(prop)) sliders[prop].addEventListener("update", e => state.selected[prop] = e.detail);
-	}
 
 
 	/* Modify array of waves, keeping sliders and selector in sync */
@@ -74,13 +65,13 @@ window.addEventListener("load", function() {
 		state.selectedIndex = index;
 		state.selected = state.waves[index];
 		for (const prop in sliders) {
-			if (sliders.hasOwnProperty(prop)) sliders[prop].update(state.selected[prop]);
+			if (sliders.hasOwnProperty(prop)) sliders[prop].setValue(state.selected[prop]);
 		}
 	}
 
 	function addWave(wave) {
 		state.waves.push(wave);
-		waveSelector.updateDisplay(state.waves.length);
+		waveSelector.setValue(state.waves.length - 1);
 		selectWave(state.waves.length - 1);
 	}
 
