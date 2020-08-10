@@ -203,6 +203,10 @@ button::-moz-focus-inner {
 
 /* COMBO BOX */
 
+.combobox > select {
+	min-width: 100px;
+}
+
 .combobox > * {
 	display: block;
 }

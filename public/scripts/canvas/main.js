@@ -154,6 +154,7 @@ class Simulation {
 		container.appendChild(innerContainer);
 	}
 
+	// Remove if not being used
 	addProgressBar(label) {
 		const container = document.getElementById("controls");
 		const progress = strToElt(`<progress max="100" value="0">${label}</progress>`);
@@ -164,10 +165,18 @@ class Simulation {
 	addButton(label, onclick) {
 		const container = document.getElementById("controls");
 		const btn = strToElt(`<button class="button box-shadow">${label}</button>`);
+		const control = {
+			appendToDOM: () => container.appendChild(btn)
+		};
 		btn.addEventListener("click", onclick);
-		container.appendChild(btn);
-		return btn;
+		return control;
 	}
+
+	/*
+	 * The following controls all return an object with a getter and setter
+	 * for the control's relevant value, and potentially other useful methods.
+	 * The setter simulates a user interaction so calls the 'onupdate' callback
+	 */
 
 	addSlider(name, units, init, min, max, step, onupdate) {
 		// A slider that can be used to choose a float value
@@ -194,7 +203,6 @@ class Simulation {
 		`);
 		const slider = label.querySelector("input");
 		const output = label.querySelector("output");
-		container.appendChild(label);
 		
 		// External control
 		let value = init;
@@ -204,7 +212,9 @@ class Simulation {
 				slider.value = newValue;
 				output.textContent = newValue;
 				value = newValue;
-			}
+				onupdate(value);
+			},
+			appendToDOM: () => container.appendChild(label)
 		};
 		
 		// Show the slider when the label is clicked
@@ -226,6 +236,7 @@ class Simulation {
 		return control;
 	}
 
+	// Remove this if not being used
 	addSelector(name, arr, onupdate) {
 		// A selector has two arrow buttons that can be used to select on of the options given in arr
 
@@ -245,7 +256,6 @@ class Simulation {
 		const leftArrow = label.querySelector(".selector-left");
 		const rightArrow = label.querySelector(".selector-right");
 		const output = label.querySelector("output");
-		container.appendChild(label);
 
 		const validateValue = value => value >= 0 && value < arr.length;
 
@@ -258,23 +268,24 @@ class Simulation {
 				rightArrow.disabled = !validateValue(newValue + 1);
 				output.value = newValue + 1;
 				value = newValue;
-				onupdate(newValue);
-			}
+				onupdate(value);
+			},
+			appendToDOM: () => container.appendChild(label)
 		};
 
 		// Event listeners
 		const onclick = newValue => {
 			if (!validateValue(newValue)) return;
-			onupdate(newValue);
 			control.setValue(newValue);
+			onupdate(newValue);
 		};
-		leftArrow.addEventListener("click", () => onclick(value - 1));
-		rightArrow.addEventListener("click", () => onclick(value + 1));
+		leftArrow.addEventListener("click", () => onclick(control.getValue() - 1));
+		rightArrow.addEventListener("click", () => onclick(control.getValue() + 1));
 
 		return control;
 	}
 
-	addComboBox(label, arr, init, onupdate) {
+	addComboBox(label, onupdate) {
 
 		// Create DOM elements
 		const name = label.toLowerCase().replace(' ', '-');
@@ -283,20 +294,31 @@ class Simulation {
 		const elt = strToElt(`
 			<div class="combobox left-border">
 				<label for="${id}">${label}</label>
-				<select name="${name}" id="${id}">
-					${ arr.map(x => `<option>${x}</option>`).join("") }
-				</select>
+				<select name="${name}" id="${id}"></select>
 			</div>
 		`);
 		const select = elt.querySelector("select");
-		container.appendChild(elt);
 
 		// External control
 		const control = {
 			getValue: () => select.selectedIndex,
 			setValue: newValue => {
 				select.selectedIndex = newValue;
-			}
+				onupdate(select.selectedIndex);
+			},
+			setOptions: labels => {
+				// Clear existing options
+				while (select.length > 0) select.remove(0);
+				// Add new options
+				labels.map(label => {
+					const option = document.createElement("option");
+					option.text = label;
+					return option;
+				}).forEach(option => select.add(option));
+				// Emit update
+				onupdate(select.selectedIndex);
+			},
+			appendToDOM: () => container.appendChild(elt)
 		};
 
 		// Event listener
@@ -318,12 +340,15 @@ class Simulation {
 			</div>
 		`);
 		const checkbox = elt.querySelector("input");
-		container.appendChild(elt);
 
 		// External control
 		const control = {
 			getValue: () => checkbox.checked,
-			setValue: newValue => checkbox.checked = newValue
+			setValue: newValue => {
+				checkbox.checked = newValue;
+				onupdate(checkbox.checked);
+			},
+			appendToDOM: () => container.appendChild(elt)
 		};
 
 		// Event listener
