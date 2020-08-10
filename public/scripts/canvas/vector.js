@@ -129,7 +129,9 @@ class Vector {
 	 * Sets magnitude to 1, preserving direction
 	 */
 	normalise() {
-		return this.scale(1 / this.getLength());
+		const length = this.getLength();
+		if (!length) return null;
+		return this.scale(1 / length);
 	}
 
 	/*
