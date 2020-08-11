@@ -144,32 +144,14 @@ class Simulation {
 	 * Methods to add various types of controls to the DOM
 	 */
 
-	groupControls(elts) {
-		// Puts all the given control elements into a div container
-		const container = document.getElementById("controls");
-		const innerContainer = strToElt(`<div class="control-group"></div>`);
-		for (const elt of elts) {
-			innerContainer.appendChild(elt);
-		}
-		container.appendChild(innerContainer);
-	}
-
-	// Remove if not being used
-	addProgressBar(label) {
-		const container = document.getElementById("controls");
-		const progress = strToElt(`<progress max="100" value="0">${label}</progress>`);
-		container.appendChild(progress);
-		return progress;
-	}
-
-	addButton(label, onclick) {
-		const container = document.getElementById("controls");
-		const btn = strToElt(`<button class="button box-shadow">${label}</button>`);
-		const control = {
-			appendToDOM: () => container.appendChild(btn)
-		};
+	addButton(id, label, onclick) {
+		const btn = document.getElementById(id);
+		if (!btn) return null;
+		btn.textContent = label;
 		btn.addEventListener("click", onclick);
-		return control;
+		return {
+			click: () => btn.click()
+		};
 	}
 
 	/*
@@ -178,31 +160,18 @@ class Simulation {
 	 * The setter simulates a user interaction so calls the 'onupdate' callback
 	 */
 
-	addSlider(name, units, init, min, max, step, onupdate) {
+	addSlider(id, label, units, init, min, max, step, onupdate) {
 		// A slider that can be used to choose a float value
 
-		// Create DOM elements
-		const container = document.getElementById("controls");
-		const id = "range-" + name.toLowerCase().replace(' ', '-');
-		const label = strToElt(`
-			<div class="slider left-border">
-				<label for="${id}">
-					<span class="name">${name}</span>
-					<output for="${id}">${init}</output>
-					<span class="units">${units}</span>
-				</label>
-				<input
-					type="range"
-					id="${id}"
-					min="${min}"
-					max="${max}"
-					step="${step}" 
-					value="${init}"
-				/>
-			</div>
-		`);
-		const slider = label.querySelector("input");
-		const output = label.querySelector("output");
+		// Get DOM elements
+		const outer = document.getElementById(id);
+		if (!outer) return null;
+		outer.querySelector(".name").textContent = label;
+		outer.querySelector(".units").textContent = units;
+		const slider = outer.querySelector("input");
+		const output = outer.querySelector("output");
+		slider.min = min; slider.max = max; slider.step = step; slider.value = init;
+		output.value = init;
 		
 		// External control
 		let value = init;
@@ -213,17 +182,16 @@ class Simulation {
 				output.textContent = newValue;
 				value = newValue;
 				onupdate(value);
-			},
-			appendToDOM: () => container.appendChild(label)
+			}
 		};
 		
 		// Show the slider when the label is clicked
-		this.controls.push(label);
-		label.addEventListener("click", e => {
+		this.controls.push(outer);
+		outer.addEventListener("click", e => {
 			if (e.target === slider) return;
 			// Toggle clicked label and contract all others
 			this.controls.forEach(x => x.classList[
-				x == label ? "toggle" : "remove"
+				x === outer ? "toggle" : "remove"
 			]("expanded"));
 		});
 
@@ -269,8 +237,7 @@ class Simulation {
 				output.value = newValue + 1;
 				value = newValue;
 				onupdate(value);
-			},
-			appendToDOM: () => container.appendChild(label)
+			}
 		};
 
 		// Event listeners
@@ -285,19 +252,13 @@ class Simulation {
 		return control;
 	}
 
-	addComboBox(label, onupdate) {
+	addComboBox(id, label, onupdate) {
 
 		// Create DOM elements
-		const name = label.toLowerCase().replace(' ', '-');
-		const id = "combo-" + name;
-		const container = document.getElementById("controls");
-		const elt = strToElt(`
-			<div class="combobox left-border">
-				<label for="${id}">${label}</label>
-				<select name="${name}" id="${id}"></select>
-			</div>
-		`);
-		const select = elt.querySelector("select");
+		const outer = document.getElementById(id);
+		if (!outer) return null;
+		outer.querySelector("label").textContent = label;
+		const select = outer.querySelector("select");
 
 		// External control
 		const control = {
@@ -317,8 +278,7 @@ class Simulation {
 				}).forEach(option => select.add(option));
 				// Emit update
 				onupdate(select.selectedIndex);
-			},
-			appendToDOM: () => container.appendChild(elt)
+			}
 		};
 
 		// Event listener
@@ -327,19 +287,13 @@ class Simulation {
 		return control;
 	}
 
-	addCheckbox(label, init, onupdate) {
+	addCheckbox(id, label, init, onupdate) {
 
 		// Create DOM elements
-		const name = label.toLowerCase().replace(' ', '-');
-		const id = "checkbox-" + name;
-		const container = document.getElementById("controls");
-		const elt = strToElt(`
-			<div class="checkbox left-border">
-				<label for="${id}">${label}</label>
-				<input type="checkbox" id="${id}" name="${name}" ${init ? "checked" : ""}></input>
-			</div>
-		`);
-		const checkbox = elt.querySelector("input");
+		const outer = document.getElementById(id);
+		outer.querySelector("label").textContent = label;
+		const checkbox = outer.querySelector("input");
+		checkbox.checked = init;
 
 		// External control
 		const control = {
@@ -347,8 +301,7 @@ class Simulation {
 			setValue: newValue => {
 				checkbox.checked = newValue;
 				onupdate(checkbox.checked);
-			},
-			appendToDOM: () => container.appendChild(elt)
+			}
 		};
 
 		// Event listener

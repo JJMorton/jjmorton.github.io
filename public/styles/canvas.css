@@ -34,6 +34,11 @@ canvas {
 
 /* SLIDERS */
 
+#controls .slider,
+#controls .slider > label {
+	cursor: pointer;
+}
+
 #controls .slider.expanded > label {
 	color: black;
 	background-color: var(--accent-color);
@@ -59,18 +64,17 @@ canvas {
 #controls .slider > label {
 	font-family: var(--font-family);
 	flex: 1;
-	cursor: pointer;
 }
 
-div#controls .slider.expanded {
+#controls .slider.expanded {
 	background-color: var(--accent-color);
 }
 
-div#controls .slider:not(.expanded) input[type=range] {
+#controls .slider:not(.expanded) input[type=range] {
 	display: none;
 }
 
-div#controls input[type=range] {
+#controls input[type=range] {
 	width: 100%;
 	left: 0;
 	right: 0;
@@ -114,15 +118,6 @@ input[type=range]:focus::-webkit-slider-runnable-track {
 
 /* BUTTONS */
 
-.control-group {
-	display: flex;
-	flex-direction: row;
-}
-
-.control-group > * {
-	flex: 1;
-}
-
 button {
 	color: var(--text-color);
 	font-family: var(--font-family);
@@ -158,47 +153,6 @@ button::-moz-focus-inner {
 .button {
 	max-width: 400px;
 	margin: 10px auto;
-}
-
-/* SELECTOR */
-
-.selector {
-	display: flex;
-	flex-direction: row;
-	align-items: center;
-	width: 100%;
-	max-width: 400px;
-	left: 0; right: 0;
-	margin: 10px auto;
-}
-
-.selector .selector-name {
-	text-align: right;
-	margin-right: 2px;
-}
-
-.selector output {
-	margin-left: 2px;
-	font-size: 120%;
-	font-weight: bold;
-}
-
-.selector .selector-name,
-.selector output {
-	flex: 1;
-	font-family: var(--font-family);
-}
-
-.selector button:disabled {
-	color: transparent;
-}
-
-.selector button {
-	flex: 0;
-}
-
-.selector button:not(:disabled) {
-	cursor: pointer;
 }
 
 /* COMBO BOX */

@@ -32,6 +32,7 @@ for (const sim of simulations) {
 			title: `Simulation - ${sim.title}`,
 			description: sim.description,
 			id: sim.id,
+			controls: sim.controls,
 			commithash
 		});
 	});

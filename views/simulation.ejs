@@ -18,9 +18,14 @@
 		<p><%= description %></p>
 	</main>
 
+	<section id="controls">
+		<% (controls || []).forEach(function(control) { %>
+			<%- include(`partials/controls/${control.type}`, { name: control.name }) %>
+		<% }); %>
+	</section>
+
 	<section id="sec-simulation">
 		<noscript>Please enable JavaScript to view this simulation.</noscript>
-		<div id="controls"></div>
 		<canvas class="box-shadow">Sorry, the canvas element is not supported by your browser.</canvas>
 	</section>
 

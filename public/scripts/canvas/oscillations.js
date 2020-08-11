@@ -81,12 +81,12 @@ window.addEventListener("load", function() {
 		sim.ctx.fillRect(sim.percToPx(50) - sim.mToPx(0.2), 0, sim.mToPx(0.4), sim.mToPx(d_pos));
 	};
 
-	sim.addSlider("Spring Constant", "N/m", params.k, 1, 20, 0.1, value => params.k = value);
-	sim.addSlider("Damping", "kg/s", params.b, 0, 2, 0.01, value => params.b = value);
-	sim.addSlider("Mass", "kg", params.m, 0.1, 5, 0.1, value => params.m = value);
-	sim.addSlider("Driving Frequency", "Hz", params.d_f, 0, 5, 0.01, value => params.d_f = value);
-	sim.addSlider("Driving Amplitude", "m", params.d_a, 0, 0.5, 0.01, value => params.d_a = value);
-	sim.addSlider("Scale", "m", sim.scale, 1, 20, 1, value => sim.scale = value);
+	sim.addSlider("springconstant", "Spring Constant", "N/m", params.k, 1, 20, 0.1, value => params.k = value);
+	sim.addSlider("damping", "Damping", "kg/s", params.b, 0, 2, 0.01, value => params.b = value);
+	sim.addSlider("mass", "Mass", "kg", params.m, 0.1, 5, 0.1, value => params.m = value);
+	sim.addSlider("frequency", "Driving Frequency", "Hz", params.d_f, 0, 5, 0.01, value => params.d_f = value);
+	sim.addSlider("amplitude", "Driving Amplitude", "m", params.d_a, 0, 0.5, 0.01, value => params.d_a = value);
+	sim.addSlider("scale", "Scale", "m", sim.scale, 1, 20, 1, value => sim.scale = value);
 
 	sim.start();
 

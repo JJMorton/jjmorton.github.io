@@ -214,10 +214,9 @@ window.addEventListener("load", function() {
 
 	/* Create controls */
 
-	sim.addSlider("Data points", "", params.datalength, 10, 500, 1, value => params.datalength = value);
+	sim.addSlider("datalength", "Data points", "", params.datalength, 10, 500, 1, value => params.datalength = value);
 
-	const datagenoptions = [ "Random", "Backwards", "Triangle", "Single Swap", "Sorted" ];
-	sim.addComboBox("Data distribution", datagenoptions, 0, value => {
+	sim.addComboBox("datagen", "Data distribution", value => {
 		switch (value) {
 			case 0: params.datagen = gendata.random; break;
 			case 1: params.datagen = gendata.backwards; break;
@@ -225,32 +224,31 @@ window.addEventListener("load", function() {
 			case 3: params.datagen = gendata.singleswap; break;
 			case 4: params.datagen = gendata.sorted; break;
 		}
-	});
+	}).setOptions([ "Random", "Backwards", "Triangle", "Single Swap", "Sorted" ]);
 
-	const methodoptions = [ "Bubble Sort", "Quick Sort", "Insertion Sort", "Selection Sort" ];
-	sim.addComboBox("Sorting Method", methodoptions, 0, value => {
+	sim.addComboBox("method", "Sorting Method", value => {
 		switch (value) {
 			case 0: params.method = sortmethods.bubble; break;
 			case 1: params.method = sortmethods.quick; break;
 			case 2: params.method = sortmethods.insertion; break;
 			case 3: params.method = sortmethods.selection; break;
 		}
-	});
+	}).setOptions([ "Bubble Sort", "Quick Sort", "Insertion Sort", "Selection Sort" ]);
 
-	const startbutton = sim.addButton("Sort", () => runsort(params.datagen(params.datalength), params.method));
+	const startbutton = sim.addButton("start", "Sort", () => runsort(params.datagen(params.datalength), params.method));
 
-	sim.addCheckbox("Show swaps", params.showswap, value => {
+	sim.addCheckbox("showswap", "Show swaps", params.showswap, value => {
 		params.showswap = value;
 		state.hiswap = [ -1, -1 ];
 		state.redraw = true;
 	});
-	sim.addCheckbox("Show comparisons", params.showcompare, value => {
+	sim.addCheckbox("showcompare", "Show comparisons", params.showcompare, value => {
 		params.showcompare = value;
 		state.hicompare = [ -1, -1 ];
 		state.redraw = true;
 	});
 
-	sim.addSlider("Speed", "", (200 - params.delay) / 2, 0, 100, 1, value => params.delay = 200 - 2 * value);
+	sim.addSlider("speed", "Speed", "", (200 - params.delay) / 2, 0, 100, 1, value => params.delay = 200 - 2 * value);
 
 	sim.start();
 

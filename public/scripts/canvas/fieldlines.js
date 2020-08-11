@@ -131,23 +131,23 @@ window.addEventListener("load", function() {
 
 	// Create the controls
 	{
-		const sliderStrength = sim.addSlider("Magnitude of charge", "C", 0, -2, 2, 0.01, value => {
+		const sliderStrength = sim.addSlider("strength", "Magnitude of charge", "C", 0, -2, 2, 0.01, value => {
 			if (!state.selected) return;
 			state.selected.strength = value
 			state.charges.forEach(charge => createPaths(charge));
 		});
-		const comboSelect = sim.addComboBox("Selected charge", index => {
+		const comboSelect = sim.addComboBox("select", "Selected charge", index => {
 			state.selected = index >= 0 ? state.charges[index] : null;
 			if (!state.selected) return;
 			sliderStrength.setValue(state.selected.strength);
 		});
-		const buttonCreate = sim.addButton("Create charge", () => {
+		const buttonCreate = sim.addButton("create", "Create charge", () => {
 			state.charges.forEach(charge => createPaths(charge));
 			state.charges.push(createCharge(Math.random() * sim.scale, Math.random() * sim.scale));
 			comboSelect.setOptions(state.charges.map((charge, i) => `Charge ${i + 1}`));
 			comboSelect.setValue(state.charges.length - 1);
 		});
-		const buttonRemove = sim.addButton("Remove selected charge", () => {
+		const buttonRemove = sim.addButton("remove", "Remove selected charge", () => {
 			if (!state.selected) return;
 			state.charges.forEach(charge => createPaths(charge));
 			state.charges.splice(state.charges.indexOf(state.selected), 1);
@@ -159,10 +159,10 @@ window.addEventListener("load", function() {
 			state.charges.forEach(charge => createPaths(charge));
 		};
 
-		buttonCreate.appendToDOM();
-		buttonRemove.appendToDOM();
-		comboSelect.appendToDOM();
-		sliderStrength.appendToDOM();
+		// Add two initial charges
+		buttonCreate.click(); buttonCreate.click();
+		sliderStrength.setValue(-1);
+
 	}
 
 	sim.start();

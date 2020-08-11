@@ -23,34 +23,37 @@ window.addEventListener("load", function() {
 
 	/* Create DOM elements */
 
-	const scaleSlider = sim.addSlider("Scale", "m", sim.scale, 1, 20, 0.1, value => sim.scale = value);
+	const scaleSlider = sim.addSlider("scale", "Scale", "m", sim.scale, 1, 20, 0.1, value => sim.scale = value);
 
-	const waveSelector = sim.addSelector("Wave", state.waves, value => {
-		selectWave(value);
+	const selectCombo = sim.addComboBox("select", "Selected Wave", index => {
+		// Set the selected wave and update the sliders associated with its properties
+		console.log("Selecting wave index", index);
+		state.selectedIndex = index;
+		state.selected = state.waves[index];
+		for (const prop in sliders) {
+			if (sliders.hasOwnProperty(prop)) sliders[prop].setValue(state.selected[prop]);
+		}
 	});
 
-	const addBtn = sim.addButton("Add Wave", () => {
+	const addBtn = sim.addButton("add", "Add Wave", () => {
 		addWave(createWave(defaultWave));
 	});
 
-	const dupeBtn = sim.addButton("Duplicate Wave", () => {
+	const dupeBtn = sim.addButton("duplicate", "Duplicate Wave", () => {
 		addWave(createWave(state.selected));
 	});
 
-	const remBtn = sim.addButton("Remove Wave", () => {
+	const remBtn = sim.addButton("remove", "Remove Wave", () => {
 		if (state.waves.length <= 1) return;
 		state.waves.splice(state.selectedIndex, 1);
-		selectWave(state.selectedIndex - 1 < 0 ? 0 : state.selectedIndex - 1);
-		waveSelector.setValue(state.selectedIndex);
+		selectCombo.setOptions(state.waves.map((_, i) => `Wave ${i + 1}`));
 	});
 
-	sim.groupControls([addBtn, dupeBtn, remBtn]);
-
 	const sliders = {
-		wavelength: sim.addSlider("Wavelength", "m", 0, 0.1, 10, 0.01, value => state.selected.wavelength = value),
-		freq: sim.addSlider("Frequency", "Hz", 0, 0.1, 10, 0.1, value => state.selected.freq = value),
-		amp: sim.addSlider("Amplitude", "m", 0, 0.1, 5, 0.1, value => state.selected.amp = value),
-		offset: sim.addSlider("Phase Offset", "", 0, 0, 2 * Math.PI, 0.01, value => state.selected.offset = value)
+		wavelength: sim.addSlider("wavelength", "Wavelength", "m", 0, 0.1, 10, 0.01, value => state.selected.wavelength = value),
+		freq: sim.addSlider("frequency", "Frequency", "Hz", 0, 0.1, 10, 0.1, value => state.selected.freq = value),
+		amp: sim.addSlider("amplitude", "Amplitude", "m", 0, 0.1, 5, 0.1, value => state.selected.amp = value),
+		offset: sim.addSlider("offset", "Phase Offset", "", 0, 0, 2 * Math.PI, 0.01, value => state.selected.offset = value)
 	};
 
 
@@ -60,19 +63,10 @@ window.addEventListener("load", function() {
 		return { amp, freq, wavelength, offset };
 	}
 
-	function selectWave(index) {
-		// Set the selected wave and update the sliders associated with its properties
-		state.selectedIndex = index;
-		state.selected = state.waves[index];
-		for (const prop in sliders) {
-			if (sliders.hasOwnProperty(prop)) sliders[prop].setValue(state.selected[prop]);
-		}
-	}
-
 	function addWave(wave) {
 		state.waves.push(wave);
-		waveSelector.setValue(state.waves.length - 1);
-		selectWave(state.waves.length - 1);
+		selectCombo.setOptions(state.waves.map((_, i) => `Wave ${i + 1}`));
+		selectCombo.setValue(state.waves.length - 1);
 	}
 
 	function drawWave(c, points) {

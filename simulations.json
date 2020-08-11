@@ -2,32 +2,79 @@
 	{
 		"title": "Fluids",
 		"description": "Drop a ball in a fluid and observe the effects of drag, upthrust and the viscosity.",
-		"id": "fluids"
+		"id": "fluids",
+		"controls": [
+			{ "type": "slider", "name": "ballmass" },
+			{ "type": "slider", "name": "balldensity" },
+			{ "type": "slider", "name": "liquiddensity" },
+			{ "type": "slider", "name": "liquidviscosity" },
+			{ "type": "slider", "name": "gravity" }
+		]
 	},
 	{
 		"title": "Oscillations",
 		"description": "Simulate an oscillating spring with optional damping and a driving force",
-		"id": "oscillations"
+		"id": "oscillations",
+		"controls": [
+			{ "type": "slider", "name": "springconstant" },
+			{ "type": "slider", "name": "damping" },
+			{ "type": "slider", "name": "mass" },
+			{ "type": "slider", "name": "frequency" },
+			{ "type": "slider", "name": "amplitude" },
+			{ "type": "slider", "name": "scale" }
+		]
 	},
 	{
 		"title": "Lenses",
 		"description": "Simulate a lens with adjustable properties",
-		"id": "lenses"
+		"id": "lenses",
+		"controls": [
+			{ "type": "slider", "name": "focallength" },
+			{ "type": "slider", "name": "distance" },
+			{ "type": "slider", "name": "size" },
+			{ "type": "slider", "name": "scale" }
+		]
 	},
 	{
 		"title": "Wave packets",
 		"description": "See how waves interact when they interfere, and how adding many waves together can create a wave packet",
-		"id": "wavepackets"
+		"id": "wavepackets",
+		"controls": [
+			{ "type": "slider", "name": "scale" },
+			{ "type": "button", "name": "add" },
+			{ "type": "button", "name": "duplicate" },
+			{ "type": "button", "name": "remove" },
+			{ "type": "combo", "name": "select" },
+			{ "type": "slider", "name": "wavelength" },
+			{ "type": "slider", "name": "frequency" },
+			{ "type": "slider", "name": "amplitude" },
+			{ "type": "slider", "name": "offset" }
+		]
 	},
 	{
 		"title": "Electric Field Lines",
 		"description": "Visualise electric field lines from multiple point sources",
-		"id": "fieldlines"
+		"id": "fieldlines",
+		"controls": [
+			{ "type": "button", "name": "create" },
+			{ "type": "button", "name": "remove" },
+			{ "type": "combo", "name": "select" },
+			{ "type": "slider", "name": "strength" }
+		]
 	},
 	{
 		"title": "Sorting algorithms",
 		"description": "Watch how different sorting algorithms work on different data sets",
-		"id": "sorting"
+		"id": "sorting",
+		"controls": [
+			{ "type": "slider", "name": "datalength" },
+			{ "type": "combo", "name": "datagen" },
+			{ "type": "combo", "name": "method" },
+			{ "type": "button", "name": "start" },
+			{ "type": "checkbox", "name": "showswap" },
+			{ "type": "checkbox", "name": "showcompare" },
+			{ "type": "slider", "name": "speed" }
+		]
 	},
 	{
 		"title": "Elastic pendulum",

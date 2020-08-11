@@ -186,12 +186,11 @@ window.addEventListener("load", function() {
 	};
 
 	
-	sim.addSlider("Ball Mass", "kg", params.mass, 0.1, 5, 0.05, value => params.mass = value);
-	sim.addSlider("Ball Density", "kg/m^3", params.b_density, 50, 1500, 10, value => params.b_density = value);
-	sim.addSlider("Liquid Density", "kg/m^3", params.f_density, 50, 1500, 10, value => params.f_density = value);
-	sim.addSlider("Liquid Viscosity", "Pa s", params.f_viscosity, 0.001, 10, 0.001, value => params.f_viscosity = value);
-	sim.addSlider("Elasticity", "", params.elasticity, 0, 1, 0.01, value => params.elasticity = value);
-	sim.addSlider("Gravitational Acceleration", "m/s^2", params.gravity, 0, 20, 0.01, value => params.gravity = value);
+	sim.addSlider("ballmass", "Ball Mass", "kg", params.mass, 0.1, 5, 0.1, value => params.mass = value);
+	sim.addSlider("balldensity", "Ball Density", "kg/m^3", params.b_density, 50, 1500, 10, value => params.b_density = value);
+	sim.addSlider("liquiddensity", "Liquid Density", "kg/m^3", params.f_density, 50, 1500, 10, value => params.f_density = value);
+	sim.addSlider("liquidviscosity", "Liquid Viscosity", "Pa s", params.f_viscosity, 0.001, 10, 0.001, value => params.f_viscosity = value);
+	sim.addSlider("gravity", "Gravitational Acceleration", "m/s^2", params.gravity, 0, 20, 0.01, value => params.gravity = value);
 	
 
 	sim.start();
