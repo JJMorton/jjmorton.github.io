@@ -36,7 +36,7 @@
 		]
 	},
 	{
-		"title": "Wave packets",
+		"title": "Wave Packets",
 		"description": "See how waves interact when they interfere, and how adding many waves together can create a wave packet",
 		"id": "wavepackets",
 		"controls": [
@@ -63,7 +63,7 @@
 		]
 	},
 	{
-		"title": "Sorting algorithms",
+		"title": "Sorting Algorithms",
 		"description": "Watch how different sorting algorithms work on different data sets",
 		"id": "sorting",
 		"controls": [
@@ -77,8 +77,22 @@
 		]
 	},
 	{
-		"title": "Elastic pendulum",
+		"title": "Elastic Pendulum",
 		"description": "A simulation of a pendulum with a spring in place of the rod",
 		"id": "elasticpendulum"
+	},
+	{
+		"title": "Ray Marching",
+		"description": "A demonstration of ray marching with basic shapes in a pixel shader. Requires WebGL2 support",
+		"id": "raymarching",
+		"controls": [
+			{ "type": "slider", "name": "cameraangle" },
+			{ "type": "slider", "name": "cameraheight" },
+			{ "type": "slider", "name": "shadowsharp" },
+			{ "type": "slider", "name": "smoothing" },
+			{ "type": "slider", "name": "reflect" },
+			{ "type": "slider", "name": "reflectcount" },
+			{ "type": "checkbox", "name": "floorreflect" }
+		]
 	}
 ]

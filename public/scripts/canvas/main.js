@@ -2,14 +2,15 @@ const strToElt = str => new DOMParser().parseFromString(str, "text/html").body.f
 
 class Simulation {
 
-	constructor() {
+	constructor(contextType = "2d") {
 		// These functions should be set by the simulation using this class
 		this.render = null;
 		this.init = null;
 
 		// Get the canvas element and drawing context
+		this.contextType = contextType;
 		this.canvas = document.querySelector("canvas");
-		this.ctx = this.canvas.getContext("2d");
+		this.ctx = this.canvas.getContext(contextType);
 
 		// Get colours defined on root element in css
 		const style = window.getComputedStyle(document.documentElement);
@@ -62,7 +63,7 @@ class Simulation {
 			e.preventDefault();
 		});
 		this.canvas.addEventListener("contextmenu", e => {
-			e.preventDefault();
+			// e.preventDefault();
 		});
 	}
 
@@ -74,6 +75,10 @@ class Simulation {
 		// When the window is resized, stroke and fill styles are lost so we need to set them again
 		this.ctx.strokeStyle = this.colours.accent;
 		this.ctx.fillStyle = this.colours.foreground;
+
+		if (this.contextType === "webgl2" || this.contextType === "webgl") {
+			this.ctx.viewport(0, 0, size, size);
+		}
 
 		return this.canvas;
 	}

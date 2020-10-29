@@ -39,7 +39,7 @@ for (const sim of simulations) {
 }
 
 app.use((req, res) => {
-	res.render("404", { title: "404 - Not Found", path: req.path, commithash });
+	res.status(404).render("404", { title: "404 - Not Found", path: req.path, commithash });
 });
 
 app.listen(process.env.PORT || 8001);
