@@ -77,6 +77,7 @@ window.addEventListener("load", function() {
 
 		gl.useProgram(program);
 
+		// Get locations of uniforms we can control
 		const resolutionLoc = gl.getUniformLocation(program, "u_resolution");
 		const cameraposLoc = gl.getUniformLocation(program, "u_camerapos");
 
@@ -85,6 +86,10 @@ window.addEventListener("load", function() {
 		const reflectLoc = gl.getUniformLocation(program, "u_reflect");
 		const reflectcountLoc = gl.getUniformLocation(program, "u_reflectcount");
 		const floorreflectLoc = gl.getUniformLocation(program, "u_floorreflect");
+		const showstepsLoc = gl.getUniformLocation(program, "u_showsteps");
+		const shownormalLoc = gl.getUniformLocation(program, "u_shownormal");
+		const showshadowLoc = gl.getUniformLocation(program, "u_showshadow");
+		const showdiffuseLoc = gl.getUniformLocation(program, "u_showdiffuse");
 
 		const sphereposLoc = gl.getUniformLocation(program, "u_spherepos");
 		const sphereradLoc = gl.getUniformLocation(program, "u_sphererad");
@@ -95,17 +100,40 @@ window.addEventListener("load", function() {
 		const cylinderposLoc = gl.getUniformLocation(program, "u_cylinderpos");
 		const cylinderdimsLoc = gl.getUniformLocation(program, "u_cylinderdims");
 
+		// Set default values for them
 		gl.uniform1f(shadowsharpLoc, 24);
 		gl.uniform1f(smoothingLoc, 0.00666);
 		gl.uniform1f(reflectLoc, 10 / 150);
-		gl.uniform1i(reflectcountLoc, 2);
+		gl.uniform1i(reflectcountLoc, 1);
 		gl.uniform1i(floorreflectLoc, 0);
+		gl.uniform1i(showstepsLoc, 0);
+		gl.uniform1i(shownormalLoc, 0);
+		gl.uniform1i(showshadowLoc, 1);
+		gl.uniform1i(showdiffuseLoc, 1);
 
 		let cameraangle = 130 * Math.PI / 180;
 		let cameraheight = 0.6;
 
+		// Add the sliders to control them
+		sim.addSlider("cameraangle", "Camera angle", "°", 130, 0, 360, 0.1, value => cameraangle = value * Math.PI / 180);
+		sim.addSlider("cameraheight", "Camera height", "m", 6, 2, 20, 0.1, value => cameraheight = value / 10);
+		sim.addSlider("shadowsharp", "Shadow sharpness", "%", 20, 0, 100, 1, value => gl.uniform1f(shadowsharpLoc, 8 + 80 * value / 100));
+		sim.addSlider("smoothing", "Union smoothing", "%", 20, 0, 100, 1, value => gl.uniform1f(smoothingLoc, value / 3000));
+		sim.addSlider("reflect", "Reflectiveness", "%", 10, 0, 100, 1, value => gl.uniform1f(reflectLoc, (value + 1) / 200));
+		sim.addSlider("reflectcount", "Number of reflections", "", 1, 0, 4, 1, value => gl.uniform1i(reflectcountLoc, value));
+		sim.addCheckbox("floorreflect", "Reflective floor", false, value => gl.uniform1i(floorreflectLoc, value ? 1 : 0));
+		const stepsSlider = sim.addCheckbox("showsteps", "Show steps taken", false, value => gl.uniform1i(showstepsLoc, value ? 1 : 0));
+		const normalSlider = sim.addCheckbox("shownormal", "Visualise normals", false, value => {
+			gl.uniform1i(shownormalLoc, value ? 1 : 0);
+			if (value) stepsSlider.setValue(false);
+		});
+		sim.addCheckbox("showshadow", "Show shadows", true, value => gl.uniform1i(showshadowLoc, value ? 1 : 0));
+		sim.addCheckbox("showdiffuse", "Show diffuse lighting", true, value => gl.uniform1i(showdiffuseLoc, value ? 1 : 0));
+
 		sim.render = function() {
 			const camera = new Float32Array([Math.sin(cameraangle), cameraheight, 1.0 + Math.cos(cameraangle)]);
+
+			if (stepsSlider.getValue()) normalSlider.setValue(false);
 
 			gl.clearColor(0, 1, 0, 1);
 			gl.clear(gl.COLOR_BUFFER_BIT);
@@ -130,14 +158,6 @@ window.addEventListener("load", function() {
 			gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
 			gl.drawArrays(gl.TRIANGLES, 0, positions.length / 3);
 		};
-
-		sim.addSlider("cameraangle", "Camera angle", "°", 130, 0, 360, 0.1, value => cameraangle = value * Math.PI / 180);
-		sim.addSlider("cameraheight", "Camera height", "m", 6, 2, 20, 0.1, value => cameraheight = value / 10);
-		sim.addSlider("shadowsharp", "Shadow sharpness", "%", 20, 0, 100, 1, value => gl.uniform1f(shadowsharpLoc, 8 + 80 * value / 100));
-		sim.addSlider("smoothing", "Union smoothing", "%", 20, 0, 100, 1, value => gl.uniform1f(smoothingLoc, value / 3000));
-		sim.addSlider("reflect", "Reflectiveness", "%", 10, 0, 100, 1, value => gl.uniform1f(reflectLoc, (value + 1) / 200));
-		sim.addSlider("reflectcount", "Number of reflections", "", 2, 0, 4, 1, value => gl.uniform1i(reflectcountLoc, value));
-		sim.addCheckbox("floorreflect", "Reflective floor", false, value => gl.uniform1i(floorreflectLoc, value ? 1 : 0));
 
 		sim.start();
 

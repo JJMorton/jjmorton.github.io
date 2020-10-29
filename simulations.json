@@ -92,7 +92,11 @@
 			{ "type": "slider", "name": "smoothing" },
 			{ "type": "slider", "name": "reflect" },
 			{ "type": "slider", "name": "reflectcount" },
-			{ "type": "checkbox", "name": "floorreflect" }
+			{ "type": "checkbox", "name": "floorreflect" },
+			{ "type": "checkbox", "name": "showsteps" },
+			{ "type": "checkbox", "name": "shownormal" },
+			{ "type": "checkbox", "name": "showshadow" },
+			{ "type": "checkbox", "name": "showdiffuse" }
 		]
 	}
 ]
