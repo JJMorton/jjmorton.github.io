@@ -83,13 +83,14 @@ window.addEventListener("load", function() {
 
 		const shadowsharpLoc = gl.getUniformLocation(program, "u_shadowsharp");
 		const smoothingLoc = gl.getUniformLocation(program, "u_smoothing");
-		const reflectLoc = gl.getUniformLocation(program, "u_reflect");
-		const reflectcountLoc = gl.getUniformLocation(program, "u_reflectcount");
-		const floorreflectLoc = gl.getUniformLocation(program, "u_floorreflect");
+		const shininessLoc = gl.getUniformLocation(program, "u_shininess");
 		const showstepsLoc = gl.getUniformLocation(program, "u_showsteps");
 		const shownormalLoc = gl.getUniformLocation(program, "u_shownormal");
 		const showshadowLoc = gl.getUniformLocation(program, "u_showshadow");
-		const showdiffuseLoc = gl.getUniformLocation(program, "u_showdiffuse");
+		const showspecLoc = gl.getUniformLocation(program, "u_showspec");
+		const sunLoc = gl.getUniformLocation(program, "u_sun");
+		const skyLoc = gl.getUniformLocation(program, "u_sky");
+		const antialiasLoc = gl.getUniformLocation(program, "u_antialias");
 
 		const sphereposLoc = gl.getUniformLocation(program, "u_spherepos");
 		const sphereradLoc = gl.getUniformLocation(program, "u_sphererad");
@@ -103,13 +104,14 @@ window.addEventListener("load", function() {
 		// Set default values for them
 		gl.uniform1f(shadowsharpLoc, 24);
 		gl.uniform1f(smoothingLoc, 0.00666);
-		gl.uniform1f(reflectLoc, 10 / 150);
-		gl.uniform1i(reflectcountLoc, 1);
-		gl.uniform1i(floorreflectLoc, 0);
+		gl.uniform1f(shininessLoc, 0.6);
 		gl.uniform1i(showstepsLoc, 0);
 		gl.uniform1i(shownormalLoc, 0);
 		gl.uniform1i(showshadowLoc, 1);
-		gl.uniform1i(showdiffuseLoc, 1);
+		gl.uniform1i(showspecLoc, 1);
+		gl.uniform1i(sunLoc, 1);
+		gl.uniform1i(skyLoc, 1);
+		gl.uniform1i(antialiasLoc, 0);
 
 		let cameraangle = 130 * Math.PI / 180;
 		let cameraheight = 0.6;
@@ -119,16 +121,17 @@ window.addEventListener("load", function() {
 		sim.addSlider("cameraheight", "Camera height", "m", 6, 2, 20, 0.1, value => cameraheight = value / 10);
 		sim.addSlider("shadowsharp", "Shadow sharpness", "%", 20, 0, 100, 1, value => gl.uniform1f(shadowsharpLoc, 8 + 80 * value / 100));
 		sim.addSlider("smoothing", "Union smoothing", "%", 20, 0, 100, 1, value => gl.uniform1f(smoothingLoc, value / 3000));
-		sim.addSlider("reflect", "Reflectiveness", "%", 10, 0, 100, 1, value => gl.uniform1f(reflectLoc, (value + 1) / 200));
-		sim.addSlider("reflectcount", "Number of reflections", "", 1, 0, 4, 1, value => gl.uniform1i(reflectcountLoc, value));
-		sim.addCheckbox("floorreflect", "Reflective floor", false, value => gl.uniform1i(floorreflectLoc, value ? 1 : 0));
-		const stepsSlider = sim.addCheckbox("showsteps", "Show steps taken", false, value => gl.uniform1i(showstepsLoc, value ? 1 : 0));
+		sim.addSlider("shininess", "Specular size", "%", 60, 0, 100, 1, value => gl.uniform1f(shininessLoc, value / 100));
+		const stepsSlider = sim.addCheckbox("showsteps", "Show steps taken to reach surface", false, value => gl.uniform1i(showstepsLoc, value ? 1 : 0));
 		const normalSlider = sim.addCheckbox("shownormal", "Visualise normals", false, value => {
 			gl.uniform1i(shownormalLoc, value ? 1 : 0);
 			if (value) stepsSlider.setValue(false);
 		});
 		sim.addCheckbox("showshadow", "Show shadows", true, value => gl.uniform1i(showshadowLoc, value ? 1 : 0));
-		sim.addCheckbox("showdiffuse", "Show diffuse lighting", true, value => gl.uniform1i(showdiffuseLoc, value ? 1 : 0));
+		sim.addCheckbox("showspec", "Show specular highlights", true, value => gl.uniform1i(showspecLoc, value ? 1 : 0));
+		sim.addCheckbox("sun", "Enable sun lighting", true, value => gl.uniform1i(sunLoc, value ? 1 : 0));
+		sim.addCheckbox("sky", "Enable sky lighting", true, value => gl.uniform1i(skyLoc, value ? 1 : 0));
+		sim.addCheckbox("antialias", "Enable antialiasing (large performance hit)", false, value => gl.uniform1i(antialiasLoc, value ? 1 : 0));
 
 		sim.render = function() {
 			const camera = new Float32Array([Math.sin(cameraangle), cameraheight, 1.0 + Math.cos(cameraangle)]);

@@ -90,13 +90,14 @@
 			{ "type": "slider", "name": "cameraheight" },
 			{ "type": "slider", "name": "shadowsharp" },
 			{ "type": "slider", "name": "smoothing" },
-			{ "type": "slider", "name": "reflect" },
-			{ "type": "slider", "name": "reflectcount" },
-			{ "type": "checkbox", "name": "floorreflect" },
+			{ "type": "slider", "name": "shininess" },
 			{ "type": "checkbox", "name": "showsteps" },
 			{ "type": "checkbox", "name": "shownormal" },
 			{ "type": "checkbox", "name": "showshadow" },
-			{ "type": "checkbox", "name": "showdiffuse" }
+			{ "type": "checkbox", "name": "showspec" },
+			{ "type": "checkbox", "name": "sun" },
+			{ "type": "checkbox", "name": "sky" },
+			{ "type": "checkbox", "name": "antialias" }
 		]
 	}
 ]

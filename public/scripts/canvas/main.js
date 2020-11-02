@@ -20,6 +20,8 @@ class Simulation {
 			accent: style.getPropertyValue("--accent-color")
 		};
 
+		this.time = 0;
+
 		// Automatically resize the canvas with the window
 		this.resize();
 		window.addEventListener("resize", () => this.resize());
@@ -61,9 +63,6 @@ class Simulation {
 			mousemove(e);
 			mousepress(e.button);
 			e.preventDefault();
-		});
-		this.canvas.addEventListener("contextmenu", e => {
-			// e.preventDefault();
 		});
 	}
 
