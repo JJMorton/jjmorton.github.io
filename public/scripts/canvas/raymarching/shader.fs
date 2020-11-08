@@ -32,13 +32,22 @@ uniform vec2 u_cylinderdims; // vec2(height, radius)
 
 out vec4 outcolor;
 
-vec3 spherecolor = vec3(0.8, 0.2, 0.2);
-vec3 boxcolor = vec3(0.9, 0.8, 0.0);
-vec3 toruscolor = vec3(0.2, 0.2, 0.8);
-vec3 cylindercolor = vec3(0.9, 0.9, 0.2);
-
 vec3 suncolor = vec3(1.0, 0.95, 0.9);
 vec3 skycolor = vec3(0.8, 0.9, 1.0);
+
+struct Mtrl
+{
+    vec3 color;
+    float shininess;
+};
+
+struct SurfaceInfo
+{
+    Mtrl m;
+    float t; // distance from point defined in context
+};
+
+SurfaceInfo SURFACE_NONE = SurfaceInfo(Mtrl(vec3(0.0), 0.0), -1.0);
 
 /*
  * Signed distance functions
@@ -73,94 +82,111 @@ float distanceCylinder(in vec3 p, in vec2 c)
  * https://iquilezles.org/www/articles/smin/smin.htm
  */
 
-vec4 booleanUnion(in vec4 a, in vec4 b)
+SurfaceInfo booleanUnion(in SurfaceInfo a, in SurfaceInfo b)
 {
-    return a.w < b.w ? a : b;
+    if (a.t < b.t) return a; else return b;
 }
 
-vec4 booleanIntersect(in vec4 a, in vec4 b)
+SurfaceInfo booleanIntersect(in SurfaceInfo a, in SurfaceInfo b)
 {
-    return a.w > b.w ? a : b;
-}
-
-// Subtract b from a
-vec4 booleanSubtract(in vec4 a, in vec4 b)
-{
-    return booleanIntersect(a, vec4(b.rgb, -b.w));
-}
-
-vec4 smoothUnion(in vec4 a, in vec4 b, in float k)
-{
-    float h = clamp(0.5 + 0.5 * (b.w - a.w) / k, 0.0, 1.0);
-    vec3 c = mix(b.rgb, a.rgb, h);
-    float d = mix(b.w, a.w, h) - k * h * (1.0 - h);
-    return vec4(c, d);
-}
-
-vec4 smoothIntersect(in vec4 a, in vec4 b, in float k)
-{
-    vec4 v = smoothUnion(vec4(a.rgb, -a.w), vec4(b.rgb, -b.w), k);
-    return vec4(v.rgb, -v.w);
+    if (a.t > b.t) return a; else return b;
 }
 
 // Subtract b from a
-vec4 smoothSubtract(in vec4 a, in vec4 b, in float k)
+SurfaceInfo booleanSubtract(in SurfaceInfo a, in SurfaceInfo b)
 {
-    return smoothIntersect(a, vec4(b.rgb, -b.w), k);
+    return booleanIntersect(a, SurfaceInfo(b.m, -b.t));
+}
+
+SurfaceInfo smoothUnion(in SurfaceInfo a, in SurfaceInfo b, in float k)
+{
+    float h = clamp(0.5 + 0.5 * (b.t - a.t) / k, 0.0, 1.0);
+    vec3 c = mix(b.m.color, a.m.color, h);
+    Mtrl m = Mtrl(c, mix(b.m.shininess, a.m.shininess, h));
+    float d = mix(b.t, a.t, h) - k * h * (1.0 - h);
+    return SurfaceInfo(m, d);
+}
+
+SurfaceInfo smoothIntersect(in SurfaceInfo a, in SurfaceInfo b, in float k)
+{
+    SurfaceInfo v = smoothUnion(SurfaceInfo(a.m, -a.t), SurfaceInfo(b.m, -b.t), k);
+    return SurfaceInfo(v.m, -v.t);
+}
+
+// Subtract b from a
+SurfaceInfo smoothSubtract(in SurfaceInfo a, in SurfaceInfo b, in float k)
+{
+    return smoothIntersect(a, SurfaceInfo(b.m, -b.t), k);
 }
 
 
 
-// Distance to nearest point of objects
-// returns vec4(red, green, blue, distance)
-vec4 distanceToScene(in vec3 origin)
+SurfaceInfo distanceToScene(in vec3 origin)
 {
+    // Floor checkerboard pattern
     bool evenZ = origin.z - 0.5 * floor(origin.z / 0.5) > 0.25;
     bool evenX = origin.x - 0.5 * floor(origin.x / 0.5) > 0.25;
     float floorcolor = ((evenZ ? evenX : !evenX) ? 0.7 : 0.9);
 
-    vec4 sphere = vec4(spherecolor.rgb, distanceSphere(u_spherepos - origin, u_sphererad));
-    vec4 box = vec4(boxcolor.rgb, distanceBox(u_boxpos - origin, u_boxdims));
-    vec4 torus = vec4(toruscolor.rgb, distanceTorus(u_toruspos - origin, u_torusdims));
-    vec4 cylinder = vec4(cylindercolor.rgb, distanceCylinder(u_cylinderpos - origin, u_cylinderdims));
-    vec4 res = smoothUnion(sphere, torus, u_smoothing);
+    // Colours of objects
+    Mtrl mtrl_floor = Mtrl(vec3(floorcolor), 0.0);
+    Mtrl mtrl_sphere = Mtrl(vec3(0.8, 0.2, 0.2), u_shininess);
+    Mtrl mtrl_torus = Mtrl(vec3(0.2, 0.2, 0.8), u_shininess);
+    Mtrl mtrl_box = Mtrl(vec3(0.9, 0.8, 0.0), u_shininess);
+    Mtrl mtrl_cylinder = Mtrl(vec3(0.9, 0.8, 0.2), u_shininess);
+
+    // Distance to objects
+    SurfaceInfo sphere = SurfaceInfo(mtrl_sphere, distanceSphere(u_spherepos - origin, u_sphererad));
+    SurfaceInfo torus = SurfaceInfo(mtrl_torus, distanceTorus(u_toruspos - origin, u_torusdims));
+    SurfaceInfo box = SurfaceInfo(mtrl_box, distanceBox(u_boxpos - origin, u_boxdims) - 0.003);
+    SurfaceInfo cylinder = SurfaceInfo(mtrl_cylinder, distanceCylinder(u_cylinderpos - origin, u_cylinderdims));
+
+    // Blend nearest surfaces
+    SurfaceInfo res = smoothUnion(sphere, torus, u_smoothing);
     res = booleanUnion(res, smoothSubtract(box, cylinder, u_smoothing));
-    res = booleanUnion(res, vec4(vec3(floorcolor), origin.y));
+    res = booleanUnion(res, SurfaceInfo(mtrl_floor, origin.y));
+
     return res;
 }
 
 // Returns the distance marched by the ray
-vec4 rayMarch(in vec3 ray_origin, in vec3 rd)
+SurfaceInfo rayMarch(in vec3 ray_origin, in vec3 rd)
 {
     float t = 0.0;
     int steps = 0;
     while (t < RENDER_DIST)
     {
         vec3 ro = ray_origin + t * rd;
-        vec4 dist = distanceToScene(ro);
-        if (dist.w < INTERSECT_DIST)
+        SurfaceInfo s = distanceToScene(ro);
+        if (s.t < INTERSECT_DIST)
         {
-            return vec4(u_showsteps == 0 ? dist.rgb : (vec3(clamp(float(steps) / 100.0, 0.0, 1.0))), t);
+            if (u_showsteps == 1)
+            {
+                float shade = clamp(float(steps) / 100.0, 0.0, 1.0);
+                s.m.color = vec3(shade);
+            }
+            return SurfaceInfo(s.m, t);
         }
-        t += dist.w;
+        t += s.t;
         steps++;
     }
-    return vec4(u_showsteps == 0 ? vec3(0.0, 0.0, 0.0) : (vec3(clamp(float(steps) / 100.0, 0.0, 1.0))), -1.0);
+    return SURFACE_NONE;
 }
 
 // Returns normalised vector normal to surface at position pos
 vec3 normalToSurface(in vec3 pos)
 {
     vec2 e = vec2(0.0001, 0);
-    float pos_dist = distanceToScene(pos).w;
-    vec3 normal = pos_dist - vec3(
-        distanceToScene(pos - e.xyy).w,
-        distanceToScene(pos - e.yxy).w,
-        distanceToScene(pos - e.yyx).w
+    float t = distanceToScene(pos).t;
+    vec3 normal = t - vec3(
+        distanceToScene(pos - e.xyy).t,
+        distanceToScene(pos - e.yxy).t,
+        distanceToScene(pos - e.yyx).t
     );
     return normalize(normal);
 }
 
+// Calculate soft shadow due to point light
 float pointShadow(in vec3 pos, in vec3 normal, in vec3 light, in float k)
 {
     // Soft shadows
@@ -170,7 +196,7 @@ float pointShadow(in vec3 pos, in vec3 normal, in vec3 light, in float k)
     float shadow = 1.0;
     while (t < RENDER_DIST)
     {
-        float dist = distanceToScene(ro).w;
+        float dist = distanceToScene(ro).t;
         if (dist < INTERSECT_DIST)
         {
             shadow = 0.1;
@@ -184,41 +210,48 @@ float pointShadow(in vec3 pos, in vec3 normal, in vec3 light, in float k)
     return shadow;
 }
 
-vec3 pointLight(in vec3 rd, in vec3 pos, in vec3 normal, in vec3 light, in vec3 mat_color)
+vec3 pointLight(in vec3 rd, in vec3 pos, in vec3 normal, in vec3 light, in Mtrl m)
 {
     vec3 ld = normalize(light - pos); // light direction
     float diff = clamp(dot(normal, ld), 0.0, 1.0); // diffusive light
     vec3 r = reflect(ld, normal); // reflected light
-    float spec = u_showspec == 1 ? 0.5 * pow(clamp(dot(rd, r), 0.0, 1.0), 5.0 / u_shininess) * diff : 0.0; // specular reflection
+    float spec = u_showspec == 1 ? pow(clamp(dot(rd, r), 0.0, 1.0), 5.0 / m.shininess) * diff : 0.0; // specular reflection
     float shadow = u_showshadow == 1 ? pointShadow(pos, normal, light, u_shadowsharp) : 1.0;
-    return (diff * vec3(suncolor) * mat_color + spec * vec3(suncolor)) * shadow;
+    return (diff * vec3(suncolor) * m.color + 0.5 * spec * vec3(suncolor)) * shadow;
 }
 
-vec3 dirLight(in vec3 pos, in vec3 normal, in vec3 ld, in vec3 mat_color)
+vec3 dirLight(in vec3 rd, in vec3 pos, in vec3 normal, in vec3 ld, in Mtrl m)
 {
     float diff = clamp(dot(normal, ld), 0.0, 1.0);
-    return diff * 0.3 * vec3(skycolor) * mat_color;
+    vec3 r = reflect(ld, normal); // reflected light
+    float spec = u_showspec == 1 ? pow(clamp(dot(rd, r), 0.0, 1.0), 5.0 / m.shininess) * diff : 0.0;
+    return diff * 0.3 * vec3(skycolor) * m.color + 0.2 * spec * vec3(skycolor);
 }
 
 void main()
 {
+    // Camera calculations
     vec3 ro = u_camerapos; // Ray origin
-    vec3 light = vec3(3.0, 3.0, 1.5); // Sun source
-    vec3 dirlight = normalize(vec3(0.0, 1.0, 0.0)); // Sky lighting direction
+    vec3 lookat = vec3(0.0, 0.1, 1.0); // The point we are looking at
+    float screendistance = 1.0; // Distance from the camera to the screen's centre
+    vec3 z = normalize(lookat - ro); // New basis vectors
+    vec3 x = cross(vec3(0.0, 1.0, 0.0), z);
+    vec3 y = cross(z, x);
 
+    // Light positions and color definitions
+    vec3 light = vec3(3.0, 3.0, 1.5); // Sun position
+    vec3 dirlight = normalize(vec3(0.0, 1.0, 0.0)); // Sky lighting direction
+    vec3 fogcolor = vec3(0.8, 0.8, 0.8); // Distance fog color
+
+    // Average pixel color over AA*AA pixels for antialiasing
     vec3 tot = vec3(0.0);
     int AA = u_antialias == 1 ? 2 : 1;
     for (int m = 0; m < AA; m++)
     {
         for (int n = 0; n < AA; n++)
         {
-
-            vec2 offset = vec2(float(m),float(n)) / float(AA) - 0.5;
+            vec2 offset = vec2(float(m), float(n)) / float(AA) - 0.5;
         	vec2 uv = ((gl_FragCoord.xy + offset) - 0.5 * u_resolution.xy) / u_resolution.y;
-
-            vec3 lookat = vec3(0.0, 0.1, 1.0); // The point we are looking at
-
-            float screendistance = 1.0; // Distance from the camera to the screen's centre
 
             // The new basis vectors for the camera
             vec3 z = normalize(lookat - ro);
@@ -231,37 +264,36 @@ void main()
             vec3 rd = normalize(screenintersect - ro); // Ray direction
 
             // Get the point of intersection, if there is one
-            vec4 intersect_dist = rayMarch(ro, rd);
+            SurfaceInfo s = rayMarch(ro, rd);
             if (u_showsteps == 1)
             {
-                tot += intersect_dist.rgb;
+                tot += s.m.color;
                 continue;
             }
-            if (intersect_dist.w == -1.0) // no intersection
+            if (s == SURFACE_NONE) // no intersection
             {
-                tot += vec3(0.8, 0.8, 0.8);
+                tot += fogcolor;
                 continue;
             }
-            vec3 intersect_pos = ro + rd * intersect_dist.w;
-            vec3 normal = normalToSurface(intersect_pos);
+            vec3 surfacepoint = ro + rd * s.t;
+            vec3 normal = normalToSurface(surfacepoint);
 
             if (u_shownormal == 1)
             {
-                tot += normal.rgb / 2.0 + 0.5;
+                tot += normal / 2.0 + 0.5;
                 continue;
             }
 
-            // Calculate lighting
+            // Sum all lighting
             vec3 col = vec3(0.0);
-            col += 0.1 * intersect_dist.rgb; // Ambient
-            if (u_sun == 1) col += pointLight(rd, intersect_pos, normal, light, intersect_dist.rgb); // Sun
-            if (u_sky == 1) col += dirLight(intersect_pos, normal, dirlight, intersect_dist.rgb); // Sky
-            col = mix(col, vec3(0.8, 0.8, 0.8), 1.0 - exp(-0.01 * pow(intersect_dist.w, 3.0)));
+            col += 0.1 * s.m.color; // Ambient
+            if (u_sun == 1) col += pointLight(rd, surfacepoint, normal, light, s.m); // Sun
+            if (u_sky == 1) col += dirLight(rd, surfacepoint, normal, dirlight, s.m); // Sky
+            col = mix(col, fogcolor, 1.0 - exp(-0.01 * pow(s.t, 3.0))); // Distance fog
+
             tot += col;
         }
     }
 
-    tot /= float(AA * AA);
-
-    outcolor = vec4(tot, 1.0);
+    outcolor = vec4(tot / float(AA * AA), 1.0);
 }
