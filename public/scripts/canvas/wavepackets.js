@@ -85,7 +85,7 @@ window.addEventListener("load", function() {
 	const getAngFreq = wave => 2 * Math.PI * wave.freq;
 	const getWaveNum = wave => 2 * Math.PI / wave.wavelength;
 	const getDisplacement = (wave, x, t) =>
-		wave.amp * Math.cos(getAngFreq(wave) * sim.time - getWaveNum(wave) * x + wave.offset);
+		wave.amp * Math.cos(getAngFreq(wave) * t - getWaveNum(wave) * x + wave.offset);
 
 
 
@@ -93,6 +93,8 @@ window.addEventListener("load", function() {
 		const halfHeight = sim.canvas.height / 2;
 		const halfWidth = sim.canvas.width / 2;
 		c.clearRect(0, 0, sim.canvas.width, sim.canvas.height);
+
+		const time = sim.timer.getTime();
 		
 		// Sum all the waves and calculate the selected one's points
 		let sums = new Array(sim.canvas.width).fill(0);
@@ -100,7 +102,7 @@ window.addEventListener("load", function() {
 		for (const wave of state.waves) {
 			const drawWave = wave === state.selected;
 			for (let x = 0; x < sim.canvas.width; x++) {
-				const y = getDisplacement(wave, sim.pxToM(x - halfWidth), sim.time);
+				const y = getDisplacement(wave, sim.pxToM(x - halfWidth), time);
 				if (drawWave) selected[x] = y;
 				sums[x] += y;
 			}

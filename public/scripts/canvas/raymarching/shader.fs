@@ -297,3 +297,4 @@ void main()
 
     outcolor = vec4(tot / float(AA * AA), 1.0);
 }
+

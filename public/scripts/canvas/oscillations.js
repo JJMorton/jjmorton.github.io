@@ -30,8 +30,7 @@ window.addEventListener("load", function() {
 	const getAcc = function() {
 		const spring_force = -params.k * state.pos;
 		const damping_force = -params.b * state.vel;
-		// NOT SURE IF THIS IS RIGHT
-		const driver_force = params.k * params.d_a * Math.cos(2 * Math.PI * params.d_f * sim.time);
+		const driver_force = params.k * params.d_a * Math.cos(2 * Math.PI * params.d_f * sim.timer.getTime());
 
 		return (spring_force + damping_force + driver_force) / params.m;
 	};
@@ -77,7 +76,7 @@ window.addEventListener("load", function() {
 
 		// Driver
 		const d_f = params.d_f;
-		const d_pos = params.d_a * (1 + Math.cos(2 * Math.PI * d_f * sim.time));
+		const d_pos = params.d_a * (1 + Math.cos(2 * Math.PI * d_f * sim.timer.getTime()));
 		sim.ctx.fillRect(sim.percToPx(50) - sim.mToPx(0.2), 0, sim.mToPx(0.4), sim.mToPx(d_pos));
 	};
 
