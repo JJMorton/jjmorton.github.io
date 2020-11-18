@@ -149,7 +149,7 @@ window.addEventListener("load", function() {
 			gl.uniform3fv(boxposLoc, new Float32Array([-0.2, 0.15, 1.0]));
 			gl.uniform3fv(boxdimsLoc, new Float32Array([0.07, 0.15, 0.1]));
 
-			gl.uniform3fv(torusposLoc, new Float32Array([0.1, 0.22 + 0.03 * Math.sin(sim.time), 1.0]));
+			gl.uniform3fv(torusposLoc, new Float32Array([0.1, 0.22 + 0.03 * Math.sin(sim.timer.getTime()), 1.0]));
 			gl.uniform2fv(torusdimsLoc, new Float32Array([0.06, 0.015]));
 
 			gl.uniform3fv(cylinderposLoc, new Float32Array([-0.2, 0.24, 1.0]));

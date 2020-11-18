@@ -66,6 +66,8 @@ window.addEventListener("load", function() {
 	const TIME_STEP = 0.01;
 	sim.render = function() {
 
+		const time = sim.timer.getTime();
+
 		if (sim.mouse.pressed === 0) {
 			const x = sim.pxToM(sim.mouse.x - sim.canvas.width / 2);
 			const y = sim.pxToM(sim.mouse.y - sim.canvas.height / 2);
@@ -74,12 +76,12 @@ window.addEventListener("load", function() {
 			state.theta = Math.atan2(x, y);
 			state.x = dist - params.l;
 			state.vx = 0;
-			state.lastupdate = sim.time;
+			state.lastupdate = time;
 		} else {
 			// Make sure that we recalculate the angle in time steps no larger than TIME_STEP
-			const divisions = Math.ceil((sim.time - state.lastupdate) / TIME_STEP);
-			const deltat = (sim.time - state.lastupdate) / divisions;
-			for (let t = state.lastupdate + deltat; t <= sim.time; t += deltat) {
+			const divisions = Math.ceil((time - state.lastupdate) / TIME_STEP);
+			const deltat = (time - state.lastupdate) / divisions;
+			for (let t = state.lastupdate + deltat; t <= time; t += deltat) {
 				state.vx = rungekutta(eom_vx, state.vx, state.lastupdate, t, state);
 				state.omega = rungekutta(eom_omega, state.omega, state.lastupdate, t, state);
 				state.x = rungekutta(eom_x, state.x, state.lastupdate, t, state);

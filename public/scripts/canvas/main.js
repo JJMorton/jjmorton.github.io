@@ -1,11 +1,88 @@
 const strToElt = str => new DOMParser().parseFromString(str, "text/html").body.firstChild;
 
+function Timer() {
+	// Timer with play and pause functionality
+
+	let timePaused = 0; // -1 -> not paused
+	let offset = 0; // amounts to the amount of time spent paused
+
+	this.isPaused = true;
+
+	this.start = function() {
+		if (!this.isPaused) return;
+		offset += performance.now() - timePaused;
+		timePaused = -1;
+		this.isPaused = false;
+	};
+
+	this.pause = function() {
+		if (this.isPaused) return;
+		timePaused = performance.now();
+		this.isPaused = true;
+	}
+
+	this.getTime = function() {
+		if (this.isPaused) {
+			return (timePaused - offset) / 1000;
+		} else {
+			return (performance.now() - offset) / 1000;
+		}
+	}
+}
+
+function Mouse(elt, onclick) {
+	// Tracks mouse position relative to element 'elt'
+
+	this.pressed = Mouse.buttons.NONE;
+	this.x = 0;
+	this.y = 0;
+
+	// These two functions are called from the event listeners when needed
+	const mousemove = ({ pageX, pageY }) => {
+		this.x = pageX - elt.offsetLeft;
+		this.y = pageY - elt.offsetTop;
+	};
+	const mousepress = button => {
+		if (Object.values(Mouse.buttons).includes(button)) {
+			this.pressed = button;
+			onclick(button);
+		} else {
+			// Ignore buttons that we don't care abouut
+			this.pressed = Mouse.buttons.NONE;
+		}
+	};
+
+	// Listeners for touchscreen
+	elt.addEventListener("touchstart", e => {
+		mousemove(e.changedTouches[0]);
+		mousepress(Mouse.buttons.LEFT);
+		e.preventDefault();
+	});
+	window.addEventListener("touchend", () => mousepress(Mouse.buttons.NONE));
+	elt.addEventListener("touchmove", e => mousemove(e.changedTouches[0]));
+
+	// Listeners for mouse
+	elt.addEventListener("mousedown", e => {
+		mousepress(e.button);
+		e.preventDefault();
+	});
+	window.addEventListener("mouseup", () => mousepress(Mouse.buttons.NONE));
+	elt.addEventListener("mousemove", e => mousemove(e));
+
+}
+
+Mouse.buttons = {
+	NONE: -1,
+	LEFT: 0,
+	MIDDLE: 1,
+	RIGHT: 2
+};
+
 class Simulation {
 
 	constructor(contextType = "2d") {
-		// These functions should be set by the simulation using this class
+		// This function should be set by the simulation using this class
 		this.render = null;
-		this.init = null;
 
 		// Get the canvas element and drawing context
 		this.contextType = contextType;
@@ -20,51 +97,25 @@ class Simulation {
 			accent: style.getPropertyValue("--accent-color")
 		};
 
-		// Automatically resize the canvas with the window
-		this.resize();
-		window.addEventListener("resize", () => this.resize());
-		
-		// The sliders, buttons etc in the controls panel
-		this.controls = [];
-
 		// The number of metres that the canvas should cover.
 		this.scale = 5;
 
-		// Track mouse and touches through event listeners
-		this.mouse = { pressed: -1, x: 0, y: 0 };
-
-		// These two functions are called from the event listeners when needed
-		const mousemove = ({ pageX, pageY }) => {
-			this.mouse.x = pageX - this.canvas.offsetLeft;
-			this.mouse.y = pageY - this.canvas.offsetTop;
-			if (this.onmousemove) this.onmousemove();
-		};
-		const mousepress = button => {
-			this.mouse.pressed = button;
-			if (button === -1) {
+		// Track the user's mouse
+		this.mouse = new Mouse(this.canvas, button => {
+			if (button === Mouse.buttons.NONE) {
 				if (this.onmouseup) this.onmouseup();
+			} else if (button === Mouse.buttons.LEFT) {
+				if (this.onmousedown) this.onmousedown();
 			}
-			else if (this.onmousedown) this.onmousedown();
-		};
+		});
 
-		// Attach all the event listeners for inputs from the user
-		window.addEventListener("touchend", () => mousepress(-1));
-		window.addEventListener("mouseup", () => mousepress(-1));
-		this.canvas.addEventListener("touchmove", e => mousemove(e.changedTouches[0]));
-		this.canvas.addEventListener("mousemove", e => mousemove(e));
-		this.canvas.addEventListener("touchstart", e => {
-			mousemove(e.changedTouches[0]);
-			mousepress(0);
-			e.preventDefault();
-		});
-		this.canvas.addEventListener("mousedown", e => {
-			mousemove(e);
-			mousepress(e.button);
-			e.preventDefault();
-		});
-		this.canvas.addEventListener("contextmenu", e => {
-			// e.preventDefault();
-		});
+		// Track time and time between frames
+		this.timer = new Timer();
+		this.delta = 0;
+
+		// Automatically resize the canvas with the window
+		this.resize();
+		window.addEventListener("resize", () => this.resize());
 	}
 
 	resize() {
@@ -90,33 +141,37 @@ class Simulation {
 
 	start() {
 
-		const render = () => {
-			// We want all the units in seconds, to make other units more realistic
-			const time = performance.now() / 1000 - this.timeStart;
-			this.delta = time - this.time;
-			this.time = time;
+		let prevTime = 0;
+		this.delta = 0;
 
-			/*
-			 * Calculations are not done if the framerate is less than
-			 * 10 per second. This is to counter the issue of the
-			 * mass 'jumping' if the script goes idle for any substantial
-			 * amount of time (e.g. if the user switches to another tab
-			 * and back).
-			 * If the rendering is running less than 10 times per
-			 * second, nothing will animate. But things would get weird
-			 * at very low framerates anyway.
-			 */
-			if (this.render && 1 / this.delta >= 10) {
-				this.render(this.ctx);
+		const render = () => {
+			if (!this.timer.isPaused) {
+
+				// We want all the units in seconds, to make other units more realistic
+				const time = this.timer.getTime();
+				this.delta = time - prevTime;
+				prevTime = time;
+
+				/*
+				 * Calculations are not done if the framerate is less than
+				 * 10 per second. This is to counter the issue of the
+				 * mass 'jumping' if the script goes idle for any substantial
+				 * amount of time (e.g. if the user switches to another tab
+				 * and back).
+				 * If the rendering is running less than 10 times per
+				 * second, nothing will animate. But things would get weird
+				 * at very low framerates anyway.
+				 */
+				if (this.render && 1 / this.delta >= 10) {
+					this.render(this.ctx);
+				}
+
 			}
 			window.requestAnimationFrame(render);
 		}
 
 		// Start animation loop
-		this.timeStart = performance.now() / 1000;
-		this.delta = 0;
-		this.time = this.timeStart;
-		if (this.init) this.init();
+		this.timer.start();
 		render();
 	}
 
@@ -191,11 +246,10 @@ class Simulation {
 		};
 		
 		// Show the slider when the label is clicked
-		this.controls.push(outer);
 		outer.addEventListener("click", e => {
 			if (e.target === slider) return;
 			// Toggle clicked label and contract all others
-			this.controls.forEach(x => x.classList[
+			document.querySelectorAll(".slider").forEach(x => x.classList[
 				x === outer ? "toggle" : "remove"
 			]("expanded"));
 		});
