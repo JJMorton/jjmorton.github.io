@@ -28,6 +28,14 @@ function Timer() {
 			return (performance.now() - offset) / 1000;
 		}
 	}
+
+	document.addEventListener("visibilitychange", () => {
+		if (document.visibilityState === "visible") {
+			this.start();
+		} else {
+			this.pause();
+		}
+	});
 }
 
 function Mouse(elt, onclick) {
@@ -172,7 +180,7 @@ class Simulation {
 
 		// Start animation loop
 		this.timer.start();
-		render();
+		window.requestAnimationFrame(render);
 	}
 
 
