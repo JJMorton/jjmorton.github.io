@@ -10,6 +10,7 @@ uniform vec3 u_camerapos;
 uniform float u_shadowsharp;
 uniform float u_smoothing;
 uniform float u_shininess;
+uniform float u_ao;
 uniform int u_showsteps;
 uniform int u_shownormal;
 uniform int u_showshadow;
@@ -210,6 +211,19 @@ float pointShadow(in vec3 pos, in vec3 normal, in vec3 light, in float k)
     return shadow;
 }
 
+// https://www.iquilezles.org/www/material/nvscene2008/rwwtt.pdf
+float calcAO(in vec3 pos, in vec3 normal, in float k)
+{
+    int samples = 5;
+    float delta = 0.01;
+    float total = 0.0;
+    for (int i = 0; i < samples; i++)
+    {
+        total += (float(i) * delta - distanceToScene(pos + normal * float(i) * delta).t) / pow(2.0, float(i));
+    }
+    return (1.0 - k * total);
+}
+
 vec3 pointLight(in vec3 rd, in vec3 pos, in vec3 normal, in vec3 light, in Mtrl m)
 {
     vec3 ld = normalize(light - pos); // light direction
@@ -285,10 +299,11 @@ void main()
             }
 
             // Sum all lighting
+            float ao = u_ao > 0.0 ? calcAO(surfacepoint, normal, u_ao) : 1.0;
             vec3 col = vec3(0.0);
-            col += 0.1 * s.m.color; // Ambient
+            col += 0.1 * s.m.color * ao; // Ambient
             if (u_sun == 1) col += pointLight(rd, surfacepoint, normal, light, s.m); // Sun
-            if (u_sky == 1) col += dirLight(rd, surfacepoint, normal, dirlight, s.m); // Sky
+            if (u_sky == 1) col += dirLight(rd, surfacepoint, normal, dirlight, s.m) * ao; // Sky
             col = mix(col, fogcolor, 1.0 - exp(-0.01 * pow(s.t, 3.0))); // Distance fog
 
             tot += col;

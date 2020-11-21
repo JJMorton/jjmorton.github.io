@@ -91,6 +91,7 @@
 			{ "type": "slider", "name": "shadowsharp" },
 			{ "type": "slider", "name": "smoothing" },
 			{ "type": "slider", "name": "shininess" },
+			{ "type": "slider", "name": "ao" },
 			{ "type": "checkbox", "name": "showsteps" },
 			{ "type": "checkbox", "name": "shownormal" },
 			{ "type": "checkbox", "name": "showshadow" },

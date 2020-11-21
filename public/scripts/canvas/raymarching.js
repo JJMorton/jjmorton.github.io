@@ -84,6 +84,7 @@ window.addEventListener("load", function() {
 		const shadowsharpLoc = gl.getUniformLocation(program, "u_shadowsharp");
 		const smoothingLoc = gl.getUniformLocation(program, "u_smoothing");
 		const shininessLoc = gl.getUniformLocation(program, "u_shininess");
+		const aoLoc = gl.getUniformLocation(program, "u_ao");
 		const showstepsLoc = gl.getUniformLocation(program, "u_showsteps");
 		const shownormalLoc = gl.getUniformLocation(program, "u_shownormal");
 		const showshadowLoc = gl.getUniformLocation(program, "u_showshadow");
@@ -105,6 +106,7 @@ window.addEventListener("load", function() {
 		gl.uniform1f(shadowsharpLoc, 24);
 		gl.uniform1f(smoothingLoc, 0.00666);
 		gl.uniform1f(shininessLoc, 0.6);
+		gl.uniform1f(aoLoc, 20.0);
 		gl.uniform1i(showstepsLoc, 0);
 		gl.uniform1i(shownormalLoc, 0);
 		gl.uniform1i(showshadowLoc, 1);
@@ -122,6 +124,7 @@ window.addEventListener("load", function() {
 		sim.addSlider("shadowsharp", "Shadow sharpness", "%", 20, 0, 100, 1, value => gl.uniform1f(shadowsharpLoc, 8 + 80 * value / 100));
 		sim.addSlider("smoothing", "Union smoothing", "%", 20, 0, 100, 1, value => gl.uniform1f(smoothingLoc, value / 3000));
 		sim.addSlider("shininess", "Specular size", "%", 60, 0, 100, 1, value => gl.uniform1f(shininessLoc, value / 100));
+		sim.addSlider("ao", "Ambient occlusion strength", "%", 50, 0, 100, 1, value => gl.uniform1f(aoLoc, 40 * value / 100));
 		const stepsSlider = sim.addCheckbox("showsteps", "Show steps taken to reach surface", false, value => gl.uniform1i(showstepsLoc, value ? 1 : 0));
 		const normalSlider = sim.addCheckbox("shownormal", "Visualise normals", false, value => {
 			gl.uniform1i(shownormalLoc, value ? 1 : 0);
