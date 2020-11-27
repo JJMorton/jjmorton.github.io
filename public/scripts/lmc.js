@@ -38,7 +38,7 @@ function assemble(lines, onerror) {
 		if (/^(INP|OUT|HLT)$/.test(symbol)) return transitions.INSTR;
 		if (/^(ADD|SUB|STA|LDA|BRA|BRZ|BRP)$/.test(symbol)) return transitions.INSTR_ADDR;
 		if (/^DAT$/.test(symbol)) return transitions.INSTR_DATA;
-		if (/^[A-Z|a-z]+$/.test(symbol)) return transitions.LABEL;
+		if (/^[A-Z|a-z][A-Z|a-z|0-9]*$/.test(symbol)) return transitions.LABEL;
 		if (/^[0-9]{1,2}$/.test(symbol)) return transitions.ADDR;
 		if (/^[0-9]{1,3}$/.test(symbol)) return transitions.DATA;
 		return transitions.INVALID;
