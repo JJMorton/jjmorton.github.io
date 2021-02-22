@@ -7,6 +7,7 @@ const app = express();
 const commithash = process.env.GIT_SHA || "unknown";
 
 app.set("view engine", "ejs");
+app.set("view options", { root: __dirname + "/views" });
 
 app.use(express.static(__dirname + "/public"));
 
@@ -28,11 +29,10 @@ app.get("/about", (req, res) => {
 
 for (const sim of simulations) {
 	app.get(`/simulations/${sim.id}`, (req, res) => {
-		res.render("simulation", {
+		res.render(`simulation/${sim.id}`, {
 			title: `Simulation - ${sim.title}`,
 			description: sim.description,
 			id: sim.id,
-			controls: sim.controls,
 			commithash
 		});
 	});

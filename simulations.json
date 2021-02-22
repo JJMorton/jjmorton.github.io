@@ -2,79 +2,32 @@
 	{
 		"title": "Fluids",
 		"description": "Drop a ball in a fluid and observe the effects of drag, upthrust and the viscosity.",
-		"id": "fluids",
-		"controls": [
-			{ "type": "slider", "name": "ballmass" },
-			{ "type": "slider", "name": "balldensity" },
-			{ "type": "slider", "name": "liquiddensity" },
-			{ "type": "slider", "name": "liquidviscosity" },
-			{ "type": "slider", "name": "gravity" }
-		]
+		"id": "fluids"
 	},
 	{
 		"title": "Oscillations",
 		"description": "Simulate an oscillating spring with optional damping and a driving force",
-		"id": "oscillations",
-		"controls": [
-			{ "type": "slider", "name": "springconstant" },
-			{ "type": "slider", "name": "damping" },
-			{ "type": "slider", "name": "mass" },
-			{ "type": "slider", "name": "frequency" },
-			{ "type": "slider", "name": "amplitude" },
-			{ "type": "slider", "name": "scale" }
-		]
+		"id": "oscillations"
 	},
 	{
 		"title": "Lenses",
 		"description": "Simulate a lens with adjustable properties",
-		"id": "lenses",
-		"controls": [
-			{ "type": "slider", "name": "focallength" },
-			{ "type": "slider", "name": "distance" },
-			{ "type": "slider", "name": "size" },
-			{ "type": "slider", "name": "scale" }
-		]
+		"id": "lenses"
 	},
 	{
 		"title": "Wave Packets",
 		"description": "See how waves interact when they interfere, and how adding many waves together can create a wave packet",
-		"id": "wavepackets",
-		"controls": [
-			{ "type": "slider", "name": "scale" },
-			{ "type": "button", "name": "add" },
-			{ "type": "button", "name": "duplicate" },
-			{ "type": "button", "name": "remove" },
-			{ "type": "combo", "name": "select" },
-			{ "type": "slider", "name": "wavelength" },
-			{ "type": "slider", "name": "frequency" },
-			{ "type": "slider", "name": "amplitude" },
-			{ "type": "slider", "name": "offset" }
-		]
+		"id": "wavepackets"
 	},
 	{
 		"title": "Electric Field Lines",
 		"description": "Visualise electric field lines from multiple point sources",
-		"id": "fieldlines",
-		"controls": [
-			{ "type": "button", "name": "create" },
-			{ "type": "button", "name": "remove" },
-			{ "type": "combo", "name": "select" },
-			{ "type": "slider", "name": "strength" }
-		]
+		"id": "fieldlines"
 	},
 	{
 		"title": "Sorting Algorithms",
 		"description": "Watch how different sorting algorithms work on different data sets",
-		"id": "sorting",
-		"controls": [
-			{ "type": "slider", "name": "datalength" },
-			{ "type": "combo", "name": "datagen" },
-			{ "type": "combo", "name": "method" },
-			{ "type": "button", "name": "start" },
-			{ "type": "checkbox", "name": "showswap" },
-			{ "type": "checkbox", "name": "showcompare" },
-			{ "type": "slider", "name": "speed" }
-		]
+		"id": "sorting"
 	},
 	{
 		"title": "Elastic Pendulum",
@@ -84,21 +37,6 @@
 	{
 		"title": "Ray Marching",
 		"description": "A demonstration of ray marching with basic shapes in a pixel shader. Requires WebGL2 support",
-		"id": "raymarching",
-		"controls": [
-			{ "type": "slider", "name": "cameraangle" },
-			{ "type": "slider", "name": "cameraheight" },
-			{ "type": "slider", "name": "shadowsharp" },
-			{ "type": "slider", "name": "smoothing" },
-			{ "type": "slider", "name": "shininess" },
-			{ "type": "slider", "name": "ao" },
-			{ "type": "checkbox", "name": "showsteps" },
-			{ "type": "checkbox", "name": "shownormal" },
-			{ "type": "checkbox", "name": "showshadow" },
-			{ "type": "checkbox", "name": "showspec" },
-			{ "type": "checkbox", "name": "sun" },
-			{ "type": "checkbox", "name": "sky" },
-			{ "type": "checkbox", "name": "antialias" }
-		]
+		"id": "raymarching"
 	}
 ]

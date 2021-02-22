@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<%- include("partials/head") %>
+	<%- include("/partials/head") %>
 	<link rel="stylesheet" type="text/css" href="/styles/canvas.css"/>
 	<script src="/scripts/canvas/main.js"></script>
 	<script src="/scripts/canvas/vector.js"></script>
@@ -9,7 +9,7 @@
 </head>
 <body>
 	<header>
-		<%- include("partials/header") %>
+		<%- include("/partials/header") %>
 	</header>
 
 	<h1><%= title %></h1>
@@ -19,9 +19,11 @@
 	</main>
 
 	<section id="controls">
-		<% (controls || []).forEach(function(control) { %>
-			<%- include(`partials/controls/${control.type}`, { name: control.name }) %>
-		<% }); %>
+		<%- include(`/partials/controls/slider`, { name: "ballmass" }) %>
+		<%- include(`/partials/controls/slider`, { name: "balldensity" }) %>
+		<%- include(`/partials/controls/slider`, { name: "liquiddensity" }) %>
+		<%- include(`/partials/controls/slider`, { name: "liquidviscosity" }) %>
+		<%- include(`/partials/controls/slider`, { name: "gravity" }) %>
 	</section>
 
 	<section id="sec-simulation">
@@ -29,8 +31,12 @@
 		<canvas class="box-shadow">Sorry, the canvas element is not supported by your browser.</canvas>
 	</section>
 
+	<section id="about">
+		<p>This is some text about the simulation</p>
+	</section>
+
 	<footer>
-		<%- include("partials/footer") %>
+		<%- include("/partials/footer") %>
 	</footer>
 </body>
 </html>

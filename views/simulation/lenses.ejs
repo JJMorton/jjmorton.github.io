@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<%- include("/partials/head") %>
+	<link rel="stylesheet" type="text/css" href="/styles/canvas.css"/>
+	<script src="/scripts/canvas/main.js"></script>
+	<script src="/scripts/canvas/vector.js"></script>
+	<script src="/scripts/canvas/<%= id %>.js"></script>
+</head>
+<body>
+	<header>
+		<%- include("/partials/header") %>
+	</header>
+
+	<h1><%= title %></h1>
+
+	<main>
+		<p><%= description %></p>
+	</main>
+
+	<section id="controls">
+		<%- include(`/partials/controls/slider`, { name: "focallength" }) %>
+		<%- include(`/partials/controls/slider`, { name: "distance" }) %>
+		<%- include(`/partials/controls/slider`, { name: "size" }) %>
+		<%- include(`/partials/controls/slider`, { name: "scale" }) %>
+	</section>
+
+	<section id="sec-simulation">
+		<noscript>Please enable JavaScript to view this simulation.</noscript>
+		<canvas class="box-shadow">Sorry, the canvas element is not supported by your browser.</canvas>
+	</section>
+
+	<section id="about">
+		<p>This is some text about the simulation</p>
+	</section>
+
+	<footer>
+		<%- include("/partials/footer") %>
+	</footer>
+</body>
+</html>

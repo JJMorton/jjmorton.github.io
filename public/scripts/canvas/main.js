@@ -271,54 +271,6 @@ class Simulation {
 		return control;
 	}
 
-	// Remove this if not being used
-	addSelector(name, arr, onupdate) {
-		// A selector has two arrow buttons that can be used to select on of the options given in arr
-
-		// Create DOM elements
-		const id = "selector-" + name.toLowerCase().replace(' ', '-');
-		const container = document.getElementById("controls");
-		const label = strToElt(`
-			<label class="selector" for="${id}">
-				<button class="selector-left box-shadow">&lt;</button>
-				<span class="selector-label">
-					<span class="selector-name">${name}</span>
-					<output>0</output>
-				</span>
-				<button class="selector-right box-shadow">&gt;</button>
-			</label>
-		`);
-		const leftArrow = label.querySelector(".selector-left");
-		const rightArrow = label.querySelector(".selector-right");
-		const output = label.querySelector("output");
-
-		const validateValue = value => value >= 0 && value < arr.length;
-
-		// External control
-		let value = 0;
-		const control = {
-			getValue: () => value,
-			setValue: newValue => {
-				leftArrow.disabled = !validateValue(newValue - 1);
-				rightArrow.disabled = !validateValue(newValue + 1);
-				output.value = newValue + 1;
-				value = newValue;
-				onupdate(value);
-			}
-		};
-
-		// Event listeners
-		const onclick = newValue => {
-			if (!validateValue(newValue)) return;
-			control.setValue(newValue);
-			onupdate(newValue);
-		};
-		leftArrow.addEventListener("click", () => onclick(control.getValue() - 1));
-		rightArrow.addEventListener("click", () => onclick(control.getValue() + 1));
-
-		return control;
-	}
-
 	addComboBox(id, label, onupdate) {
 
 		// Create DOM elements
