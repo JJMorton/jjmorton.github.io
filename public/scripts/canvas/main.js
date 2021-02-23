@@ -119,6 +119,7 @@ class Simulation {
 
 		// Track time and time between frames
 		this.timer = new Timer();
+		this.frame = 0;
 		this.delta = 0;
 
 		// Automatically resize the canvas with the window
@@ -172,6 +173,7 @@ class Simulation {
 				 */
 				if (this.render && 1 / this.delta >= 10) {
 					this.render(this.ctx);
+					this.frame++;
 				}
 
 			}

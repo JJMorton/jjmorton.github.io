@@ -3,7 +3,7 @@ window.addEventListener("load", function() {
 	'use strict';
 
 	const sim = new Simulation();
-	
+
 	// Initial parameters
 	const params = {
 		mass: 1,
@@ -11,7 +11,8 @@ window.addEventListener("load", function() {
 		f_density: 1000,
 		f_viscosity: 0.001,
 		elasticity: 0.7,
-		gravity: 9.81
+		gravity: 9.81,
+		showforces: true
 	};
 
 	// Initial state
@@ -19,6 +20,8 @@ window.addEventListener("load", function() {
 		pos: [ sim.percToM(50), sim.percToM(30) ],
 		vel: [ 0, 0 ],
 		acc: [ 0, 0 ],
+		upthrust: [ 0, 0 ],
+		drag: [ 0, 0 ],
 		getVolume: () => params.mass / params.b_density,
 		getRadius: () => Math.cbrt(3/(4 * Math.PI) * state.getVolume()),
 		getArea: () => Math.PI * Math.pow(state.getRadius(), 2)
@@ -60,9 +63,10 @@ window.addEventListener("load", function() {
 		return 0;
 	};
 
-	const getAcc = function() {
+	const updateAcc = function() {
 
-		const acc = [0, params.gravity];
+		state.drag = [0, 0];
+		state.upthrust = [0, 0];
 		const radius = state.getRadius();
 		const area = state.getArea();
 
@@ -72,29 +76,51 @@ window.addEventListener("load", function() {
 
 			const inside =
 				x <= state.pos[0] + radius && x + w >= state.pos[0] - radius &&
-				y <= state.pos[1] + radius && y + h >= state.pos[1] - radius ;
+				y <= state.pos[1] + radius && y + h >= state.pos[1] - radius;
 
 			if (inside) {
 				
 				// Upthrust
 				const volume = getRegionIntersect([x, y, w, h], radius);
-				acc[1] -= params.f_density * volume * params.gravity / params.mass;
+				state.upthrust[1] -= params.f_density * volume * params.gravity;
 				
 				// Drag
 				const drag = getFluidDrag([x, y, w, h], radius, area);
-				acc[0] -= (drag * state.vel[0]) / params.mass;
-				acc[1] -= (drag * state.vel[1]) / params.mass;
+				state.drag[0] -= (drag * state.vel[0]);
+				state.drag[1] -= (drag * state.vel[1]);
 			}
 		});
 
-		return acc;
+		state.acc = [0, params.gravity];
+		state.acc[0] += state.drag[0] / params.mass;
+		state.acc[1] += (state.upthrust[1] + state.drag[1]) / params.mass;
+	};
+
+
+	const drawArrow = function(x1, y1, lx, ly) {
+		// Uses pixel coordinates
+		if (lx === 0 && ly === 0) return;
+		let p1 = new Vector(x1, y1);
+		let p2 = new Vector(x1 + lx, y1 + ly);
+		let tip = Vector.sub(p1, p2).normalise().scale(10);
+		let p3 = Vector.add(p2, Vector.rotate(tip, Math.PI / 4));
+		let p4 = Vector.add(p2, Vector.rotate(tip, -Math.PI / 4));
+		sim.ctx.beginPath();
+		sim.ctx.moveTo(p1.x, p1.y);
+		sim.ctx.lineTo(p2.x, p2.y);
+		sim.ctx.lineTo(p3.x, p3.y);
+		sim.ctx.moveTo(p2.x, p2.y);
+		sim.ctx.lineTo(p4.x, p4.y);
+		sim.ctx.lineWidth *= 2;
+		sim.ctx.stroke();
+		sim.ctx.lineWidth /= 2;
 	};
 
 
 	sim.render = function() {
 
 		// Update acceleration
-		state.acc = getAcc();
+		updateAcc();
 
 		// Calculate new position
 		if (sim.mouse.pressed === 0) {
@@ -143,13 +169,10 @@ window.addEventListener("load", function() {
 		// Draw everything
 
 		sim.ctx.clearRect(0, 0, sim.canvas.width, sim.canvas.height);
-		
 		sim.ctx.globalAlpha = 0.3;
-
 		regions
 			.map(x => x.map(y => sim.percToPx(y)))
 			.forEach(([ x, y, w, h ]) => sim.ctx.fillRect(x, y, w, h));
-			
 		sim.ctx.globalAlpha = 1;
 
 		if (sim.mouse.pressed === 0) {
@@ -160,10 +183,22 @@ window.addEventListener("load", function() {
 			sim.ctx.stroke();
 		}
 
+		if (params.showforces) {
+			let strokeStyleTmp = sim.ctx.strokeStyle;
+			sim.ctx.strokeStyle = `rgba(255, 0, 0, ${(Math.pow(state.drag[0], 2) + Math.pow(state.drag[1], 2)) * 0.1})`;
+			drawArrow(pos[0], pos[1], state.drag[0] / params.mass * 5, state.drag[1] * 5);
+			sim.ctx.strokeStyle = `#0000FF`;
+			drawArrow(pos[0], pos[1], 0, state.upthrust[1] / params.mass * 5);
+			sim.ctx.strokeStyle = `#008800`;
+			drawArrow(pos[0], pos[1], 0, params.gravity * 5);
+			sim.ctx.strokeStyle = strokeStyleTmp;
+		}
+
 		sim.ctx.beginPath();
 		sim.ctx.arc(pos[0], pos[1], radius, 0, 2 * Math.PI);
 		sim.ctx.closePath();
 		sim.ctx.fill();
+		
 	};
 
 
@@ -191,8 +226,10 @@ window.addEventListener("load", function() {
 	sim.addSlider("liquiddensity", "Liquid Density", "kg/m^3", params.f_density, 50, 1500, 10, value => params.f_density = value);
 	sim.addSlider("liquidviscosity", "Liquid Viscosity", "Pa s", params.f_viscosity, 0.001, 10, 0.001, value => params.f_viscosity = value);
 	sim.addSlider("gravity", "Gravitational Acceleration", "m/s^2", params.gravity, 0, 20, 0.01, value => params.gravity = value);
+	sim.addCheckbox("arrows", "Show forces", params.showforces, value => params.showforces = value);
 	
 
 	sim.start();
 
 });
+
