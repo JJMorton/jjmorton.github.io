@@ -7,6 +7,10 @@ canvas {
 	box-sizing: border-box;
 }
 
+#about {
+	margin: 40px 0;
+}
+
 .left-border {
 	border-left: 5px solid rgba(0, 0, 0, 0.4);
 	border-color: rgba(0, 0, 0, 0.4);
