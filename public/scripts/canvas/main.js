@@ -29,6 +29,11 @@ function Timer() {
 		}
 	}
 
+	this.reset = function() {
+		offset = performance.now();
+		timepaused = 0;
+	}
+
 	document.addEventListener("visibilitychange", () => {
 		if (document.visibilityState === "visible") {
 			this.start();
@@ -154,28 +159,24 @@ class Simulation {
 		this.delta = 0;
 
 		const render = () => {
-			if (!this.timer.isPaused) {
+			// We want all the units in seconds, to make other units more realistic
+			const time = this.timer.getTime();
+			this.delta = time - prevTime;
+			prevTime = time;
 
-				// We want all the units in seconds, to make other units more realistic
-				const time = this.timer.getTime();
-				this.delta = time - prevTime;
-				prevTime = time;
-
-				/*
-				 * Calculations are not done if the framerate is less than
-				 * 10 per second. This is to counter the issue of the
-				 * mass 'jumping' if the script goes idle for any substantial
-				 * amount of time (e.g. if the user switches to another tab
-				 * and back).
-				 * If the rendering is running less than 10 times per
-				 * second, nothing will animate. But things would get weird
-				 * at very low framerates anyway.
-				 */
-				if (this.render && 1 / this.delta >= 10) {
-					this.render(this.ctx);
-					this.frame++;
-				}
-
+			/*
+			 * Calculations are not done if the framerate is less than
+			 * 10 per second. This is to counter the issue of the
+			 * mass 'jumping' if the script goes idle for any substantial
+			 * amount of time (e.g. if the user switches to another tab
+			 * and back).
+			 * If the rendering is running less than 10 times per
+			 * second, nothing will animate. But things would get weird
+			 * at very low framerates anyway.
+			 */
+			if (this.render && 1 / this.delta >= 10) {
+				this.render(this.ctx);
+				this.frame++;
 			}
 			window.requestAnimationFrame(render);
 		}
@@ -220,6 +221,7 @@ class Simulation {
 		btn.textContent = label;
 		btn.addEventListener("click", onclick);
 		return {
+			DOM: btn,
 			click: () => btn.click()
 		};
 	}
@@ -246,6 +248,7 @@ class Simulation {
 		// External control
 		let value = init;
 		const control = {
+			DOM: slider,
 			getValue: () => value,
 			setValue: newValue => {
 				slider.value = newValue;
@@ -283,6 +286,7 @@ class Simulation {
 
 		// External control
 		const control = {
+			DOM: select,
 			getValue: () => select.selectedIndex,
 			setValue: newValue => {
 				select.selectedIndex = newValue;
@@ -318,6 +322,7 @@ class Simulation {
 
 		// External control
 		const control = {
+			DOM: checkbox,
 			getValue: () => checkbox.checked,
 			setValue: newValue => {
 				checkbox.checked = newValue;

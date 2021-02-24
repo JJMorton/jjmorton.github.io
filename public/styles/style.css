@@ -33,7 +33,7 @@ main, section {
 	box-shadow: 3px 3px 0 0 rgba(0, 0, 0, 0.2);
 }
 
-h1, h2, h3, p, a, td, th, input, label {
+h1, h2, h3, p, a, td, th, input, label, li {
 	font-family: var(--font-family);
 	color: var(--text-color);
 }
@@ -55,7 +55,7 @@ h1, h2 {
 	line-height: 1.4;
 }
 
-p, a {
+p, a, li {
 	line-height: 1.6;
 	font-size: var(--text-size);
 }

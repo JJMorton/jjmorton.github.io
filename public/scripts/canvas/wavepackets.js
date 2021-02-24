@@ -11,11 +11,11 @@ window.addEventListener("load", function() {
 		waves: [],
 		selectedIndex: 0,
 		selected: null,
-		scale: 5
+		scale: 10
 	};
 
 	const defaultWave = {
-		amp: 0.5, freq: 1, wavelength: 1, offset: 0
+		amp: 0.5, freq: 1, wavelength: 1, offset: 0, reverse: false
 	};
 	
 	sim.scale = state.scale;
@@ -50,17 +50,38 @@ window.addEventListener("load", function() {
 	});
 
 	const sliders = {
-		wavelength: sim.addSlider("wavelength", "Wavelength", "m", 0, 0.1, 10, 0.01, value => state.selected.wavelength = value),
-		freq: sim.addSlider("frequency", "Frequency", "Hz", 0, 0.1, 10, 0.1, value => state.selected.freq = value),
+		wavelength: sim.addSlider("wavelength", "Wavelength", "m", 0, 0.1, 10, 0.01, value => {
+			state.selected.wavelength = value;
+			state.selected.freq = 1 / value;
+		}),
 		amp: sim.addSlider("amplitude", "Amplitude", "m", 0, 0.1, 5, 0.1, value => state.selected.amp = value),
-		offset: sim.addSlider("offset", "Phase Offset", "", 0, 0, 2 * Math.PI, 0.01, value => state.selected.offset = value)
+		offset: sim.addSlider("offset", "Phase Offset", "degrees", 0, 0, 360, 1, value => state.selected.offset = value * Math.PI / 180)
 	};
+
+	sliders.wavelength.DOM.addEventListener("mousedown", () => {
+		sim.timer.pause();
+		sim.timer.reset();
+	});
+	sliders.wavelength.DOM.addEventListener("mouseup", () => {
+		sim.timer.start();
+	});
+	sliders.wavelength.DOM.addEventListener("touchstart", () => {
+		sim.timer.pause();
+		sim.timer.reset();
+	});
+	sliders.wavelength.DOM.addEventListener("touchend", () => {
+		sim.timer.start();
+	});
+
+
+	sim.addCheckbox("reverse", "Reverse direction", false, value => state.selected.reverse = value);
+
 
 
 	/* Modify array of waves, keeping sliders and selector in sync */
 
-	function createWave({ amp, freq, wavelength, offset }) {
-		return { amp, freq, wavelength, offset };
+	function createWave({ amp, freq, wavelength, offset, reverse }) {
+		return { amp, freq, wavelength, offset, reverse };
 	}
 
 	function addWave(wave) {
@@ -85,7 +106,7 @@ window.addEventListener("load", function() {
 	const getAngFreq = wave => 2 * Math.PI * wave.freq;
 	const getWaveNum = wave => 2 * Math.PI / wave.wavelength;
 	const getDisplacement = (wave, x, t) =>
-		wave.amp * Math.cos(getAngFreq(wave) * t - getWaveNum(wave) * x + wave.offset);
+		wave.amp * Math.cos(getAngFreq(wave) * t + (wave.reverse ? 1 : -1) * getWaveNum(wave) * x + wave.offset);
 
 
 
@@ -98,21 +119,29 @@ window.addEventListener("load", function() {
 		
 		// Sum all the waves and calculate the selected one's points
 		let sums = new Array(sim.canvas.width).fill(0);
-		let selected = new Array(sim.canvas.width).fill(0);
 		for (const wave of state.waves) {
-			const drawWave = wave === state.selected;
+			const arr = [];
 			for (let x = 0; x < sim.canvas.width; x++) {
 				const y = getDisplacement(wave, sim.pxToM(x - halfWidth), time);
-				if (drawWave) selected[x] = y;
+				arr[x] = y;
 				sums[x] += y;
 			}
+
+			if (wave === state.selected)
+				c.globalAlpha = 1;
+			else
+				c.globalAlpha = 0.3;
+			drawWave(c, arr.map(y => halfHeight + sim.mToPx(y)));
 		}
 		
-		// Draw selected and resultant waves
-		c.globalAlpha = 0.5;
-		drawWave(c, selected.map(y => halfHeight + sim.mToPx(y)));
+		// Draw resultant wave
 		c.globalAlpha = 1;
+		const strokeStyleTmp = c.strokeStyle;
+		c.strokeStyle = "#FF0000";
+		c.lineWidth *= 2;
 		drawWave(c, sums.map(y => halfHeight + sim.mToPx(y)));
+		c.lineWidth /= 2;
+		c.strokeStyle = strokeStyleTmp;
 	};
 	
 	addWave(createWave(defaultWave));
@@ -120,3 +149,4 @@ window.addEventListener("load", function() {
 	sim.start();
 
 });
+
