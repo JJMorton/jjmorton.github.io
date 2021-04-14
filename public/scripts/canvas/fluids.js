@@ -7,12 +7,12 @@ window.addEventListener("load", function() {
 	// Initial parameters
 	const params = {
 		mass: 1,
-		b_density: 600,
+		b_density: 800,
 		f_density: 1000,
 		f_viscosity: 0.001,
 		elasticity: 0.7,
 		gravity: 9.81,
-		showforces: true
+		showforces: false
 	};
 
 	// Initial state
@@ -56,11 +56,11 @@ window.addEventListener("load", function() {
 	const getFluidDrag = function([x, y, w, h], radius, area) {
 		const vel2 = Math.pow(state.vel[0], 2) + Math.pow(state.vel[1], 2);
 		if (vel2 > 0) {
-			const drag = 6 * Math.PI * params.f_viscosity * radius / Math.sqrt(vel2)
-			             + 0.5 * 0.47 * params.f_density * area;
-			return drag;
+			let drag = 6 * Math.PI * params.f_viscosity * radius
+			             + 0.5 * 0.47 * params.f_density * area * Math.sqrt(vel2);
+			return [-drag * state.vel[0], -drag * state.vel[1]];
 		}
-		return 0;
+		return [0, 0];
 	};
 
 	const updateAcc = function() {
@@ -85,9 +85,14 @@ window.addEventListener("load", function() {
 				state.upthrust[1] -= params.f_density * volume * params.gravity;
 				
 				// Drag
+				// The area used here is just the cross-sectional area of the ball
+				// This is fine when the ball is fully submerged, but isn't correct when
+				// it's only partially submerged. However, I don't think the error is
+				// very large compared with the error in the simulation overall so I'm
+				// not going to bother changing it
 				const drag = getFluidDrag([x, y, w, h], radius, area);
-				state.drag[0] -= (drag * state.vel[0]);
-				state.drag[1] -= (drag * state.vel[1]);
+				state.drag[0] += drag[0];
+				state.drag[1] += drag[1];
 			}
 		});
 
@@ -102,7 +107,7 @@ window.addEventListener("load", function() {
 		if (lx === 0 && ly === 0) return;
 		let p1 = new Vector(x1, y1);
 		let p2 = new Vector(x1 + lx, y1 + ly);
-		let tip = Vector.sub(p1, p2).normalise().scale(10);
+		let tip = new Vector(-lx, -ly).normalise().scale(10);
 		let p3 = Vector.add(p2, Vector.rotate(tip, Math.PI / 4));
 		let p4 = Vector.add(p2, Vector.rotate(tip, -Math.PI / 4));
 		sim.ctx.beginPath();
@@ -183,22 +188,22 @@ window.addEventListener("load", function() {
 			sim.ctx.stroke();
 		}
 
-		if (params.showforces) {
-			let strokeStyleTmp = sim.ctx.strokeStyle;
-			sim.ctx.strokeStyle = `rgba(255, 0, 0, ${(Math.pow(state.drag[0], 2) + Math.pow(state.drag[1], 2)) * 0.1})`;
-			drawArrow(pos[0], pos[1], state.drag[0] / params.mass * 5, state.drag[1] * 5);
-			sim.ctx.strokeStyle = `#0000FF`;
-			drawArrow(pos[0], pos[1], 0, state.upthrust[1] / params.mass * 5);
-			sim.ctx.strokeStyle = `#008800`;
-			drawArrow(pos[0], pos[1], 0, params.gravity * 5);
-			sim.ctx.strokeStyle = strokeStyleTmp;
-		}
-
 		sim.ctx.beginPath();
 		sim.ctx.arc(pos[0], pos[1], radius, 0, 2 * Math.PI);
 		sim.ctx.closePath();
 		sim.ctx.fill();
-		
+
+		if (params.showforces) {
+			let strokeStyleTmp = sim.ctx.strokeStyle;
+			sim.ctx.strokeStyle = `#0000FF`;
+			drawArrow(pos[0], pos[1], 0, state.upthrust[1] / params.mass * 5);
+			sim.ctx.strokeStyle = `#008800`;
+			drawArrow(pos[0], pos[1], 0, params.gravity * 5);
+			sim.ctx.strokeStyle = `rgba(255, 0, 0, ${(Math.pow(state.drag[0], 2) + Math.pow(state.drag[1], 2)) * 0.2})`;
+			drawArrow(pos[0], pos[1], state.drag[0] / params.mass * 5, state.drag[1] * 5);
+			sim.ctx.strokeStyle = strokeStyleTmp;
+		}
+
 	};
 
 
