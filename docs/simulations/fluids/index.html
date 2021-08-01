@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>Simulation - Fluids - JJMorton</title>
+<link rel="stylesheet" type="text/css" href="/styles/style.css">
+
+	<link rel="stylesheet" type="text/css" href="/styles/canvas.css"/>
+	<script src="/scripts/canvas/main.js"></script>
+	<script src="/scripts/canvas/vector.js"></script>
+	<script src="/scripts/canvas/fluids.js"></script>
+</head>
+<body>
+	<header>
+		<nav role="navigation">
+	<ul id="nav-bar">
+		<li><a href="/">Home</a></li>
+		<li><a href="/lmc">LMC</a></li>
+		<li><a href="/about">About</a></li>
+	</ul>
+</nav>
+
+	</header>
+
+	<h1>Simulation - Fluids</h1>
+
+	<main>
+		<p>Drop a ball in a fluid and observe the effects of drag, upthrust and the viscosity.</p>
+	</main>
+
+	<section id="controls">
+		<div class="slider left-border" id="ballmass">
+	<label for="ballmass-slider">
+		<span class="name">Slider</span>
+		<output for="ballmass-slider">0</output>
+		<span class="units">units</span>
+	</label>
+	<input type="range" id="ballmass-slider" min="0" max="1" step="0.01" value="0"/>
+</div>
+
+		<div class="slider left-border" id="balldensity">
+	<label for="balldensity-slider">
+		<span class="name">Slider</span>
+		<output for="balldensity-slider">0</output>
+		<span class="units">units</span>
+	</label>
+	<input type="range" id="balldensity-slider" min="0" max="1" step="0.01" value="0"/>
+</div>
+
+		<div class="slider left-border" id="liquiddensity">
+	<label for="liquiddensity-slider">
+		<span class="name">Slider</span>
+		<output for="liquiddensity-slider">0</output>
+		<span class="units">units</span>
+	</label>
+	<input type="range" id="liquiddensity-slider" min="0" max="1" step="0.01" value="0"/>
+</div>
+
+		<div class="slider left-border" id="liquidviscosity">
+	<label for="liquidviscosity-slider">
+		<span class="name">Slider</span>
+		<output for="liquidviscosity-slider">0</output>
+		<span class="units">units</span>
+	</label>
+	<input type="range" id="liquidviscosity-slider" min="0" max="1" step="0.01" value="0"/>
+</div>
+
+		<div class="slider left-border" id="gravity">
+	<label for="gravity-slider">
+		<span class="name">Slider</span>
+		<output for="gravity-slider">0</output>
+		<span class="units">units</span>
+	</label>
+	<input type="range" id="gravity-slider" min="0" max="1" step="0.01" value="0"/>
+</div>
+
+		<div class="checkbox left-border" id="arrows">
+	<label for="arrows-input">Checkbox</label>
+	<input type="checkbox" id="arrows-input"></input>
+</div>
+
+	</section>
+
+	<section id="sec-simulation">
+		<noscript>Please enable JavaScript to view this simulation.</noscript>
+		<canvas class="box-shadow">Sorry, the canvas element is not supported by your browser.</canvas>
+	</section>
+
+	<section id="about">
+		<h3>About this simulation</h3>
+		<p>
+			This is an approximate model of the upthrust (buoyancy) and drag on a sphere in a fluid.
+			<br>
+			The <strong>upthrust</strong> is simply equal to the weight of the displaced fluid:
+			<img class="latex-block" src="/tex/fluids-upthrust.png"/>
+			where the subscript <i>f</i> refers to the fluid, and <i>V</i> is the volume of the sphere which is submerged.
+			By comparing this with the weight of the sphere, you can conclude that objects sink if they are more dense than the fluid they are in, and float if they are less dense.
+		</p>
+		<p>
+			The <strong>drag</strong> is in theory much more complicated, as for an accurate model, one would need to account for the profile of the object and the turbulence of the fluid flow, among other things.
+			For the sake of simplicity, I opted for <a href="https://en.wikipedia.org/wiki/Stokes%27_law">Stokes' drag</a> alongside the <a href="https://en.wikipedia.org/wiki/Drag_equation">drag equation</a>.
+			<img class="latex-block" src="/tex/fluids-drag.png"/>
+			The first term in this equation for the drag force is the Stokes' drag, which depends on the viscosity of the fluid.
+			It assumes a spherical object (perfect for this case) and very small Reynolds numbers, which implies next to no turbulence in the fluid.
+			These assumptions result in this very simple expression for the viscous drag on a sphere.
+			<br>
+			The second term is the drag equation, and depends on the profile (i.e. size, shape and inclination) of the object.
+			Here, the shape of the object (in this case a sphere) is accounted for in the <a href="https://en.wikipedia.org/wiki/Drag_coefficient">drag coefficient</a>, <i>C<sub>d</sub></i>, and its size is represented by the area <i>A</i>.
+			As you would imagine, more aerodynamic objects such as the wing of an aeroplane have a small coefficient, while objects such as this sphere have a larger one and experiece more drag as a result.
+			In reality, the drag coefficient <a href="https://www.grc.nasa.gov/www/K-12/airplane/dragsphere.html">varies with the Reynolds number</a> of the fluid, but I won't talk this about here.
+			Notice that the drag equation term is proportional to the square of velocity, while the Stokes' drag is linear in velocity.
+			<br>
+			Of course, both of these drag forces act in the opposite direction to the velocity, <strong><i>v</i></strong> of the object, hence the minus sign and proportionality to the object's velocity.
+		</p>
+	</section>
+
+	<footer>
+		<p>Running commit <a href="https://github.com/JJMorton/website/commit/unknown">unknown</a></p>
+
+	</footer>
+</body>
+</html>

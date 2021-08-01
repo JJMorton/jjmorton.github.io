@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>Simulation - Electric Field Lines - JJMorton</title>
+<link rel="stylesheet" type="text/css" href="/styles/style.css">
+
+	<link rel="stylesheet" type="text/css" href="/styles/canvas.css"/>
+	<script src="/scripts/canvas/main.js"></script>
+	<script src="/scripts/canvas/vector.js"></script>
+	<script src="/scripts/canvas/fieldlines.js"></script>
+</head>
+<body>
+	<header>
+		<nav role="navigation">
+	<ul id="nav-bar">
+		<li><a href="/">Home</a></li>
+		<li><a href="/lmc">LMC</a></li>
+		<li><a href="/about">About</a></li>
+	</ul>
+</nav>
+
+	</header>
+
+	<h1>Simulation - Electric Field Lines</h1>
+
+	<main>
+		<p>Visualise electric field lines from multiple point sources</p>
+	</main>
+
+	<section id="controls">
+		<button class="button box-shadow" id="create">Button</button>
+
+		<button class="button box-shadow" id="remove">Button</button>
+
+		<div class="combobox left-border" id="select">
+	<label for="select-select">Combobox</label>
+	<select id="select-select"></select>
+</div>
+
+		<div class="slider left-border" id="strength">
+	<label for="strength-slider">
+		<span class="name">Slider</span>
+		<output for="strength-slider">0</output>
+		<span class="units">units</span>
+	</label>
+	<input type="range" id="strength-slider" min="0" max="1" step="0.01" value="0"/>
+</div>
+
+	</section>
+
+	<section id="sec-simulation">
+		<noscript>Please enable JavaScript to view this simulation.</noscript>
+		<canvas class="box-shadow">Sorry, the canvas element is not supported by your browser.</canvas>
+	</section>
+
+	<section id="about">
+	</section>
+
+	<footer>
+		<p>Running commit <a href="https://github.com/JJMorton/website/commit/unknown">unknown</a></p>
+
+	</footer>
+</body>
+</html>

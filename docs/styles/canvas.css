@@ -1,0 +1,187 @@
+canvas {
+	display: block;
+	left: 0;
+	right: 0;
+	margin: 0 auto;
+	border: 5px solid var(--accent-color);
+	box-sizing: border-box;
+}
+
+#about {
+	margin: 40px 0;
+}
+
+.left-border {
+	border-left: 5px solid rgba(0, 0, 0, 0.4);
+	border-color: rgba(0, 0, 0, 0.4);
+	transition: border-left-width 100ms, border-color 100ms;
+	padding: 5px 10px;
+	font-family: var(--font-family);
+}
+
+.left-border:hover,
+.left-border.expanded {
+	border-left-width: 10px !important;
+	border-color: var(--text-color) !important;
+}
+
+#controls {
+	margin: 20px 0;
+	padding: 20px;
+	display: flex;
+	flex-direction: column;
+}
+
+#controls .left-border:not(:hover):nth-of-type(odd) {
+	border-left: 5px solid rgba(0, 0, 0, 0.2);
+}
+
+/* SLIDERS */
+
+#controls .slider,
+#controls .slider > label {
+	cursor: pointer;
+}
+
+#controls .slider.expanded > label {
+	color: black;
+	background-color: var(--accent-color);
+}
+
+#controls .slider:not(.expanded) > label {
+	color: var(--text-color);
+}
+
+#controls .slider > label > .name {
+	display: block;
+	width: 100%;
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+}
+
+#controls .slider > label > output {
+	margin-right: 5px;
+	font-weight: bold;
+}
+
+#controls .slider > label {
+	font-family: var(--font-family);
+	flex: 1;
+}
+
+#controls .slider.expanded {
+	background-color: var(--accent-color);
+}
+
+#controls .slider:not(.expanded) input[type=range] {
+	display: none;
+}
+
+#controls input[type=range] {
+	width: 100%;
+	left: 0;
+	right: 0;
+	margin: 10px auto 10px auto;
+	background-color: var(--accent-color);
+}
+
+input[type=range] {
+    -webkit-appearance: none;
+	background: none;
+	display: table-cell;
+	vertical-align: middle;
+	cursor: ew-resize;
+}
+
+input[type=range]::-webkit-slider-runnable-track,
+input[type=range]::-moz-range-track {
+    height: 5px;
+    background: var(--text-color);
+    border: none;
+}
+
+input[type=range]::-webkit-slider-thumb,
+input[type=range]::-moz-range-thumb {
+    -webkit-appearance: none;
+    border: none;
+    height: 100%;
+    width: 20px;
+	border-radius: 10px;
+    background: var(--text-color);
+    margin-top: -4px;
+}
+
+input[type=range]:focus {
+    outline: none;
+}
+
+input[type=range]:focus::-webkit-slider-runnable-track {
+    background: #ccc;
+}
+
+/* BUTTONS */
+
+button {
+	color: var(--text-color);
+	font-family: var(--font-family);
+	padding: 1em;
+	left: 0; right: 0;
+	margin: 0 auto;
+	border-radius: 0;
+	background-color: var(--background-color);
+	width: 100%;
+	border: 2px solid rgba(0, 0, 0, 0.4);
+}
+
+button:not(:disabled):hover {
+	background-color: var(--accent-color);
+}
+
+button:not(:disabled):active {
+	transform: translate(2px, 2px);
+}
+
+button:disabled {
+	border-color: transparent;
+	cursor: default;
+	box-shadow: none;
+	border: 2px solid rgba(0, 0, 0, 0.4);
+	opacity: 0.6;
+}
+
+button::-moz-focus-inner {
+	border: none;
+}
+
+.button {
+	max-width: 400px;
+	margin: 10px auto;
+}
+
+/* COMBO BOX */
+
+.combobox > select {
+	min-width: 100px;
+}
+
+.combobox > * {
+	display: block;
+}
+
+/* CHECKBOX */
+
+.checkbox {
+	color: var(--text-color);
+	display: flex;
+}
+
+.checkbox > input[type="checkbox"],
+.checkbox > label {
+	cursor: pointer;
+	margin: 0;
+}
+
+.checkbox > label {
+	padding-right: 8px;
+}
