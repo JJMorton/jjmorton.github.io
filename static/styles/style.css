@@ -1,11 +1,11 @@
 :root {
 	--header-height: 3em;
-	--header-color: #555;
+	--header-color: #666;
 	--header-size: 1em;
 	
 	--background-color: #fff;
 	--text-color: #444;
-	--text-color-dim: #888;
+	--text-color-dim: #bbb;
 	--text-size: 1em;
 	--accent-color: #a3be8c;
 	--font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -27,6 +27,7 @@ body {
 
 main, section {
 	width: 100%;
+	animation: fade 0.2s ease-in-out;
 }
 
 .box-shadow {
@@ -45,14 +46,23 @@ h1, h2, h3, p, a, td, th, input, label, li {
 
 h1 {
 	font-size: 2em;
+	animation: slidedown-fade 0.3s ease-in-out;
 }
+
+h1::after {
+	content: "";
+	display: block;
+	background-color: var(--text-color-dim);
+	width: 100%;
+	height: 1px;
+	animation: expandright 0.5s ease-in-out 0.3s;
+	animation-fill-mode: both;
+}
+
 h2 {
 	font-size: 1.5em;
 	font-weight: 500;
-}
-
-h1, h2 {
-	line-height: 1.4;
+	animation: slideright-fade 0.3s ease-in-out;
 }
 
 p, a, li {
@@ -101,10 +111,13 @@ nav {
 	padding: 0 1em 0 1em;
 	text-transform: uppercase;
 	font-size: var(--header-size);
+	transform: translateY(0);
+	transition: transform 0.1s;
 }
 
 #nav-bar > li > a:hover {
 	color: var(--text-color);
+	transform: translateY(-2px);
 }
 
 
@@ -125,6 +138,7 @@ nav {
 	margin-bottom: 20px;
 	margin-right: 20px;
 	font-size: initial;
+	animation: zoom-fade 0.2s ease-in-out;
 }
 
 @media (max-width: 1300px) {
@@ -157,12 +171,18 @@ nav {
 }
 
 .item-preview > a {
-	transition: background-color 200ms, color 200ms;
+	transition: background-color 200ms, color 200ms, transform 0.1s;
+	transform: scale(1, 1);
 }
 
 .item-preview > a:hover {
 	background-color: var(--text-color);
 	color: var(--background-color);
+	transform: scale(1.03, 1.03);
+}
+
+.item-preview > a:active {
+	transform: scale(1, 1);
 }
 
 .item-preview > a > p {
@@ -203,12 +223,22 @@ nav {
 footer {
 	/* opacity: 0.5; */
 	margin-top: 4em;
-	border-top: 1px solid var(--text-color-dim);
 	color: var(--text-color-dim);
+}
+
+footer::before {
+	content: "";
+	display: block;
+	background-color: var(--text-color-dim);
+	width: 100%;
+	height: 1px;
+	animation: expandright 0.5s ease-in-out 0.3s;
+	animation-fill-mode: both;
 }
 
 footer p {
 	color: var(--text-color-dim);
 	font-size: var(--footer-size);
+	animation: slideup-fade 0.3s ease-in-out;
 }
 

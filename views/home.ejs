@@ -25,8 +25,8 @@
 	<section>
 		<ul class="list-preview">
 			<% simulations.forEach(function(item) { %>
-				<li class="item-preview box-shadow">
-					<a href="/simulations/<%= item.id %>">
+				<li class="item-preview">
+					<a class="box-shadow" href="/simulations/<%= item.id %>">
 						<p class="title"><%= item.title %></p>
 						<p class="description"><%= item.description %></p>
 					</a>
