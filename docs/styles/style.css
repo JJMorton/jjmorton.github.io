@@ -195,6 +195,10 @@ nav {
 	vertical-align: middle;
 }
 
+.image-framed {
+	border: 2px solid var(--accent-color);
+}
+
 
 footer {
 	/* opacity: 0.5; */
