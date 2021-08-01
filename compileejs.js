@@ -2,7 +2,6 @@ const ejs = require("ejs");
 const fs = require("fs");
 
 const simulations = JSON.parse(fs.readFileSync("simulations.json", "utf8"));
-const commithash = process.env.GIT_SHA || "unknown";
 const views_dir = "views"
 const static_dir = "static"
 const output_dir = "docs"
@@ -22,9 +21,9 @@ function renderAndSave(template, data, output) {
 fs.mkdirSync(`${output_dir}/about`, { recursive: true });
 fs.mkdirSync(`${output_dir}/lmc`, { recursive: true });
 
-renderAndSave("home.ejs", { title: "Home", simulations, commithash }, "index.html");
-renderAndSave("about.ejs", { title: "About", commithash }, "about/index.html");
-renderAndSave("lmc.ejs", { title: "Little Man Computer", commithash }, "lmc/index.html");
+renderAndSave("home.ejs", { title: "Home", simulations, static: true }, "index.html");
+renderAndSave("about.ejs", { title: "About", static: true }, "about/index.html");
+renderAndSave("lmc.ejs", { title: "Little Man Computer", static: true }, "lmc/index.html");
 
 for (const sim of simulations) {
 	fs.mkdirSync(`${output_dir}/simulations/${sim.id}`, { recursive: true });
@@ -32,6 +31,6 @@ for (const sim of simulations) {
 		title: `Simulation - ${sim.title}`,
 		description: sim.description,
 		id: sim.id,
-		commithash
+		static: true
 	}, `simulations/${sim.id}/index.html`);
 }

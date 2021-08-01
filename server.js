@@ -4,15 +4,13 @@ const simulations = JSON.parse(fs.readFileSync("simulations.json", "utf8"));
 const express = require("express");
 const app = express();
 
-const commithash = process.env.GIT_SHA || "unknown";
-
 app.set("view engine", "ejs");
 app.set("view options", { root: __dirname + "/views" });
 
 app.use(express.static(__dirname + "/static"));
 
 app.get("/", (req, res) => {
-	res.render("home", { title: "Home", simulations, commithash });
+	res.render("home", { title: "Home", simulations, static: false });
 });
 
 app.get("/simulations", (req, res) => {
@@ -20,11 +18,11 @@ app.get("/simulations", (req, res) => {
 });
 
 app.get("/lmc", (req, res) => {
-	res.render("lmc", { title: "Little Man Computer", commithash });
+	res.render("lmc", { title: "Little Man Computer", static: false });
 });
 
 app.get("/about", (req, res) => {
-	res.render("about", { title: "About", commithash });
+	res.render("about", { title: "About", static: false });
 });
 
 for (const sim of simulations) {
@@ -33,13 +31,13 @@ for (const sim of simulations) {
 			title: `Simulation - ${sim.title}`,
 			description: sim.description,
 			id: sim.id,
-			commithash
+			static: false
 		});
 	});
 }
 
 app.use((req, res) => {
-	res.status(404).render("404", { title: "404 - Not Found", path: req.path, commithash });
+	res.status(404).render("404", { title: "404 - Not Found", path: req.path, static: false });
 });
 
 app.listen(process.env.PORT || 8001);

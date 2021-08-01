@@ -81,7 +81,17 @@
 	</section>
 
 	<footer>
-		<p>Running commit <a href="https://github.com/JJMorton/website/commit/unknown">unknown</a></p>
+		
+<p>Running static version, compiled at <tt id="compiledate"></tt></p>
+<script>
+	const elt = document.getElementById("compiledate");
+	const req = new XMLHttpRequest();
+	req.addEventListener("load", () => elt.textContent = req.responseText);
+	req.open("GET", "/compiledate");
+	req.send();
+</script>
+
+
 
 	</footer>
 </body>
