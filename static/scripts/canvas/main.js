@@ -222,7 +222,10 @@ class Simulation {
 		btn.addEventListener("click", onclick);
 		return {
 			DOM: btn,
-			click: () => btn.click()
+			click: () => btn.click(),
+			set disabled(value) {
+				btn.disabled = value;
+			}
 		};
 	}
 
