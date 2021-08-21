@@ -18,7 +18,7 @@ app.get("/simulations", (req, res) => {
 });
 
 app.get("/lmc", (req, res) => {
-	res.render("lmc", { title: "Little Man Computer", static: false });
+	res.render("lmc", { title: "LMC", static: false });
 });
 
 app.get("/about", (req, res) => {
@@ -28,7 +28,7 @@ app.get("/about", (req, res) => {
 for (const sim of simulations) {
 	app.get(`/simulations/${sim.id}`, (req, res) => {
 		res.render(`simulations/${sim.id}`, {
-			title: `Simulation - ${sim.title}`,
+			title: `${sim.title}`,
 			description: sim.description,
 			id: sim.id,
 			static: false
@@ -37,7 +37,7 @@ for (const sim of simulations) {
 }
 
 app.use((req, res) => {
-	res.status(404).render("404", { title: "404 - Not Found", path: req.path, static: false });
+	res.status(404).render("404", { title: "404: Not Found", path: req.path, static: false });
 });
 
 app.listen(process.env.PORT || 8001);

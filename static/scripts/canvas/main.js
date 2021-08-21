@@ -133,7 +133,7 @@ class Simulation {
 	}
 
 	resize() {
-		const size = Math.min(window.innerHeight * 0.7, document.body.clientWidth) - 10;
+		const size = Math.min(window.innerHeight * 0.73, document.querySelector("#content").clientWidth) - 60;
 		this.canvas.width = size;
 		this.canvas.height = size;
 

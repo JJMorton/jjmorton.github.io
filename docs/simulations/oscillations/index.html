@@ -3,10 +3,10 @@
 <head>
 	<meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-<title>Simulation - Oscillations - JJMorton</title>
+<title>Oscillations - JJMorton</title>
 <link rel="stylesheet" type="text/css" href="/styles/animations.css">
 <link rel="stylesheet" type="text/css" href="/styles/style.css">
-
+<div id="background"></div>
 	<link rel="stylesheet" type="text/css" href="/styles/canvas.css"/>
 	<script src="/scripts/canvas/main.js"></script>
 	<script src="/scripts/canvas/vector.js"></script>
@@ -24,14 +24,15 @@
 
 	</header>
 
-	<h1>Simulation - Oscillations</h1>
 
-	<main>
-		<p>Simulate an oscillating spring with optional damping and a driving force</p>
-	</main>
+	<div id="content">
+		<main>
+			<h1>Oscillations</h1>
+			<p>Simulate an oscillating spring with optional damping and a driving force</p>
+		</main>
 
-	<section id="controls">
-		<div class="slider left-border" id="springconstant">
+		<section id="controls">
+			<div class="slider left-border" id="springconstant">
 	<label for="springconstant-slider">
 		<span class="name">Slider</span>
 		<output for="springconstant-slider">0</output>
@@ -40,7 +41,7 @@
 	<input type="range" id="springconstant-slider" min="0" max="1" step="0.01" value="0"/>
 </div>
 
-		<div class="slider left-border" id="damping">
+			<div class="slider left-border" id="damping">
 	<label for="damping-slider">
 		<span class="name">Slider</span>
 		<output for="damping-slider">0</output>
@@ -49,7 +50,7 @@
 	<input type="range" id="damping-slider" min="0" max="1" step="0.01" value="0"/>
 </div>
 
-		<div class="slider left-border" id="mass">
+			<div class="slider left-border" id="mass">
 	<label for="mass-slider">
 		<span class="name">Slider</span>
 		<output for="mass-slider">0</output>
@@ -58,7 +59,7 @@
 	<input type="range" id="mass-slider" min="0" max="1" step="0.01" value="0"/>
 </div>
 
-		<div class="slider left-border" id="frequency">
+			<div class="slider left-border" id="frequency">
 	<label for="frequency-slider">
 		<span class="name">Slider</span>
 		<output for="frequency-slider">0</output>
@@ -67,7 +68,7 @@
 	<input type="range" id="frequency-slider" min="0" max="1" step="0.01" value="0"/>
 </div>
 
-		<div class="slider left-border" id="amplitude">
+			<div class="slider left-border" id="amplitude">
 	<label for="amplitude-slider">
 		<span class="name">Slider</span>
 		<output for="amplitude-slider">0</output>
@@ -76,7 +77,7 @@
 	<input type="range" id="amplitude-slider" min="0" max="1" step="0.01" value="0"/>
 </div>
 
-		<div class="slider left-border" id="scale">
+			<div class="slider left-border" id="scale">
 	<label for="scale-slider">
 		<span class="name">Slider</span>
 		<output for="scale-slider">0</output>
@@ -85,18 +86,16 @@
 	<input type="range" id="scale-slider" min="0" max="1" step="0.01" value="0"/>
 </div>
 
-	</section>
+		</section>
 
-	<section id="sec-simulation">
-		<noscript>Please enable JavaScript to view this simulation.</noscript>
-		<canvas class="box-shadow">Sorry, the canvas element is not supported by your browser.</canvas>
-	</section>
-
-	<section id="about">
-	</section>
-
-	<footer>
-		
+		<section id="sec-simulation">
+			<noscript>Please enable JavaScript to view this simulation.</noscript>
+			<canvas class="box-shadow">Sorry, the canvas element is not supported by your browser.</canvas>
+		</section>
+	
+		<section>
+			<footer>
+				
 <p>Running static version, compiled at <tt id="compiledate"></tt></p>
 <script>
 	const elt = document.getElementById("compiledate");
@@ -108,6 +107,9 @@
 
 
 
-	</footer>
+			</footer>
+		</section>
+	</div>
+
 </body>
 </html>

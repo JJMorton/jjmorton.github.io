@@ -5,10 +5,7 @@ canvas {
 	margin: 0 auto;
 	border: 5px solid var(--accent-color);
 	box-sizing: border-box;
-}
-
-#about {
-	margin: 40px 0;
+	background: var(--background-color);
 }
 
 .left-border {
@@ -26,10 +23,11 @@ canvas {
 }
 
 #controls {
-	margin: 20px 0;
+	/*margin: 20px 0;*/
 	padding: 20px;
 	display: flex;
 	flex-direction: column;
+	box-sizing: border-box;
 }
 
 #controls .left-border:not(:hover):nth-of-type(odd) {

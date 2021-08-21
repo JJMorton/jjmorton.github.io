@@ -3,10 +3,10 @@
 <head>
 	<meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-<title>Simulation - Ray Marching - JJMorton</title>
+<title>Ray Marching - JJMorton</title>
 <link rel="stylesheet" type="text/css" href="/styles/animations.css">
 <link rel="stylesheet" type="text/css" href="/styles/style.css">
-
+<div id="background"></div>
 	<link rel="stylesheet" type="text/css" href="/styles/canvas.css"/>
 	<script src="/scripts/canvas/main.js"></script>
 	<script src="/scripts/canvas/vector.js"></script>
@@ -24,14 +24,15 @@
 
 	</header>
 
-	<h1>Simulation - Ray Marching</h1>
 
-	<main>
-		<p>A demonstration of ray marching with basic shapes in a pixel shader. Requires WebGL2 support</p>
-	</main>
+	<div id="content">
+		<main>
+			<h1>Ray Marching</h1>
+			<p>A demonstration of ray marching with basic shapes in a pixel shader. Requires WebGL2 support</p>
+		</main>
 
-	<section id="controls">
-		<div class="slider left-border" id="cameraangle">
+		<section id="controls">
+			<div class="slider left-border" id="cameraangle">
 	<label for="cameraangle-slider">
 		<span class="name">Slider</span>
 		<output for="cameraangle-slider">0</output>
@@ -40,7 +41,7 @@
 	<input type="range" id="cameraangle-slider" min="0" max="1" step="0.01" value="0"/>
 </div>
 
-		<div class="slider left-border" id="cameraheight">
+			<div class="slider left-border" id="cameraheight">
 	<label for="cameraheight-slider">
 		<span class="name">Slider</span>
 		<output for="cameraheight-slider">0</output>
@@ -49,7 +50,7 @@
 	<input type="range" id="cameraheight-slider" min="0" max="1" step="0.01" value="0"/>
 </div>
 
-		<div class="slider left-border" id="shadowsharp">
+			<div class="slider left-border" id="shadowsharp">
 	<label for="shadowsharp-slider">
 		<span class="name">Slider</span>
 		<output for="shadowsharp-slider">0</output>
@@ -58,7 +59,7 @@
 	<input type="range" id="shadowsharp-slider" min="0" max="1" step="0.01" value="0"/>
 </div>
 
-		<div class="slider left-border" id="smoothing">
+			<div class="slider left-border" id="smoothing">
 	<label for="smoothing-slider">
 		<span class="name">Slider</span>
 		<output for="smoothing-slider">0</output>
@@ -67,7 +68,7 @@
 	<input type="range" id="smoothing-slider" min="0" max="1" step="0.01" value="0"/>
 </div>
 
-		<div class="slider left-border" id="shininess">
+			<div class="slider left-border" id="shininess">
 	<label for="shininess-slider">
 		<span class="name">Slider</span>
 		<output for="shininess-slider">0</output>
@@ -76,7 +77,7 @@
 	<input type="range" id="shininess-slider" min="0" max="1" step="0.01" value="0"/>
 </div>
 
-		<div class="slider left-border" id="ao">
+			<div class="slider left-border" id="ao">
 	<label for="ao-slider">
 		<span class="name">Slider</span>
 		<output for="ao-slider">0</output>
@@ -85,53 +86,51 @@
 	<input type="range" id="ao-slider" min="0" max="1" step="0.01" value="0"/>
 </div>
 
-		<div class="checkbox left-border" id="showsteps">
+			<div class="checkbox left-border" id="showsteps">
 	<label for="showsteps-input">Checkbox</label>
 	<input type="checkbox" id="showsteps-input"></input>
 </div>
 
-		<div class="checkbox left-border" id="shownormal">
+			<div class="checkbox left-border" id="shownormal">
 	<label for="shownormal-input">Checkbox</label>
 	<input type="checkbox" id="shownormal-input"></input>
 </div>
 
-		<div class="checkbox left-border" id="showshadow">
+			<div class="checkbox left-border" id="showshadow">
 	<label for="showshadow-input">Checkbox</label>
 	<input type="checkbox" id="showshadow-input"></input>
 </div>
 
-		<div class="checkbox left-border" id="showspec">
+			<div class="checkbox left-border" id="showspec">
 	<label for="showspec-input">Checkbox</label>
 	<input type="checkbox" id="showspec-input"></input>
 </div>
 
-		<div class="checkbox left-border" id="sun">
+			<div class="checkbox left-border" id="sun">
 	<label for="sun-input">Checkbox</label>
 	<input type="checkbox" id="sun-input"></input>
 </div>
 
-		<div class="checkbox left-border" id="sky">
+			<div class="checkbox left-border" id="sky">
 	<label for="sky-input">Checkbox</label>
 	<input type="checkbox" id="sky-input"></input>
 </div>
 
-		<div class="checkbox left-border" id="antialias">
+			<div class="checkbox left-border" id="antialias">
 	<label for="antialias-input">Checkbox</label>
 	<input type="checkbox" id="antialias-input"></input>
 </div>
 
-	</section>
+		</section>
 
-	<section id="sec-simulation">
-		<noscript>Please enable JavaScript to view this simulation.</noscript>
-		<canvas class="box-shadow">Sorry, the canvas element is not supported by your browser.</canvas>
-	</section>
+		<section id="sec-simulation">
+			<noscript>Please enable JavaScript to view this simulation.</noscript>
+			<canvas class="box-shadow">Sorry, the canvas element is not supported by your browser.</canvas>
+		</section>
 
-	<section id="about">
-	</section>
-
-	<footer>
-		
+		<section>
+			<footer>
+				
 <p>Running static version, compiled at <tt id="compiledate"></tt></p>
 <script>
 	const elt = document.getElementById("compiledate");
@@ -143,6 +142,10 @@
 
 
 
-	</footer>
+			</footer>
+		</section>
+	</div>
+
+
 </body>
 </html>

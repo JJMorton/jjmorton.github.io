@@ -6,7 +6,7 @@
 <title>Home - JJMorton</title>
 <link rel="stylesheet" type="text/css" href="/styles/animations.css">
 <link rel="stylesheet" type="text/css" href="/styles/style.css">
-
+<div id="background"></div>
 </head>
 <body>
 
@@ -21,83 +21,85 @@
 
 	</header>
 	
-	<h1>Home</h1>
 
-	<main>
-		<p>On this website, you can find simulations of various physical systems as well as any other odd things I've made.</p>
-		<p>
-			You must have JavaScript enbled in your browser to view them, as they use the
-			<a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/canvas">HTML canvas element</a>
-			and its
-			<a href="https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API">JavaScript API</a>
-			for rendering.
-		</p>
-	</main>
+	<div id="content">
+		<main>
+			<h1>Home</h1>
+			<p>On this website, you can find simulations of various physical systems as well as any other odd things I've made.</p>
+			<p>
+				You must have JavaScript enbled in your browser to view them, as they use the
+				<a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/canvas">HTML canvas element</a>
+				and its
+				<a href="https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API">JavaScript API</a>
+				for rendering.
+			</p>
+		</main>
 
-	<section>
-		<ul class="list-preview">
-			
-				<li class="item-preview">
-					<a class="box-shadow" href="/simulations/fluids">
-						<p class="title">Fluids</p>
-						<p class="description">Drop a ball in a fluid and observe the effects of drag, upthrust and the viscosity.</p>
-					</a>
-				</li>
-			
-				<li class="item-preview">
-					<a class="box-shadow" href="/simulations/oscillations">
-						<p class="title">Oscillations</p>
-						<p class="description">Simulate an oscillating spring with optional damping and a driving force</p>
-					</a>
-				</li>
-			
-				<li class="item-preview">
-					<a class="box-shadow" href="/simulations/lenses">
-						<p class="title">Lenses</p>
-						<p class="description">Simulate a lens with adjustable properties</p>
-					</a>
-				</li>
-			
-				<li class="item-preview">
-					<a class="box-shadow" href="/simulations/wavepackets">
-						<p class="title">Wave Interference</p>
-						<p class="description">See how waves interact when they interfere, and how adding many waves together can create a wave packet</p>
-					</a>
-				</li>
-			
-				<li class="item-preview">
-					<a class="box-shadow" href="/simulations/fieldlines">
-						<p class="title">Electric Field Lines</p>
-						<p class="description">Visualise electric field lines from multiple point sources</p>
-					</a>
-				</li>
-			
-				<li class="item-preview">
-					<a class="box-shadow" href="/simulations/sorting">
-						<p class="title">Sorting Algorithms</p>
-						<p class="description">Watch how different sorting algorithms work on different data sets</p>
-					</a>
-				</li>
-			
-				<li class="item-preview">
-					<a class="box-shadow" href="/simulations/elasticpendulum">
-						<p class="title">Elastic Pendulum</p>
-						<p class="description">A simulation of a pendulum with a spring in place of the rod</p>
-					</a>
-				</li>
-			
-				<li class="item-preview">
-					<a class="box-shadow" href="/simulations/raymarching">
-						<p class="title">Ray Marching</p>
-						<p class="description">A demonstration of ray marching with basic shapes in a pixel shader. Requires WebGL2 support</p>
-					</a>
-				</li>
-			
-		</ul>
-	</section>
+		<section>
+			<ul class="list-preview">
+				
+					<li class="item-preview">
+						<a class="box-shadow" href="/simulations/fluids">
+							<p class="title">Fluids</p>
+							<p class="description">Drop a ball in a fluid and observe the effects of drag, upthrust and the viscosity.</p>
+						</a>
+					</li>
+				
+					<li class="item-preview">
+						<a class="box-shadow" href="/simulations/oscillations">
+							<p class="title">Oscillations</p>
+							<p class="description">Simulate an oscillating spring with optional damping and a driving force</p>
+						</a>
+					</li>
+				
+					<li class="item-preview">
+						<a class="box-shadow" href="/simulations/lenses">
+							<p class="title">Lenses</p>
+							<p class="description">Simulate a lens with adjustable properties</p>
+						</a>
+					</li>
+				
+					<li class="item-preview">
+						<a class="box-shadow" href="/simulations/wavepackets">
+							<p class="title">Wave Interference</p>
+							<p class="description">See how waves interact when they interfere, and how adding many waves together can create a wave packet</p>
+						</a>
+					</li>
+				
+					<li class="item-preview">
+						<a class="box-shadow" href="/simulations/fieldlines">
+							<p class="title">Electric Field Lines</p>
+							<p class="description">Visualise electric field lines from multiple point sources</p>
+						</a>
+					</li>
+				
+					<li class="item-preview">
+						<a class="box-shadow" href="/simulations/sorting">
+							<p class="title">Sorting Algorithms</p>
+							<p class="description">Watch how different sorting algorithms work on different data sets</p>
+						</a>
+					</li>
+				
+					<li class="item-preview">
+						<a class="box-shadow" href="/simulations/elasticpendulum">
+							<p class="title">Elastic Pendulum</p>
+							<p class="description">A simulation of a pendulum with a spring in place of the rod</p>
+						</a>
+					</li>
+				
+					<li class="item-preview">
+						<a class="box-shadow" href="/simulations/raymarching">
+							<p class="title">Ray Marching</p>
+							<p class="description">A demonstration of ray marching with basic shapes in a pixel shader. Requires WebGL2 support</p>
+						</a>
+					</li>
+				
+			</ul>
+		</section>
 
-	<footer>
-		
+		<section>
+			<footer>
+				
 <p>Running static version, compiled at <tt id="compiledate"></tt></p>
 <script>
 	const elt = document.getElementById("compiledate");
@@ -109,7 +111,11 @@
 
 
 
-	</footer>
+			</footer>
+		</section>
+	</div>
+
+	
 
 </body>
 </html>

@@ -12,32 +12,34 @@
 		<%- include("/partials/header") %>
 	</header>
 
-	<h1><%= title %></h1>
 
-	<main>
-		<p><%= description %></p>
-	</main>
+	<div id="content">
+		<main>
+			<h1><%= title %></h1>
+			<p><%= description %></p>
+		</main>
 
-	<section id="controls">
-		<%- include(`/partials/controls/slider`, { name: "datalength" }) %>
-		<%- include(`/partials/controls/combo`, { name: "datagen" }) %>
-		<%- include(`/partials/controls/combo`, { name: "method" }) %>
-		<%- include(`/partials/controls/button`, { name: "start" }) %>
-		<%- include(`/partials/controls/checkbox`, { name: "showswap" }) %>
-		<%- include(`/partials/controls/checkbox`, { name: "showcompare" }) %>
-		<%- include(`/partials/controls/slider`, { name: "speed" }) %>
-	</section>
+		<section id="controls">
+			<%- include(`/partials/controls/slider`, { name: "datalength" }) %>
+			<%- include(`/partials/controls/combo`, { name: "datagen" }) %>
+			<%- include(`/partials/controls/combo`, { name: "method" }) %>
+			<%- include(`/partials/controls/button`, { name: "start" }) %>
+			<%- include(`/partials/controls/checkbox`, { name: "showswap" }) %>
+			<%- include(`/partials/controls/checkbox`, { name: "showcompare" }) %>
+			<%- include(`/partials/controls/slider`, { name: "speed" }) %>
+		</section>
 
-	<section id="sec-simulation">
-		<noscript>Please enable JavaScript to view this simulation.</noscript>
-		<canvas class="box-shadow">Sorry, the canvas element is not supported by your browser.</canvas>
-	</section>
+		<section id="sec-simulation">
+			<noscript>Please enable JavaScript to view this simulation.</noscript>
+			<canvas class="box-shadow">Sorry, the canvas element is not supported by your browser.</canvas>
+		</section>
+	
+		<section>
+			<footer>
+				<%- include("/partials/footer") %>
+			</footer>
+		</section>
+	</div>
 
-	<section id="about">
-	</section>
-
-	<footer>
-		<%- include("/partials/footer") %>
-	</footer>
 </body>
 </html>

@@ -12,56 +12,60 @@
 		<%- include("/partials/header") %>
 	</header>
 
-	<h1><%= title %></h1>
 
-	<main>
-		<p><%= description %></p>
-	</main>
+	<div id="content">
+		<main>
+			<h1><%= title %></h1>
+			<p><%= description %></p>
+		</main>
 
-	<section id="controls">
-		<%- include(`/partials/controls/slider`, { name: "ballmass" }) %>
-		<%- include(`/partials/controls/slider`, { name: "balldensity" }) %>
-		<%- include(`/partials/controls/slider`, { name: "liquiddensity" }) %>
-		<%- include(`/partials/controls/slider`, { name: "liquidviscosity" }) %>
-		<%- include(`/partials/controls/slider`, { name: "gravity" }) %>
-		<%- include(`/partials/controls/checkbox`, { name: "arrows" }) %>
-	</section>
+		<section id="controls">
+			<%- include(`/partials/controls/slider`, { name: "ballmass" }) %>
+			<%- include(`/partials/controls/slider`, { name: "balldensity" }) %>
+			<%- include(`/partials/controls/slider`, { name: "liquiddensity" }) %>
+			<%- include(`/partials/controls/slider`, { name: "liquidviscosity" }) %>
+			<%- include(`/partials/controls/slider`, { name: "gravity" }) %>
+			<%- include(`/partials/controls/checkbox`, { name: "arrows" }) %>
+		</section>
 
-	<section id="sec-simulation">
-		<noscript>Please enable JavaScript to view this simulation.</noscript>
-		<canvas class="box-shadow">Sorry, the canvas element is not supported by your browser.</canvas>
-	</section>
+		<section id="sec-simulation">
+			<noscript>Please enable JavaScript to view this simulation.</noscript>
+			<canvas class="box-shadow">Sorry, the canvas element is not supported by your browser.</canvas>
+		</section>
 
-	<section id="about">
-		<h3>About this simulation</h3>
-		<p>
-			This is an approximate model of the upthrust (buoyancy) and drag on a sphere in a fluid.
-			<br>
-			The <strong>upthrust</strong> is simply equal to the weight of the displaced fluid:
-			<img class="latex-block" src="/tex/fluids-upthrust.png"/>
-			where the subscript <i>f</i> refers to the fluid, and <i>V</i> is the volume of the sphere which is submerged.
-			By comparing this with the weight of the sphere, you can conclude that objects sink if they are more dense than the fluid they are in, and float if they are less dense.
-		</p>
-		<p>
-			The <strong>drag</strong> is in theory much more complicated, as for an accurate model, one would need to account for the profile of the object and the turbulence of the fluid flow, among other things.
-			For the sake of simplicity, I opted for <a href="https://en.wikipedia.org/wiki/Stokes%27_law">Stokes' drag</a> alongside the <a href="https://en.wikipedia.org/wiki/Drag_equation">drag equation</a>.
-			<img class="latex-block" src="/tex/fluids-drag.png"/>
-			The first term in this equation for the drag force is the Stokes' drag, which depends on the viscosity of the fluid.
-			It assumes a spherical object (perfect for this case) and very small Reynolds numbers, which implies next to no turbulence in the fluid.
-			These assumptions result in this very simple expression for the viscous drag on a sphere.
-			<br>
-			The second term is the drag equation, and depends on the profile (i.e. size, shape and inclination) of the object.
-			Here, the shape of the object (in this case a sphere) is accounted for in the <a href="https://en.wikipedia.org/wiki/Drag_coefficient">drag coefficient</a>, <i>C<sub>d</sub></i>, and its size is represented by the area <i>A</i>.
-			As you would imagine, more aerodynamic objects such as the wing of an aeroplane have a small coefficient, while objects such as this sphere have a larger one and experiece more drag as a result.
-			In reality, the drag coefficient <a href="https://www.grc.nasa.gov/www/K-12/airplane/dragsphere.html">varies with the Reynolds number</a> of the fluid, but I won't talk this about here.
-			Notice that the drag equation term is proportional to the square of velocity, while the Stokes' drag is linear in velocity.
-			<br>
-			Of course, both of these drag forces act in the opposite direction to the velocity, <strong><i>v</i></strong> of the object, hence the minus sign and proportionality to the object's velocity.
-		</p>
-	</section>
-
-	<footer>
-		<%- include("/partials/footer") %>
-	</footer>
+		<section id="about">
+			<h3>About this simulation</h3>
+			<p>
+				This is an approximate model of the upthrust (buoyancy) and drag on a sphere in a fluid.
+				<br>
+				The <strong>upthrust</strong> is simply equal to the weight of the displaced fluid:
+				<img class="latex-block" src="/tex/fluids-upthrust.png"/>
+				where the subscript <i>f</i> refers to the fluid, and <i>V</i> is the volume of the sphere which is submerged.
+				By comparing this with the weight of the sphere, you can conclude that objects sink if they are more dense than the fluid they are in, and float if they are less dense.
+			</p>
+			<p>
+				The <strong>drag</strong> is in theory much more complicated, as for an accurate model, one would need to account for the profile of the object and the turbulence of the fluid flow, among other things.
+				For the sake of simplicity, I opted for <a href="https://en.wikipedia.org/wiki/Stokes%27_law">Stokes' drag</a> alongside the <a href="https://en.wikipedia.org/wiki/Drag_equation">drag equation</a>.
+				<img class="latex-block" src="/tex/fluids-drag.png"/>
+				The first term in this equation for the drag force is the Stokes' drag, which depends on the viscosity of the fluid.
+				It assumes a spherical object (perfect for this case) and very small Reynolds numbers, which implies next to no turbulence in the fluid.
+				These assumptions result in this very simple expression for the viscous drag on a sphere.
+				<br>
+				The second term is the drag equation, and depends on the profile (i.e. size, shape and inclination) of the object.
+				Here, the shape of the object (in this case a sphere) is accounted for in the <a href="https://en.wikipedia.org/wiki/Drag_coefficient">drag coefficient</a>, <i>C<sub>d</sub></i>, and its size is represented by the area <i>A</i>.
+				As you would imagine, more aerodynamic objects such as the wing of an aeroplane have a small coefficient, while objects such as this sphere have a larger one and experiece more drag as a result.
+				In reality, the drag coefficient <a href="https://www.grc.nasa.gov/www/K-12/airplane/dragsphere.html">varies with the Reynolds number</a> of the fluid, but I won't talk this about here.
+				Notice that the drag equation term is proportional to the square of velocity, while the Stokes' drag is linear in velocity.
+				<br>
+				Of course, both of these drag forces act in the opposite direction to the velocity, <strong><i>v</i></strong> of the object, hence the minus sign and proportionality to the object's velocity.
+			</p>
+		</section>
+	
+		<section>
+			<footer>
+				<%- include("/partials/footer") %>
+			</footer>
+		</section>
+	</div>
 </body>
 </html>
