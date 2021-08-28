@@ -18,7 +18,7 @@ app.get("/simulations", (req, res) => {
 });
 
 app.get("/lmc", (req, res) => {
-	res.render("lmc", { title: "LMC" });
+	res.render("lmc", { title: "Little Man Computer" });
 });
 
 app.get("/about", (req, res) => {

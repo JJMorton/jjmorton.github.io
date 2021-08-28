@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-<title>LMC - JJMorton</title>
+<title>Little Man Computer - JJMorton</title>
 <link rel="stylesheet" type="text/css" href="/styles/animations.css">
 <link rel="stylesheet" type="text/css" href="/styles/style.css">
 <div id="background"></div>
@@ -25,13 +25,21 @@
 	
 	<div id="content">
 		<main>
-			<h1>LMC</h1>
+			<h1>Little Man Computer</h1>
 			<p>
 				The Little Man Computer is a model of a von Neumann architecture computer (the same as most modern computers).
 				It is extremely simple, with a small instruction set, so is often used to teach students.
 				This model is programmed in machine code, with instructions in base 10.
 				An explanation can be found at the bottom of this page, should you need help.
 			</p>
+			<h3>Quick start</h3>
+			<ol>
+				<li>Load an example program in the <strong>Assembly Code</strong> box, hit <strong>Assemble</strong></li>
+				<li>Press <strong>Load</strong> in the <strong>Machine Code</strong> box to load the instructions into memory</li>
+				<li>Press <strong>Start</strong> in the <strong>Controls</strong> box to begin execution</li>
+				<li>When the <strong>input box</strong> has a red border, enter a number</li>
+				<li>Wait for the the program's output</li>
+			</ol>
 		</main>
 
 		<section>
@@ -518,8 +526,8 @@
 		<section>
 			<h2>Configuration</h2>
 			<ul class="list-preview">
-				<li class="item-preview box-shadow">
-					<div>
+				<li class="item-preview">
+					<div class="box-shadow">
 						<p class="title">Controls</p>
 						<p class="description">Current state: <strong><span id="lmc-state"></span></strong></p>
 						<button id="lmc-btn-start" class="box-shadow" title="Start execution from the current instruction">Start</button>
@@ -528,8 +536,8 @@
 					</div>
 				</li>
 
-				<li class="item-preview box-shadow">
-					<div>
+				<li class="item-preview">
+					<div class="box-shadow">
 						<p class="title">Registers</p>
 						<label class="lmc-register-label" for="lmc-program-counter">Program Counter</label>
 						<input type="text" class="lmc-register box-shadow code" id="lmc-program-counter" name="lmc-program-counter" disabled/>
@@ -537,16 +545,16 @@
 						<input type="text" class="lmc-register box-shadow code" id="lmc-accumulator" name="lmc-accumulator" disabled/>
 					</div>
 				</li>
-				<li class="item-preview box-shadow">
-					<div>
+				<li class="item-preview">
+					<div class="box-shadow">
 						<p class="title">Input/Output</p>
 						<input type="text" required pattern="^[0-9]+$" placeholder="Input" id="lmc-input" id="lmc-input" class="code box-shadow"/>
 						<button id="lmc-btn-input" for="lmc-input" class="box-shadow">Submit</button>
 						<textarea id="lmc-output" class="box-shadow code" rows="4" placeholder="Output" disabled></textarea>
 					</div>
 				</li>
-				<li class="item-preview box-shadow">
-					<div>
+				<li class="item-preview">
+					<div class="box-shadow">
 						<p class="title">Machine Code</p>
 						<div class="validate-container">
 							<textarea id="lmc-code-input" class="box-shadow code validate" rows="10" placeholder="Enter machine code here"></textarea>
@@ -555,8 +563,8 @@
 						<button id="lmc-btn-load" class="box-shadow" title="Load the written machine code into the memory">Load</button>
 					</div>
 				</li>
-				<li class="item-preview box-shadow">
-					<div>
+				<li class="item-preview">
+					<div class="box-shadow">
 						<p class="title">Assembly Code</p>
 						<label for="examples">Load an example</label>
 						<select name="examples" id="lmc-example" class="box-shadow">
@@ -676,12 +684,6 @@
 				Data can be placed in the memory by providing a line in the machine code which does not represent any instruction.
 				The data is placed in the memory at the same position that it appears in the code, and can be pulled into the accumulator with the load command (<span class="code">5xx</span>) as normal.
 				You must be careful to prevent data from being executed as an instruction, as doing so will crash the computer.
-			</p>
-			<h3>tl;dr</h3>
-			<p>
-				Using the reference table above, either write assembly code and press 'Assemble' or write the machine code directly.
-				Load the machine code into memory and start the computer.
-				Inputs that require attention will be given a red border.
 			</p>
 		
 		</section>
