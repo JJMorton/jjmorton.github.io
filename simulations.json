@@ -35,6 +35,11 @@
 		"id": "elasticpendulum"
 	},
 	{
+		"title": "Double Pendulum",
+		"description": "A simulation of a double pendulum -- a system which exhibits chaotic behaviour",
+		"id": "doublependulum"
+	},
+	{
 		"title": "Ray Marching",
 		"description": "A demonstration of ray marching with basic shapes in a pixel shader. Requires WebGL2 support",
 		"id": "raymarching"

@@ -34,54 +34,57 @@ canvas {
 	border-left: 5px solid rgba(0, 0, 0, 0.2);
 }
 
-/* SLIDERS */
+/* SLIDERS + METERS */
 
-#controls .slider,
-#controls .slider > label {
+.slider,
+.slider > label {
 	cursor: pointer;
 }
 
-#controls .slider.expanded > label {
+.slider.expanded > label {
 	color: black;
 	background-color: var(--accent-color);
 }
 
-#controls .slider:not(.expanded) > label {
+.slider:not(.expanded) > label {
 	color: var(--text-color);
 }
 
-#controls .slider > label > .name {
+.slider > label > .name,
+.meter > label > .name {
 	display: block;
-	width: 100%;
+	/*width: 100%;*/
 	overflow: hidden;
 	white-space: nowrap;
 	text-overflow: ellipsis;
+	margin-right: 10px;
 }
 
-#controls .slider > label > output {
-	margin-right: 5px;
+.slider > label > output,
+.meter > label > output {
 	font-weight: bold;
 }
 
-#controls .slider > label {
+slider > label,
+.meter > label {
 	font-family: var(--font-family);
-	flex: 1;
 }
 
-#controls .slider.expanded {
+.slider.expanded {
 	background-color: var(--accent-color);
 }
 
-#controls .slider:not(.expanded) input[type=range] {
+.slider:not(.expanded) input[type=range] {
 	display: none;
 }
 
-#controls input[type=range] {
+input[type=range] {
 	width: 100%;
-	left: 0;
-	right: 0;
 	margin: 10px auto 10px auto;
-	background-color: var(--accent-color);
+}
+
+.meter > progress {
+	width: 100%;
 }
 
 input[type=range] {

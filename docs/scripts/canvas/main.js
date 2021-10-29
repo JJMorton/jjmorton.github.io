@@ -6,6 +6,8 @@ function Timer() {
 	let timePaused = 0; // -1 -> not paused
 	let offset = 0; // amounts to the amount of time spent paused
 
+	let userPaused = true;
+
 	this.isPaused = true;
 
 	this.start = function() {
@@ -19,6 +21,7 @@ function Timer() {
 		if (this.isPaused) return;
 		timePaused = performance.now();
 		this.isPaused = true;
+		userPaused = true;
 	}
 
 	this.getTime = function() {
@@ -31,14 +34,15 @@ function Timer() {
 
 	this.reset = function() {
 		offset = performance.now();
-		timepaused = 0;
+		timePaused = 0;
 	}
 
 	document.addEventListener("visibilitychange", () => {
 		if (document.visibilityState === "visible") {
-			this.start();
-		} else {
+			if (!userPaused) this.start();
+		} else if (!this.isPaused) {
 			this.pause();
+			userPaused = false;
 		}
 	});
 }
@@ -335,6 +339,34 @@ class Simulation {
 
 		// Event listener
 		checkbox.addEventListener("input", () => onupdate(checkbox.checked));
+
+		return control;
+	}
+
+	addMeter(id, label, units, init, min, max) {
+		// A slider that can be used to choose a float value
+
+		// Get DOM elements
+		const outer = document.getElementById(id);
+		if (!outer) return null;
+		outer.querySelector(".name").textContent = label;
+		outer.querySelector(".units").textContent = units;
+		const meter = outer.querySelector("progress");
+		const output = outer.querySelector("output");
+		meter.min = min; meter.max = max; meter.value = init;
+		output.value = init;
+		
+		// External control
+		let value = init;
+		const control = {
+			DOM: meter,
+			getValue: () => value,
+			setValue: newValue => {
+				meter.value = newValue;
+				output.textContent = newValue.toString();
+				value = newValue;
+			}
+		};
 
 		return control;
 	}
