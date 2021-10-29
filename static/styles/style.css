@@ -5,7 +5,7 @@
 	
 	--background-color: #fff;
 	--text-color: #444;
-	--text-color-dim: #bbb;
+	--text-color-dim: #808080;
 	--border-color-dim: #ddd;
 	--text-size: 1em;
 	/*--accent-color: #a3be8c;*/
@@ -47,6 +47,7 @@ html {
 	margin: 30px auto;
 	width: 73%;
 	min-width: 350px;
+	max-width: 900px;
 	background-color: var(--background-color);
 	border: 1px solid var(--border-color-dim);
 	border-radius: 10px;
@@ -59,7 +60,7 @@ html {
 
 main, section {
 	margin: 0;
-	padding: 15px 15px;
+	padding: 15px 30px;
 	box-sizing: border-box;
 	width: 100%;
 	animation: fade 0.2s ease-in-out;
