@@ -9,7 +9,7 @@
 <div id="background"></div>
 	<link rel="stylesheet" type="text/css" href="/styles/canvas.css"/>
 	<script src="/scripts/canvas/main.js"></script>
-	<script src="/scripts/canvas/nvector.js"></script>
+	<script src="/scripts/canvas/vector.js"></script>
 	<script src="/scripts/canvas/doublependulum.js"></script>
 </head>
 <body>
@@ -81,6 +81,15 @@
 			<div class="checkbox left-border" id="trail">
 	<label for="trail-input">Checkbox</label>
 	<input type="checkbox" id="trail-input"></input>
+</div>
+
+			<div class="slider left-border" id="timestep">
+	<label for="timestep-slider">
+		<span class="name">Slider</span>
+		<output for="timestep-slider">0</output>
+		<span class="units">units</span>
+	</label>
+	<input type="range" id="timestep-slider" min="0" max="1" step="0.01" value="0"/>
 </div>
 
 			<div class="meter left-border" id="energyerror">

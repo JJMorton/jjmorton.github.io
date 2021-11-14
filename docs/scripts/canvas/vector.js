@@ -1,193 +1,100 @@
-/*
- * Simple 2D vector class
- *
- * IMPORTANT, READ THIS FIRST:
- * Where logical, methods take either an x and y coordinate or another vector.
- * There isn't much argument validation so check how the methods should be used first.
- * Valid argument types are written in comments above each method.
- * Instance methods are in-place, static methods return a new Vector.
- */
+function parseArgument(x, N=null) {
+	let array;
+	if (x instanceof Array) {
+		array = x;
+	} else if (typeof(x) === "number") {
+		array = new Array(N || 1).fill(x);
+	} else {
+		throw TypeError('Invalid argument, must be a number, array or vector')
+	}
+	if (N != null && array.length !== N) {
+		throw RangeError(`Vector of size ${array.length} not compatible with vector of size ${N}`);
+	}
+	return array;
+}
 
-class Vector {
-	
+class Vector extends Array {
 
-	/* ****************************************
-	 * CONSTRUCTOR
-	 * returns a Vector
-	 */
+	constructor(x) {
+		const arr = parseArgument(x);
+		super()
+		this.push(...arr);
+	}
 
+	getSize() {
+		return Math.hypot(...this);
+	}
 
-	/*
-	 * Creates a new vector or clones an existing one
-	 */
-	// Vector
-	// Number, Number
-	constructor(x, y) {
-		if (x instanceof Vector) return new Vector(x.x, x.y);
-		this.x = x;
-		this.y = y;
+	get x() {
+		return (this.length >= 1 ? this[0] : null);
+	}
+
+	get y() {
+		return (this.length >= 2 ? this[1] : null);
+	}
+
+	get z() {
+		return (this.length >= 3 ? this[2] : null);
 	}
 
 
-
-
-	/* ****************************************
-	 * SCALAR INSTANCE METHODS
-	 * returns a Number
-	 */
-
-
 	/*
-	 * Returns distance to origin
+	 * The following methods can all take one of the following as an argument
+	 *   a. A scalar
+	 *   b. An array
+	 *   c. Another vector
 	 */
-	getLength() {
-		return Math.hypot(this.x, this.y);
+
+	add(x) {
+		const arr = parseArgument(x, this.length);
+		return this.map((q, i) => q + arr[i]);
 	}
 
-	/*
-	 * Distance to another point
-	 */
-	// Number, Number
-	// Vector
-	distanceTo(x, y) {
-		if (x instanceof Vector) return this.distanceTo(x.x, x.y);
-		return Math.hypot(x - this.x, y - this.y);
+	sub(x) {
+		const arr = parseArgument(x, this.length);
+		return this.add(new Vector(arr).mult(-1));
 	}
 
-	/*
-	 * Vector dot product
-	 */
-	// Number, Number
-	// Vector
-	dot(x, y) {
-		if (x instanceof Vector) return this.x * x.x + this.y * x.y;
-		return this.x * x + this.y * y;
+	mult(x) {
+		const arr = parseArgument(x, this.length);
+		return this.map((q, i) => q * arr[i]);
 	}
 
-
-
-
-	/* ****************************************
-	 * VECTOR INSTANCE METHODS
-	 * returns a Vector
-	 */
-
-
-	/*
-	 * Vector addition
-	 */
-	// Vector
-	// Number, Number
-	add(x, y) {
-		if (x instanceof Vector) return this.add(x.x, x.y);
-		this.x += x;
-		this.y += y;
-		return this;
+	divide(x) {
+		const arr = parseArgument(x, this.length).map(q => 1/q);
+		return this.mult(arr);
 	}
 
-	/*
-	 * Vector subtraction
-	 */
-	// Vector
-	// Number, Number
-	sub(x, y) {
-		if (x instanceof Vector) return this.sub(x.x, x.y);
-		return this.add(-x, -y);
-	}
-
-	/*
-	 * Element-wise multiplication
-	 */
-	// Vector
-	// Number, Number
-	mult(x, y) {
-		if (x instanceof Vector) return this.mult(x.x, x.y);
-		this.x *= x;
-		this.y *= y;
-		return this;
-	}
-
-	/*
-	 * Element-wise division
-	 */
-	// Vector
-	// Number, Number
-	div(x, y) {
-		if (x instanceof Vector) return this.mult(x.x, x.y);
-		return this.mult(1/x, 1/y);
-	}
-
-	/*
-	 * Magnitude multiplication
-	 */
-	// Number
-	scale(s) {
-		return this.mult(s, s);
-	}
-
-	/*
-	 * Sets magnitude to 1, preserving direction
-	 */
 	normalise() {
-		const length = this.getLength();
-		if (!length) return null;
-		return this.scale(1 / length);
+		const size = this.getSize();
+		if (size === 0) return null;
+		return this.divide(size);
 	}
 
-	/*
-	 * Clockwise rotation in radians
-	 */
-	// Number
-	rotate(a) {
-		const cos = Math.cos(a),
-		      sin = Math.sin(a);
-		[this.x, this.y] = [cos * this.x - sin * this.y, sin * this.x + cos * this.y];
-		return this;
+	dot(x) {
+		if (!(x instanceof Array) || x.length !== this.length) {
+			throw TypeError("Can only calculate dot product with vector of same length");
+		}
+		return this.reduce((acc, q, i) => acc + q*x[i], 0);
 	}
 
-
-
-
-	/* ****************************************
-	 * STATIC VECTOR METHODS
-	 * returns a Vector
-	 */
-
-
-	// Vector, Vector
-	static add(v1, v2) {
-		return new Vector(v1).add(v2);
-	}
-
-	// Vector, Vector
-	static sub(v1, v2) {
-		return new Vector(v1).sub(v2);
-	}
-
-	// Vector, Vector
-	static mult(v1, v2) {
-		return new Vector(v1).mult(v2);
-	}
-
-	// Vector, Vector
-	static div(v1, v2) {
-		return new Vector(v1).div(v2);
-	}
-
-	// Vector, Number
-	static scale(v, s) {
-		return new Vector(v).scale(s);
-	}
-
-	// Vector
-	static normalise(v) {
-		return new Vector(v).normalise();
-	}
-
-	// Vector, Number
-	static rotate(v, a) {
-		return new Vector(v).rotate(a);
+	rotate(theta) {
+		if (this.length < 2) {
+			return this;
+		}
+		// Support rotations for 2-d vectors
+		else if (this.length === 2) {
+			return new Vector([this[0]*Math.cos(theta) - this[1]*Math.sin(theta), this[0]*Math.sin(theta) + this[1]*Math.cos(theta)]);
+		}
+		// Support rotations around z for 3-d vectors
+		else if (this.length === 3) {
+			return this.slice(0, 2).rotate(theta).concat([this[2]]);
+		}
+		// I don't need any higher dimensional rotations
+		else {
+			console.error("Rotations for vectors of dimension > 3 not supported");
+			return null;
+		}
 	}
 
 }
-

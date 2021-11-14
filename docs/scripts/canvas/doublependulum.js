@@ -19,25 +19,23 @@ window.addEventListener("load", function() {
 
 	const state = {
 		tnext: 0, // The time to start integrating from in the next frame
-		theta1: 0.8 * Math.PI,
-		theta2: 0.9 * Math.PI,
-		omega1: 0,
-		omega2: 0,
-		get x() {return new nVector([this.theta1, this.theta2, this.omega1, this.omega2])},
-		set x(val) {[this.theta1, this.theta2, this.omega1, this.omega2] = val},
+		theta: [0.8 * Math.PI, 0.9 * Math.PI],
+		omega: [0, 0],
+		get x() {return new Vector([...this.theta, ...this.omega])},
+		set x(val) {[this.theta[0], this.theta[1], this.omega[0], this.omega[1]] = val},
 		trail: [],
 		trailtime: [],
 		E0: 0, // The energy at the start of the simulation
 		dragging: 0 // Which pendulum the user is dragging with their mouse
 	};
 
-	const energyerrorMeter = sim.addMeter("energyerror", "Energy change since start", "%", 0, 0, 1);
+	const energyerrorMeter = sim.addMeter("energyerror", "Divergence From Initial Energy", "%", 0, 0, 1);
 	const kineticMeter = sim.addMeter("kinetic", "Kinetic Energy", "%", 0, 0, 100);
 	const potentialMeter = sim.addMeter("potential", "Potential Energy", "%", 0, 0, 100);
 
 	function kineticEn() {
 		const {m1, m2, l1, l2, g} = params;
-		const {theta1, theta2, omega1, omega2} = state;
+		const [theta1, theta2, omega1, omega2] = [...state.theta, ...state.omega];
 		const cos = Math.cos;
 		const T = 0.5*m1*l1*l1*omega1*omega1 + 0.5*m2*(l1*l1*omega1*omega1 + l2*l2*omega2*omega2 + 2*l1*l2*omega1*omega2*cos(theta2 - theta1));
 		return T;
@@ -45,7 +43,7 @@ window.addEventListener("load", function() {
 
 	function potentialEn() {
 		const {m1, m2, l1, l2, g} = params;
-		const {theta1, theta2} = state;
+		const [theta1, theta2] = state.theta;
 		const cos = Math.cos;
 		const V = -(m1 + m2)*g*l1*cos(theta1) - m2*g*l2*cos(theta2) + (m1 + m2)*g*l1 + m2*g*l2;
 		return V;
@@ -63,7 +61,7 @@ window.addEventListener("load", function() {
 		const delta = theta2 - theta1;
 
 		// Ouch, no way to make these equations look pretty :(
-		return new nVector([
+		return new Vector([
 			omega1,
 			omega2,
 			(m2*l1*omega1*omega1*sin(delta)*cos(delta) + m2*g*sin(theta2)*cos(delta) + m2*l2*omega2*omega2*sin(delta) - (m1+m2)*g*sin(theta1))
@@ -102,8 +100,7 @@ window.addEventListener("load", function() {
 		sim.timer.pause();
 		sim.scale = 2.2 * (params.l1 + params.l2);
 		state.E0 = totalEn();
-		state.omega1 = 0;
-		state.omega2 = 0;
+		state.omega = [0, 0];
 		state.trail = [];
 		state.trailtime = [];
 	}
@@ -124,7 +121,7 @@ window.addEventListener("load", function() {
 	sim.render = function() {
 
 		const time = sim.timer.getTime();
-		const pivot = new nVector([sim.canvas.width / 2, sim.canvas.height / 2]).map(q => sim.pxToM(q));
+		const pivot = new Vector([sim.canvas.width / 2, sim.canvas.height / 2]).map(q => sim.pxToM(q));
 		
 		// The actual integration of the eom
 		const shouldUpdate = state.dragging === 0 && !sim.timer.isPaused;
@@ -134,12 +131,12 @@ window.addEventListener("load", function() {
 		}
 
 		// Positions of the masses
-		const pos1 = new nVector([Math.sin(state.theta1), Math.cos(state.theta1)]).mult(params.l1).add(pivot);
-		const pos2 = new nVector([Math.sin(state.theta2), Math.cos(state.theta2)]).mult(params.l2).add(pos1);
+		const pos1 = new Vector([Math.sin(state.theta[0]), Math.cos(state.theta[0])]).mult(params.l1).add(pivot);
+		const pos2 = new Vector([Math.sin(state.theta[1]), Math.cos(state.theta[1])]).mult(params.l2).add(pos1);
 
 		// User can drag around the masses
 		if (sim.mouse.pressed === 0) {
-			const mouse = new nVector([sim.mouse.x, sim.mouse.y]).map(q => sim.pxToM(q));
+			const mouse = new Vector([sim.mouse.x, sim.mouse.y]).map(q => sim.pxToM(q));
 			// Check to see if the user has clicked within a mass
 			if (state.dragging === 0) {
 				const r1 = mouse.sub(pos1).getSize();
@@ -149,12 +146,12 @@ window.addEventListener("load", function() {
 			}
 			if (state.dragging === 1) {
 				const theta = Math.atan2(...mouse.sub(pivot));
-				state.theta1 = theta;
+				state.theta[0] = theta;
 				init();
 			} else if (state.dragging === 2) {
 				const toMouse = mouse.sub(pos1);
 				const theta = Math.atan2(...toMouse);
-				state.theta2 = theta;
+				state.theta[1] = theta;
 				init();
 			}
 		} else {
@@ -226,6 +223,7 @@ window.addEventListener("load", function() {
 		init();
 	});
 	sim.addCheckbox("trail", "Show Trail", params.showtrail, value => params.showtrail = value);
+	sim.addSlider("timestep", "Integration Timestep", "s", params.timestep, 0.001, 0.1, 0.001, value => params.timestep = value);
 	sim.addButton("playpause", "Play/Pause", () => {
 		if (sim.timer.isPaused) {
 			sim.timer.start();

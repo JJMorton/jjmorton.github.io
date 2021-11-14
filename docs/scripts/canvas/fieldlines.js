@@ -20,16 +20,16 @@ window.addEventListener("load", function() {
 		charge.paths = [];
 		// Paths begin in a circle around the charge
 		const dtheta = 2 * Math.PI / params.particlecount;
-		const delta = new Vector(params.chargeradius, 0);
+		let delta = new Vector([params.chargeradius, 0]);
 		for (let i = 0; i < params.particlecount; i++) {
-			charge.paths.push([Vector.add(charge.pos, delta)]);
-			delta.rotate(dtheta);
+			charge.paths.push([delta.add(charge.pos)]);
+			delta = delta.rotate(dtheta);
 		}
 	}
 
 	function createCharge(x = 0, y = 0) {
 		const charge = {
-			pos: new Vector(x, y),
+			pos: new Vector([x, y]),
 			strength: 1.0,
 			paths: [] // Each path is an array of vectors
 		};
@@ -48,39 +48,27 @@ window.addEventListener("load", function() {
 			// Stop adding to paths when reached max length
 			if (path.length >= params.stepcount) continue;
 
-			//const force = { x: 0, y: 0 };
-			const force = new Vector(0, 0);
+			let force = new Vector([0, 0]);
 
 			// Actually calculate the force on the particle due to the charges
 			// F = q / r^2
 			// Coefficients are irrelevant as only the direction of the force is needed
 			for (const q of state.charges) {
 
-				//let dx = q.pos.x - particle.pos.x;
-				//const dy = q.pos.y - particle.pos.y;
-				//if (dx === 0 || dy === 0) dx = params.chargeradius;
-				const delta = Vector.sub(q.pos, path[path.length - 1]);
+				const delta = q.pos.sub(path[path.length - 1]);
 
 				// Avoid singularity
 				if (delta.x === 0 && delta.y === 0) delta.x = params.chargeradius;
 
 				const r2 = Math.pow(delta.x, 2) + Math.pow(delta.y, 2);
-				//const forcemag = particlecharge * q.strength / r2;
-				//force.x += forcemag * dx;
-				//force.y += forcemag * dy;
-				force.add(delta.normalise().scale(particlecharge * q.strength / r2));
+				force = force.add(delta.normalise().mult(particlecharge * q.strength / r2));
 			}
 
-			// const forcemag = Math.sqrt(Math.pow(force.x, 2) + Math.pow(force.y, 2));
-			// if (forcemag === 0) continue;
-			// const scalefactor = params.stepsize / forcemag;
-			// force.x *= scalefactor; force.y *= scalefactor;
-			if (force.normalise() === null) continue;
-			force.scale(params.stepsize);
+			const forcemag = force.getSize();
+			if (forcemag === 0) continue;
+			force = force.mult(params.stepsize / forcemag);
 
-			// particle.path.push({ x: particle.pos.x, y: particle.pos.y });
-			// particle.pos.x += force.x; particle.pos.y += force.y;
-			path.push(Vector.add(path[path.length - 1], force));
+			path.push(force.add(path[path.length - 1]));
 		}
 	};
 
@@ -155,7 +143,7 @@ window.addEventListener("load", function() {
 		});
 		sim.onmousedown = function() {
 			if (!state.selected) return;
-			state.selected.pos = new Vector(sim.pxToM(sim.mouse.x), sim.pxToM(sim.mouse.y));
+			state.selected.pos = new Vector([sim.pxToM(sim.mouse.x), sim.pxToM(sim.mouse.y)]);
 			state.charges.forEach(charge => createPaths(charge));
 		};
 

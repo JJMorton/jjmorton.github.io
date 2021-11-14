@@ -105,11 +105,11 @@ window.addEventListener("load", function() {
 	const drawArrow = function(x1, y1, lx, ly) {
 		// Uses pixel coordinates
 		if (lx === 0 && ly === 0) return;
-		let p1 = new Vector(x1, y1);
-		let p2 = new Vector(x1 + lx, y1 + ly);
-		let tip = new Vector(-lx, -ly).normalise().scale(10);
-		let p3 = Vector.add(p2, Vector.rotate(tip, Math.PI / 4));
-		let p4 = Vector.add(p2, Vector.rotate(tip, -Math.PI / 4));
+		const p1 = new Vector([x1, y1]);
+		const p2 = p1.add([lx, ly]);
+		const tip = new Vector([-lx, -ly]).normalise().mult(10);
+		const p3 = p2.add(tip.rotate(Math.PI / 4));
+		const p4 = p2.add(tip.rotate(-Math.PI / 4));
 		sim.ctx.beginPath();
 		sim.ctx.moveTo(p1.x, p1.y);
 		sim.ctx.lineTo(p2.x, p2.y);

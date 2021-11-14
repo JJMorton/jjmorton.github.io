@@ -16,11 +16,13 @@ window.addEventListener("load", function() {
 	};
 
 	const state = {
-		lastupdate: 0,
 		theta: 0.8,
 		omega: 0,
 		x: params.m * params.g / params.k,
 		vx: 0,
+		get q() {return new Vector([this.theta, this.x, this.omega, this.vx])},
+		set q(arr) {[this.theta, this.x, this.omega, this.vx] = arr},
+		lastupdate: 0,
 		trail: []
 	};
 
