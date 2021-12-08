@@ -40,5 +40,6 @@ app.use((req, res) => {
 	res.status(404).render("404", { title: "404: Not Found", path: req.path });
 });
 
+console.log(`Using port ${process.env.PORT || 8001}`);
 app.listen(process.env.PORT || 8001);
 

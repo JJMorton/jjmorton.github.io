@@ -144,12 +144,21 @@ export class Simulation {
 		// When the window is resized, stroke and fill styles are lost so we need to set them again
 		this.ctx.strokeStyle = this.colours.accent;
 		this.ctx.fillStyle = this.colours.foreground;
+		this.ctx.lineJoin = "round";
+		this.ctx.font = "bold 0.8em sans-serif";
 
 		if (this.contextType === "webgl2" || this.contextType === "webgl") {
 			this.ctx.viewport(0, 0, size, size);
 		}
 
 		return this.canvas;
+	}
+
+
+	withCanvasState(f) {
+		this.ctx.save();
+		f();
+		this.ctx.restore();
 	}
 
 

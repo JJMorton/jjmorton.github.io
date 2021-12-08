@@ -1,7 +1,8 @@
 #!/bin/bash
 
 echo "Starting server..."
-node server.js &
+PORT=1337
+PORT=$PORT node server.js &
 sleep 1
 
 output_dir="./docs"
@@ -47,9 +48,9 @@ done
 
 echo "Writing files..."
 for i in $(seq 0 $((${#urls[@]} - 1))); do
-	echo "localhost:8001${urls[$i]} > $output_dir${files[$i]}"
+	echo "localhost:$PORT${urls[$i]} > $output_dir${files[$i]}"
 	mkdir -p "$(dirname "$output_dir${files[$i]}")"
-	curl -s "localhost:8001${urls[$i]}" > "$output_dir${files[$i]}"
+	curl -s "localhost:$PORT${urls[$i]}" > "$output_dir${files[$i]}"
 done
 
 echo "Saving timestamp..."
