@@ -1,3 +1,5 @@
+import {Simulation} from './main.js';
+
 window.addEventListener("load", function() {
 	
 	'use strict';

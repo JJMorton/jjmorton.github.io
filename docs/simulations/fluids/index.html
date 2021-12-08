@@ -8,9 +8,7 @@
 <link rel="stylesheet" type="text/css" href="/styles/style.css">
 <div id="background"></div>
 	<link rel="stylesheet" type="text/css" href="/styles/canvas.css"/>
-	<script src="/scripts/canvas/main.js"></script>
-	<script src="/scripts/canvas/vector.js"></script>
-	<script src="/scripts/canvas/fluids.js"></script>
+	<script type="module" src="/scripts/canvas/fluids.js"></script>
 </head>
 <body>
 	<header>
@@ -82,6 +80,33 @@
 	<input type="checkbox" id="arrows-input"></input>
 </div>
 
+			<div class="meter left-border" id="energy">
+	<label for="energy-progress">
+		<span class="name">Meter</span>
+		<output for="energy-progress">0</output>
+		<span class="units">units</span>
+	</label>
+	<progress id="energy-progress"></progress>
+</div>
+
+			<div class="meter left-border" id="potential">
+	<label for="potential-progress">
+		<span class="name">Meter</span>
+		<output for="potential-progress">0</output>
+		<span class="units">units</span>
+	</label>
+	<progress id="potential-progress"></progress>
+</div>
+
+			<div class="meter left-border" id="kinetic">
+	<label for="kinetic-progress">
+		<span class="name">Meter</span>
+		<output for="kinetic-progress">0</output>
+		<span class="units">units</span>
+	</label>
+	<progress id="kinetic-progress"></progress>
+</div>
+
 		</section>
 
 		<section id="sec-simulation">
@@ -110,7 +135,7 @@
 				The second term is the drag equation, and depends on the profile (i.e. size, shape and inclination) of the object.
 				Here, the shape of the object (in this case a sphere) is accounted for in the <a href="https://en.wikipedia.org/wiki/Drag_coefficient">drag coefficient</a>, <i>C<sub>d</sub></i>, and its size is represented by the area <i>A</i>.
 				As you would imagine, more aerodynamic objects such as the wing of an aeroplane have a small coefficient, while objects such as this sphere have a larger one and experiece more drag as a result.
-				In reality, the drag coefficient <a href="https://www.grc.nasa.gov/www/K-12/airplane/dragsphere.html">varies with the Reynolds number</a> of the fluid, but I won't talk this about here.
+				In reality, the drag coefficient <a href="https://www.me.psu.edu/cimbala/me325web_Spring_2012/Labs/Drag/intro.pdf">varies with the Reynolds number</a> of the fluid, but I won't talk about this here.
 				Notice that the drag equation term is proportional to the square of velocity, while the Stokes' drag is linear in velocity.
 				<br>
 				Of course, both of these drag forces act in the opposite direction to the velocity, <strong><i>v</i></strong> of the object, hence the minus sign and proportionality to the object's velocity.

@@ -85,7 +85,6 @@ function Mouse(elt, onclick) {
 	});
 	window.addEventListener("mouseup", () => mousepress(Mouse.buttons.NONE));
 	elt.addEventListener("mousemove", e => mousemove(e));
-
 }
 
 Mouse.buttons = {
@@ -95,7 +94,7 @@ Mouse.buttons = {
 	RIGHT: 2
 };
 
-class Simulation {
+export class Simulation {
 
 	constructor(contextType = "2d") {
 		// This function should be set by the simulation using this class
@@ -135,6 +134,7 @@ class Simulation {
 		this.resize();
 		window.addEventListener("resize", () => this.resize());
 	}
+
 
 	resize() {
 		const size = Math.min(window.innerHeight * 0.73, document.querySelector("#content").clientWidth) - 60;
@@ -178,10 +178,10 @@ class Simulation {
 			 * second, nothing will animate. But things would get weird
 			 * at very low framerates anyway.
 			 */
-			if (this.render && 1 / this.delta >= 10) {
+			// if (this.render && 1 / this.delta >= 10) {
 				this.render(this.ctx);
 				this.frame++;
-			}
+			// }
 			window.requestAnimationFrame(render);
 		}
 

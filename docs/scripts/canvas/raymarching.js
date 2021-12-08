@@ -1,3 +1,5 @@
+import {Simulation} from './main.js';
+
 const createShaderProgram = (gl, vertFile, fragFile) => new Promise((resolve, reject) => {
 	// Creates a shader program from vertex and fragment shader files
 

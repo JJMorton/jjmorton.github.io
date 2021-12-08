@@ -1,3 +1,5 @@
+import {Simulation} from './main.js';
+
 window.addEventListener("load", function() {
 
 	'use strict';
@@ -108,9 +110,9 @@ window.addEventListener("load", function() {
 
 	const params = {
 		showswap: true,
-		showcompare: false,
+		showcompare: true,
 		datalength: 50,
-		delay: 20,
+		delay: 10,
 		datagen: gendata.random,
 		method: sortmethods.bubble
 	};
@@ -131,6 +133,7 @@ window.addEventListener("load", function() {
 	};
 
 	async function swap(arr, i, j) {
+		await delay();
 		[ arr[i], arr[j] ] = [ arr[j], arr[i] ];
 		state.swaps++;
 		state.arr = arr;
@@ -138,16 +141,15 @@ window.addEventListener("load", function() {
 			state.hiswap = [i, j];
 		}
 		state.redraw = true;
-		await delay();
 	};
 
 	// Tests that arr[lo] < arr[hi]
 	async function islessthan(arr, lo, hi) {
+		await delay();
 		state.comparisons++;
 		if (params.showcompare) {
 			state.hicompare = [lo, hi];
 			state.redraw = true;
-			await delay();
 		}
 		return arr[lo] < arr[hi];
 	};
@@ -214,7 +216,7 @@ window.addEventListener("load", function() {
 
 	/* Create controls */
 
-	sim.addSlider("datalength", "Data points", "", params.datalength, 10, 500, 1, value => params.datalength = value);
+	sim.addSlider("datalength", "Data points", "", params.datalength, 10, 100, 1, value => params.datalength = value);
 
 	sim.addComboBox("datagen", "Data distribution", value => {
 		switch (value) {
@@ -248,7 +250,7 @@ window.addEventListener("load", function() {
 		state.redraw = true;
 	});
 
-	sim.addSlider("speed", "Speed", "", (200 - params.delay) / 2, 0, 100, 1, value => params.delay = 200 - 2 * value);
+	sim.addSlider("speed", "Speed", "operations/s", 1000/params.delay, 1, 200, 1, value => params.delay = 1000/value);
 
 	sim.start();
 

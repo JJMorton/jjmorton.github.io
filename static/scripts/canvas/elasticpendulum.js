@@ -1,3 +1,6 @@
+import {Simulation} from './main.js';
+import {Vector} from './vector.js';
+
 window.addEventListener("load", function() {
 
 	'use strict';

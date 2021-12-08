@@ -13,7 +13,7 @@ function parseArgument(x, N=null) {
 	return array;
 }
 
-class Vector extends Array {
+export class Vector extends Array {
 
 	constructor(x) {
 		const arr = parseArgument(x);
