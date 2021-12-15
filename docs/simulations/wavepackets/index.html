@@ -29,14 +29,15 @@
 			<p>See how waves interact when they interfere, and how adding many waves together can create a wave packet</p>
 		</main>
 
+		<section id="sec-simulation">
+			<noscript>Please enable JavaScript to view this simulation.</noscript>
+			<canvas class="box-shadow">Sorry, the canvas element is not supported by your browser.</canvas>
+		</section>
+
 		<section id="controls">
-			<div class="slider left-border" id="scale">
-	<label for="scale-slider">
-		<span class="name">Slider</span>
-		<output for="scale-slider">0</output>
-		<span class="units">units</span>
-	</label>
-	<input type="range" id="scale-slider" min="0" max="1" step="0.01" value="0"/>
+			<div class="combobox left-border" id="select">
+	<label for="select-select">Combobox</label>
+	<select id="select-select"></select>
 </div>
 
 			<button class="button box-shadow" id="add">Button</button>
@@ -44,11 +45,6 @@
 			<button class="button box-shadow" id="duplicate">Button</button>
 
 			<button class="button box-shadow" id="remove">Button</button>
-
-			<div class="combobox left-border" id="select">
-	<label for="select-select">Combobox</label>
-	<select id="select-select"></select>
-</div>
 
 			<div class="slider left-border" id="wavelength">
 	<label for="wavelength-slider">
@@ -82,11 +78,15 @@
 	<input type="checkbox" id="reverse-input"></input>
 </div>
 
-		</section>
+			<div class="slider left-border" id="scale">
+	<label for="scale-slider">
+		<span class="name">Slider</span>
+		<output for="scale-slider">0</output>
+		<span class="units">units</span>
+	</label>
+	<input type="range" id="scale-slider" min="0" max="1" step="0.01" value="0"/>
+</div>
 
-		<section id="sec-simulation">
-			<noscript>Please enable JavaScript to view this simulation.</noscript>
-			<canvas class="box-shadow">Sorry, the canvas element is not supported by your browser.</canvas>
 		</section>
 
 		<section id="about">

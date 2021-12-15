@@ -5,7 +5,6 @@ class Integrator {
 	funcAccel = null;
 	pos = new Vector([]);
 	vel = new Vector([]);
-	acc = new Vector([]);
 	h = 1e-5;
 
 	constructor(funcAccel, x, v, h) {
@@ -26,7 +25,6 @@ class Integrator {
 
 		this.pos = x;
 		this.vel = v;
-		this.acc = x.mult(0);
 		this.funcAccel = funcAccel;
 		this.h = h;
 	}
@@ -60,9 +58,11 @@ export class EulerIntegrator extends Integrator {
 	}
 
 	integrator(t, timestep) {
+		// v = v + ha
 		this.vel = this.funcAccel({pos: this.pos, vel: this.vel, time: t})
 			.mult(timestep)
 			.add(this.vel);
+		// x = x + hv
 		this.pos = this.vel.mult(timestep).add(this.pos);
 	}
 

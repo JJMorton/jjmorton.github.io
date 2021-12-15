@@ -119,26 +119,39 @@ window.addEventListener("load", function() {
 
 		let cameraangle = 130 * Math.PI / 180;
 		let cameraheight = 0.6;
+		let needsRender = true;
+		window.addEventListener("resize", () => needsRender = true);
 
 		// Add the sliders to control them
-		sim.addSlider("cameraangle", "Camera angle", "°", 130, 0, 360, 0.1, value => cameraangle = value * Math.PI / 180);
-		sim.addSlider("cameraheight", "Camera height", "m", 6, 2, 20, 0.1, value => cameraheight = value / 10);
-		sim.addSlider("shadowsharp", "Shadow sharpness", "%", 20, 0, 100, 1, value => gl.uniform1f(shadowsharpLoc, 8 + 80 * value / 100));
-		sim.addSlider("smoothing", "Union smoothing", "%", 20, 0, 100, 1, value => gl.uniform1f(smoothingLoc, value / 3000));
-		sim.addSlider("shininess", "Specular size", "%", 60, 0, 100, 1, value => gl.uniform1f(shininessLoc, value / 100));
-		sim.addSlider("ao", "Ambient occlusion strength", "%", 50, 0, 100, 1, value => gl.uniform1f(aoLoc, 40 * value / 100));
-		const stepsSlider = sim.addCheckbox("showsteps", "Show steps taken to reach surface", false, value => gl.uniform1i(showstepsLoc, value ? 1 : 0));
+		sim.addButton("playpause", "Start/stop animation", () => {
+			if (sim.timer.isPaused)
+				sim.timer.start();
+			else
+				sim.timer.pause();
+		});
+		sim.addSlider("cameraangle", "Camera angle", "°", 130, 0, 360, 0.1, value => { cameraangle = value * Math.PI / 180; needsRender = true; });
+		sim.addSlider("cameraheight", "Camera height", "m", 6, 2, 20, 0.1, value => { cameraheight = value / 10; needsRender = true; });
+		sim.addSlider("shadowsharp", "Shadow sharpness", "%", 20, 0, 100, 1, value => { gl.uniform1f(shadowsharpLoc, 8 + 80 * value / 100); needsRender = true; });
+		sim.addSlider("smoothing", "Union smoothing", "%", 20, 0, 100, 1, value => { gl.uniform1f(smoothingLoc, value / 3000); needsRender = true; });
+		sim.addSlider("shininess", "Specular size", "%", 60, 0, 100, 1, value => { gl.uniform1f(shininessLoc, value / 100); needsRender = true; });
+		sim.addSlider("ao", "Ambient occlusion strength", "%", 50, 0, 100, 1, value => { gl.uniform1f(aoLoc, 40 * value / 100); needsRender = true; });
+		const stepsSlider = sim.addCheckbox("showsteps", "Show steps taken to reach surface", false, value => { gl.uniform1i(showstepsLoc, value ? 1 : 0); needsRender = true; });
 		const normalSlider = sim.addCheckbox("shownormal", "Visualise normals", false, value => {
 			gl.uniform1i(shownormalLoc, value ? 1 : 0);
 			if (value) stepsSlider.setValue(false);
+			needsRender = true;
 		});
-		sim.addCheckbox("showshadow", "Show shadows", true, value => gl.uniform1i(showshadowLoc, value ? 1 : 0));
-		sim.addCheckbox("showspec", "Show specular highlights", true, value => gl.uniform1i(showspecLoc, value ? 1 : 0));
-		sim.addCheckbox("sun", "Enable sun lighting", true, value => gl.uniform1i(sunLoc, value ? 1 : 0));
-		sim.addCheckbox("sky", "Enable sky lighting", true, value => gl.uniform1i(skyLoc, value ? 1 : 0));
-		sim.addCheckbox("antialias", "Enable antialiasing (large performance hit)", false, value => gl.uniform1i(antialiasLoc, value ? 1 : 0));
+		sim.addCheckbox("showshadow", "Show shadows", true, value => { gl.uniform1i(showshadowLoc, value ? 1 : 0); needsRender = true; });
+		sim.addCheckbox("showspec", "Show specular highlights", true, value => { gl.uniform1i(showspecLoc, value ? 1 : 0); needsRender = true; });
+		sim.addCheckbox("sun", "Enable sun lighting", true, value => { gl.uniform1i(sunLoc, value ? 1 : 0); needsRender = true; });
+		sim.addCheckbox("sky", "Enable sky lighting", true, value => { gl.uniform1i(skyLoc, value ? 1 : 0); needsRender = true; });
+		sim.addCheckbox("antialias", "Enable antialiasing (large performance hit)", false, value => { gl.uniform1i(antialiasLoc, value ? 1 : 0); needsRender = true; });
 
 		sim.render = function() {
+
+			if (sim.timer.isPaused && !needsRender) return;
+			needsRender = false;
+
 			const camera = new Float32Array([Math.sin(cameraangle), cameraheight, 1.0 + Math.cos(cameraangle)]);
 
 			if (stepsSlider.getValue()) normalSlider.setValue(false);
@@ -168,6 +181,7 @@ window.addEventListener("load", function() {
 		};
 
 		sim.start();
+		sim.timer.pause();
 
 	}).catch(console.error);
 

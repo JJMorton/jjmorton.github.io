@@ -28,7 +28,28 @@
 			<p>A simulation of a pendulum with a spring in place of the rod</p>
 		</main>
 
+		<section id="sec-simulation">
+			<noscript>Please enable JavaScript to view this simulation.</noscript>
+			<canvas class="box-shadow">Sorry, the canvas element is not supported by your browser.</canvas>
+		</section>
+
 		<section id="controls">
+			<h3>Visualisation</h3>
+			<div class="meter left-border" id="energyerror">
+	<label for="energyerror-progress">
+		<span class="name">Meter</span>
+		<output for="energyerror-progress">0</output>
+		<span class="units">units</span>
+	</label>
+	<progress id="energyerror-progress"></progress>
+</div>
+
+			<div class="checkbox left-border" id="trail">
+	<label for="trail-input">Checkbox</label>
+	<input type="checkbox" id="trail-input"></input>
+</div>
+
+			<h3>Physical properties</h3>
 			<div class="slider left-border" id="m">
 	<label for="m-slider">
 		<span class="name">Slider</span>
@@ -65,16 +86,21 @@
 	<input type="range" id="g-slider" min="0" max="1" step="0.01" value="0"/>
 </div>
 
-			<div class="checkbox left-border" id="trail">
-	<label for="trail-input">Checkbox</label>
-	<input type="checkbox" id="trail-input"></input>
+			<h3>Timestepping</h3>
+			<div class="slider left-border" id="timestep">
+	<label for="timestep-slider">
+		<span class="name">Slider</span>
+		<output for="timestep-slider">0</output>
+		<span class="units">units</span>
+	</label>
+	<input type="range" id="timestep-slider" min="0" max="1" step="0.01" value="0"/>
 </div>
 
-		</section>
+			<div class="combobox left-border" id="method">
+	<label for="method-select">Combobox</label>
+	<select id="method-select"></select>
+</div>
 
-		<section id="sec-simulation">
-			<noscript>Please enable JavaScript to view this simulation.</noscript>
-			<canvas class="box-shadow">Sorry, the canvas element is not supported by your browser.</canvas>
 		</section>
 	
 		<section>

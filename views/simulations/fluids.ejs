@@ -17,21 +17,23 @@
 			<p><%= description %></p>
 		</main>
 
+		<section id="sec-simulation">
+			<noscript>Please enable JavaScript to view this simulation.</noscript>
+			<canvas class="box-shadow">Sorry, the canvas element is not supported by your browser.</canvas>
+		</section>
+
 		<section id="controls">
+			<h3>Visualisation</h3>
+			<%- include(`/partials/controls/meter`, { name: "energy" }) %>
+			<%- include(`/partials/controls/meter`, { name: "potential" }) %>
+			<%- include(`/partials/controls/meter`, { name: "kinetic" }) %>
+			<%- include(`/partials/controls/checkbox`, { name: "arrows" }) %>
+			<h3>Physical properties</h3>
 			<%- include(`/partials/controls/slider`, { name: "ballmass" }) %>
 			<%- include(`/partials/controls/slider`, { name: "balldensity" }) %>
 			<%- include(`/partials/controls/slider`, { name: "liquiddensity" }) %>
 			<%- include(`/partials/controls/slider`, { name: "liquidviscosity" }) %>
 			<%- include(`/partials/controls/slider`, { name: "gravity" }) %>
-			<%- include(`/partials/controls/checkbox`, { name: "arrows" }) %>
-			<%- include(`/partials/controls/meter`, { name: "energy" }) %>
-			<%- include(`/partials/controls/meter`, { name: "potential" }) %>
-			<%- include(`/partials/controls/meter`, { name: "kinetic" }) %>
-		</section>
-
-		<section id="sec-simulation">
-			<noscript>Please enable JavaScript to view this simulation.</noscript>
-			<canvas class="box-shadow">Sorry, the canvas element is not supported by your browser.</canvas>
 		</section>
 
 		<section id="about">

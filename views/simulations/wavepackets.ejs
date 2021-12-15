@@ -17,21 +17,21 @@
 			<p><%= description %></p>
 		</main>
 
+		<section id="sec-simulation">
+			<noscript>Please enable JavaScript to view this simulation.</noscript>
+			<canvas class="box-shadow">Sorry, the canvas element is not supported by your browser.</canvas>
+		</section>
+
 		<section id="controls">
-			<%- include(`/partials/controls/slider`, { name: "scale" }) %>
+			<%- include(`/partials/controls/combo`, { name: "select" }) %>
 			<%- include(`/partials/controls/button`, { name: "add" }) %>
 			<%- include(`/partials/controls/button`, { name: "duplicate" }) %>
 			<%- include(`/partials/controls/button`, { name: "remove" }) %>
-			<%- include(`/partials/controls/combo`, { name: "select" }) %>
 			<%- include(`/partials/controls/slider`, { name: "wavelength" }) %>
 			<%- include(`/partials/controls/slider`, { name: "amplitude" }) %>
 			<%- include(`/partials/controls/slider`, { name: "offset" }) %>
 			<%- include(`/partials/controls/checkbox`, { name: "reverse" }) %>
-		</section>
-
-		<section id="sec-simulation">
-			<noscript>Please enable JavaScript to view this simulation.</noscript>
-			<canvas class="box-shadow">Sorry, the canvas element is not supported by your browser.</canvas>
+			<%- include(`/partials/controls/slider`, { name: "scale" }) %>
 		</section>
 
 		<section id="about">

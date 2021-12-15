@@ -25,7 +25,7 @@ window.addEventListener("load", function() {
 
 	/* Create DOM elements */
 
-	const scaleSlider = sim.addSlider("scale", "Scale", "m", sim.scale, 1, 20, 0.1, value => sim.scale = value);
+	const scaleSlider = sim.addSlider("scale", "Viewing Scale", "m", sim.scale, 1, 20, 0.1, value => sim.scale = value);
 
 	const selectCombo = sim.addComboBox("select", "Selected Wave", index => {
 		// Set the selected wave and update the sliders associated with its properties
@@ -56,20 +56,20 @@ window.addEventListener("load", function() {
 			state.selected.wavelength = value;
 			state.selected.freq = 1 / value;
 		}),
-		amp: sim.addSlider("amplitude", "Amplitude", "m", 0, 0.1, 5, 0.1, value => state.selected.amp = value),
-		offset: sim.addSlider("offset", "Phase Offset", "degrees", 0, 0, 360, 1, value => state.selected.offset = value * Math.PI / 180)
+		amp: sim.addSlider("amplitude", "Amplitude", "m", 0, 0.1, 5, 0.01, value => state.selected.amp = value),
+		offset: sim.addSlider("offset", "Phase Offset", "degrees", 0, 0, 360, 0.1, value => state.selected.offset = value * Math.PI / 180)
 	};
 
 	sliders.wavelength.DOM.addEventListener("mousedown", () => {
-		sim.timer.pause();
 		sim.timer.reset();
+		sim.timer.pause();
 	});
 	sliders.wavelength.DOM.addEventListener("mouseup", () => {
 		sim.timer.start();
 	});
 	sliders.wavelength.DOM.addEventListener("touchstart", () => {
-		sim.timer.pause();
 		sim.timer.reset();
+		sim.timer.pause();
 	});
 	sliders.wavelength.DOM.addEventListener("touchend", () => {
 		sim.timer.start();

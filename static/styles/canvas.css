@@ -22,15 +22,14 @@ canvas {
 	border-color: var(--text-color) !important;
 }
 
-#controls {
-	/*margin: 20px 0;*/
+/*#controls {
 	padding: 20px;
 	display: flex;
 	flex-direction: column;
 	box-sizing: border-box;
-}
+}*/
 
-#controls .left-border:not(:hover):nth-of-type(odd) {
+.left-border:not(:hover):nth-of-type(odd) {
 	border-left: 5px solid rgba(0, 0, 0, 0.2);
 }
 

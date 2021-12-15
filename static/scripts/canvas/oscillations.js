@@ -107,7 +107,7 @@ window.addEventListener("load", function() {
 		params.d_f = value;
 	});
 	sim.addSlider("amplitude", "Driving Amplitude", "m", params.d_a, 0, 0.2, 0.01, value => params.d_a = value);
-	sim.addSlider("scale", "Scale", "m", sim.scale, 3, 20, 0.1, value => sim.scale = value);
+	sim.addSlider("scale", "Viewing Scale", "m", sim.scale, 3, 20, 0.1, value => sim.scale = value);
 
 	sim.start();
 

@@ -64,12 +64,15 @@ main, section {
 	box-sizing: border-box;
 	width: 100%;
 	animation: fade 0.2s ease-in-out;
-	padding-bottom: 10px;
+	/*padding-bottom: 10px;*/
 }
 
 section {
 	/* padding-top: 15px; */
 	border-top: 1px dashed var(--border-color-dim);
+	display: flex;
+	flex-direction: column;
+	box-sizing: border-box;
 }
 
 

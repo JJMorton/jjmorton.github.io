@@ -16,17 +16,23 @@
 			<p><%= description %></p>
 		</main>
 
+		<section id="sec-simulation">
+			<noscript>Please enable JavaScript to view this simulation.</noscript>
+			<canvas class="box-shadow">Sorry, the canvas element is not supported by your browser.</canvas>
+		</section>
+
 		<section id="controls">
+			<h3>Visualisation</h3>
+			<%- include(`/partials/controls/meter`, { name: "energyerror" }) %>
+			<%- include(`/partials/controls/checkbox`, { name: "trail" }) %>
+			<h3>Physical properties</h3>
 			<%- include(`/partials/controls/slider`, { name: "m" }) %>
 			<%- include(`/partials/controls/slider`, { name: "k" }) %>
 			<%- include(`/partials/controls/slider`, { name: "l" }) %>
 			<%- include(`/partials/controls/slider`, { name: "g" }) %>
-			<%- include(`/partials/controls/checkbox`, { name: "trail" }) %>
-		</section>
-
-		<section id="sec-simulation">
-			<noscript>Please enable JavaScript to view this simulation.</noscript>
-			<canvas class="box-shadow">Sorry, the canvas element is not supported by your browser.</canvas>
+			<h3>Timestepping</h3>
+			<%- include(`/partials/controls/slider`, { name: "timestep" }) %>
+			<%- include(`/partials/controls/combo`, { name: "method" }) %>
 		</section>
 	
 		<section>

@@ -96,7 +96,7 @@ Mouse.buttons = {
 
 export class Simulation {
 
-	constructor(contextType = "2d") {
+	constructor(contextType = "2d", zoomWithScroll = true) {
 		// This function should be set by the simulation using this class
 		this.render = null;
 
@@ -133,6 +133,10 @@ export class Simulation {
 		// Automatically resize the canvas with the window
 		this.resize();
 		window.addEventListener("resize", () => this.resize());
+
+		if (zoomWithScroll) {
+			
+		}
 	}
 
 
@@ -187,10 +191,10 @@ export class Simulation {
 			 * second, nothing will animate. But things would get weird
 			 * at very low framerates anyway.
 			 */
-			// if (this.render && 1 / this.delta >= 10) {
+			if (this.render && 1 / this.delta >= 10) {
 				this.render(this.ctx);
 				this.frame++;
-			// }
+			}
 			window.requestAnimationFrame(render);
 		}
 
@@ -263,16 +267,16 @@ export class Simulation {
 		
 		// External control
 		let value = init;
-		const control = {
-			DOM: slider,
-			getValue: () => value,
-			setValue: newValue => {
-				slider.value = newValue;
-				output.textContent = newValue;
-				value = newValue;
-				onupdate(value);
-			}
-		};
+		const control = {};
+		control.DOM = slider;
+		control.getValue = () => value;
+		control.setValue = newValue => {
+			slider.value = newValue;
+			output.textContent = newValue;
+			value = newValue;
+			onupdate(value);
+			return control;
+		}
 		
 		// Show the slider when the label is clicked
 		outer.addEventListener("click", e => {
@@ -301,26 +305,27 @@ export class Simulation {
 		const select = outer.querySelector("select");
 
 		// External control
-		const control = {
-			DOM: select,
-			getValue: () => select.selectedIndex,
-			setValue: newValue => {
-				select.selectedIndex = newValue;
-				onupdate(select.selectedIndex);
-			},
-			setOptions: labels => {
-				// Clear existing options
-				while (select.length > 0) select.remove(0);
-				// Add new options
-				labels.map(label => {
-					const option = document.createElement("option");
-					option.text = label;
-					return option;
-				}).forEach(option => select.add(option));
-				// Emit update
-				onupdate(select.selectedIndex);
-			}
-		};
+		const control = {};
+		control.DOM = select,
+		control.getValue = () => select.selectedIndex;
+		control.setValue = newValue => {
+			select.selectedIndex = newValue;
+			onupdate(select.selectedIndex);
+			return control;
+		}
+		control.setOptions = labels => {
+			// Clear existing options
+			while (select.length > 0) select.remove(0);
+			// Add new options
+			labels.map(label => {
+				const option = document.createElement("option");
+				option.text = label;
+				return option;
+			}).forEach(option => select.add(option));
+			// Emit update
+			onupdate(select.selectedIndex);
+			return control;
+		}
 
 		// Event listener
 		select.addEventListener("input", () => onupdate(select.selectedIndex));
@@ -337,14 +342,14 @@ export class Simulation {
 		checkbox.checked = init;
 
 		// External control
-		const control = {
-			DOM: checkbox,
-			getValue: () => checkbox.checked,
-			setValue: newValue => {
-				checkbox.checked = newValue;
-				onupdate(checkbox.checked);
-			}
-		};
+		const control = {};
+		control.DOM = checkbox;
+		control.getValue = () => checkbox.checked;
+		control.setValue = newValue => {
+			checkbox.checked = newValue;
+			onupdate(checkbox.checked);
+			return control;
+		}
 
 		// Event listener
 		checkbox.addEventListener("input", () => onupdate(checkbox.checked));
@@ -367,15 +372,15 @@ export class Simulation {
 		
 		// External control
 		let value = init;
-		const control = {
-			DOM: meter,
-			getValue: () => value,
-			setValue: newValue => {
-				meter.value = newValue;
-				output.textContent = newValue.toString();
-				value = newValue;
-			}
-		};
+		const control = {};
+		control.DOM = meter;
+		control.getValue = () => value;
+		control.setValue = newValue => {
+			meter.value = newValue;
+			output.textContent = newValue.toString();
+			value = newValue;
+			return control;
+		}
 
 		return control;
 	}

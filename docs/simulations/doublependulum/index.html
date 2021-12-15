@@ -28,7 +28,48 @@
 			<p>A simulation of a double pendulum -- a system which exhibits chaotic behaviour</p>
 		</main>
 
+		<section id="sec-simulation">
+			<noscript>Please enable JavaScript to view this simulation.</noscript>
+			<canvas class="box-shadow">Sorry, the canvas element is not supported by your browser.</canvas>
+		</section>
+
 		<section id="controls">
+			<button class="button box-shadow" id="playpause">Button</button>
+
+			<h3>Visualisation</h3>
+			<div class="meter left-border" id="energyerror">
+	<label for="energyerror-progress">
+		<span class="name">Meter</span>
+		<output for="energyerror-progress">0</output>
+		<span class="units">units</span>
+	</label>
+	<progress id="energyerror-progress"></progress>
+</div>
+
+			<div class="meter left-border" id="potential">
+	<label for="potential-progress">
+		<span class="name">Meter</span>
+		<output for="potential-progress">0</output>
+		<span class="units">units</span>
+	</label>
+	<progress id="potential-progress"></progress>
+</div>
+
+			<div class="meter left-border" id="kinetic">
+	<label for="kinetic-progress">
+		<span class="name">Meter</span>
+		<output for="kinetic-progress">0</output>
+		<span class="units">units</span>
+	</label>
+	<progress id="kinetic-progress"></progress>
+</div>
+
+			<div class="checkbox left-border" id="trail">
+	<label for="trail-input">Checkbox</label>
+	<input type="checkbox" id="trail-input"></input>
+</div>
+
+			<h3>Physical properties</h3>
 			<div class="slider left-border" id="l1">
 	<label for="l1-slider">
 		<span class="name">Slider</span>
@@ -74,13 +115,7 @@
 	<input type="range" id="g-slider" min="0" max="1" step="0.01" value="0"/>
 </div>
 
-			<button class="button box-shadow" id="playpause">Button</button>
-
-			<div class="checkbox left-border" id="trail">
-	<label for="trail-input">Checkbox</label>
-	<input type="checkbox" id="trail-input"></input>
-</div>
-
+			<h3>Timestepping</h3>
 			<div class="slider left-border" id="timestep">
 	<label for="timestep-slider">
 		<span class="name">Slider</span>
@@ -90,38 +125,11 @@
 	<input type="range" id="timestep-slider" min="0" max="1" step="0.01" value="0"/>
 </div>
 
-			<div class="meter left-border" id="energyerror">
-	<label for="energyerror-progress">
-		<span class="name">Meter</span>
-		<output for="energyerror-progress">0</output>
-		<span class="units">units</span>
-	</label>
-	<progress id="energyerror-progress"></progress>
+			<div class="combobox left-border" id="method">
+	<label for="method-select">Combobox</label>
+	<select id="method-select"></select>
 </div>
 
-			<div class="meter left-border" id="potential">
-	<label for="potential-progress">
-		<span class="name">Meter</span>
-		<output for="potential-progress">0</output>
-		<span class="units">units</span>
-	</label>
-	<progress id="potential-progress"></progress>
-</div>
-
-			<div class="meter left-border" id="kinetic">
-	<label for="kinetic-progress">
-		<span class="name">Meter</span>
-		<output for="kinetic-progress">0</output>
-		<span class="units">units</span>
-	</label>
-	<progress id="kinetic-progress"></progress>
-</div>
-
-		</section>
-
-		<section id="sec-simulation">
-			<noscript>Please enable JavaScript to view this simulation.</noscript>
-			<canvas class="box-shadow">Sorry, the canvas element is not supported by your browser.</canvas>
 		</section>
 	
 		<section>
