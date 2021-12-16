@@ -11,9 +11,9 @@ window.addEventListener("load", function() {
 			.fill(1)
 			.map((x, i) => i / (n - 1)),
 		random: n => gendata.sorted(n)
-			.map(val => ({ val, rand: Math.random() }))
-			.sort((a, b) => a.rand < b.rand)
-			.map(({ val, rand }) => val),
+			.map(val => [val, Math.random()])
+			.sort((a, b) => a[1] - b[1])
+			.map(arr => arr[0]),
 		backwards: n => gendata.sorted(n)
 			.reverse(),
 		triangle: n => gendata.sorted(n)
