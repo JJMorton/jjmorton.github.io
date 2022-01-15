@@ -47,7 +47,7 @@ function Timer() {
 	});
 }
 
-function Mouse(elt, onclick) {
+export function Mouse(elt, onclick) {
 	// Tracks mouse position relative to element 'elt'
 
 	this.pressed = Mouse.buttons.NONE;
@@ -96,7 +96,7 @@ Mouse.buttons = {
 
 export class Simulation {
 
-	constructor(contextType = "2d", zoomWithScroll = true) {
+	constructor(contextType = "2d") {
 		// This function should be set by the simulation using this class
 		this.render = null;
 
@@ -133,10 +133,6 @@ export class Simulation {
 		// Automatically resize the canvas with the window
 		this.resize();
 		window.addEventListener("resize", () => this.resize());
-
-		if (zoomWithScroll) {
-			
-		}
 	}
 
 
@@ -236,14 +232,15 @@ export class Simulation {
 		const btn = document.getElementById(id);
 		if (!btn) return null;
 		btn.textContent = label;
-		btn.addEventListener("click", onclick);
-		return {
+		const control = {
 			DOM: btn,
 			click: () => btn.click(),
 			set disabled(value) {
 				btn.disabled = value;
 			}
 		};
+		btn.addEventListener("click", onclick.bind(control));
+		return control;
 	}
 
 	/*
@@ -268,6 +265,7 @@ export class Simulation {
 		// External control
 		let value = init;
 		const control = {};
+		onupdate = onupdate.bind(control);
 		control.DOM = slider;
 		control.getValue = () => value;
 		control.setValue = newValue => {

@@ -1,7 +1,7 @@
 #version 300 es
-precision mediump float;
+precision highp float;
 
-#define RENDER_DIST 10.0
+#define RENDER_DIST 6.0
 #define INTERSECT_DIST 0.001
 
 uniform vec2 u_resolution;
@@ -255,7 +255,7 @@ void main()
     // Light positions and color definitions
     vec3 light = vec3(3.0, 3.0, 1.5); // Sun position
     vec3 dirlight = normalize(vec3(0.0, 1.0, 0.0)); // Sky lighting direction
-    vec3 fogcolor = vec3(0.8, 0.8, 0.8); // Distance fog color
+    vec3 fogcolor = vec3(0.8, 0.8, 0.85); // Distance fog color
 
     // Average pixel color over AA*AA pixels for antialiasing
     vec3 tot = vec3(0.0);
@@ -304,7 +304,7 @@ void main()
             col += 0.1 * s.m.color * ao; // Ambient
             if (u_sun == 1) col += pointLight(rd, surfacepoint, normal, light, s.m); // Sun
             if (u_sky == 1) col += dirLight(rd, surfacepoint, normal, dirlight, s.m) * ao; // Sky
-            col = mix(col, fogcolor, 1.0 - exp(-0.01 * pow(s.t, 3.0))); // Distance fog
+            col = mix(col, fogcolor, 1.0 - exp(-pow(1.6 * s.t / RENDER_DIST, 3.0))); // Distance fog
 
             tot += col;
         }
