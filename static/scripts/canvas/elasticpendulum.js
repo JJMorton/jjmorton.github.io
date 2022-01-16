@@ -10,9 +10,9 @@ window.addEventListener("load", function() {
 
 	const params = {
 		g: 9.81,
-		m: 0.5,
+		m: 0.4,
 		k: 5.0,
-		l: 0.8,
+		l: 2.0,
 		traillength: 500,
 		trailstep: 3,
 		showtrail: true
@@ -37,7 +37,7 @@ window.addEventListener("load", function() {
 
 	let integrator = new Integrators.RK4Integrator(
 		acceleration,
-		[1, params.m * params.g / params.k * 0.5],
+		[-Math.PI/4, params.m * params.g / params.k * 0.8],
 		[0, 0],
 		0.01
 	);
@@ -102,7 +102,7 @@ window.addEventListener("load", function() {
 
 		// Calculate and display the energy error
 		const E = kineticEn() + potentialEn();
-		energyerrorMeter.setValue(Math.round(1e5 * 100 * Math.abs(E - state.E0) / state.E0) / 1e5);
+		energyerrorMeter.setValue(Math.round(1e5 * 100 * Math.abs(E - state.E0) / Math.abs(state.E0)) / 1e5);
 
 		const [midx, midy] = getPivot();
 
@@ -132,10 +132,22 @@ window.addEventListener("load", function() {
 
 	}
 
-	sim.addSlider("m", "Mass", "kg", params.m, 0.01, 5, 0.01, value => params.m = value);
-	sim.addSlider("k", "Spring Constant", "N/m", params.k, 0.1, 20, 0.1, value => params.k = value);
-	sim.addSlider("l", "Equilibrium Length", "m", params.l, 0.1, 5, 0.01, value => params.l = value);
-	sim.addSlider("g", "Gravity", "m/s^2", params.g, 0, 20, 0.1, value => params.g = value);
+	sim.addSlider("m", "Mass", "kg", params.m, 0.01, 5, 0.01, value => {
+		params.m = value;
+		state.E0 = totalEn();
+	});
+	sim.addSlider("k", "Spring Constant", "N/m", params.k, 0.1, 20, 0.1, value => {
+		params.k = value;
+		state.E0 = totalEn();
+	});
+	sim.addSlider("l", "Equilibrium Length", "m", params.l, 0.1, 5, 0.01, value => {
+		params.l = value;
+		state.E0 = totalEn();
+	});
+	sim.addSlider("g", "Gravity", "m/s^2", params.g, 0, 20, 0.1, value => {
+		params.g = value;
+		state.E0 = totalEn();
+	});
 	sim.addCheckbox("trail", "Show Trail", params.showtrail, value => params.showtrail = value);
 	sim.addSlider("timestep", "Integration Timestep", "s", integrator.h, 0.001, 0.1, 0.001, value => integrator.h = value);
 	sim.addComboBox("method", "Integration method", opt => {
@@ -148,7 +160,7 @@ window.addEventListener("load", function() {
 		);
 	}).setOptions(["Euler", "Runge-Kutta (4th order)"]).setValue(1);
 
-	state.E0 = kineticEn() + potentialEn();
+	state.E0 = totalEn();
 	sim.start();
 
 });
