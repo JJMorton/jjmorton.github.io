@@ -136,6 +136,65 @@ export class Simulation {
 	}
 
 
+	createShaderProgram(vertFile, fragFile) {
+		if (!(this.contextType === "webgl" || this.contextType === "webgl2"))
+			throw Error("Canvas must have webgl context to add shaders");
+
+		const gl = this.ctx;
+
+		// Creates a shader program from vertex and fragment shader files
+		return new Promise((resolve, reject) => {
+
+			const fetchFile = path => new Promise((resolve, reject) => {
+				const request = new XMLHttpRequest();
+				request.addEventListener("load", () => {
+					if (request.status != 200) return reject(`Failed to fetch "${path}", response status ${request.status}`);
+					resolve(request.responseText);
+				});
+				request.addEventListener("error", reject);
+				request.addEventListener("abort", reject);
+				request.open("GET", path);
+				request.send();
+			});
+
+			const compileShader = (gl, src, type) => {
+				const shader = gl.createShader(type);
+				gl.shaderSource(shader, src);
+				gl.compileShader(shader);
+				if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+					console.error(`Could not compile ${type === gl.VERTEX_SHADER ? "vertex" : "fragment"} shader: ${gl.getShaderInfoLog(shader)}`)
+					return null;
+				}
+				return shader;
+			};
+
+			fetchFile(vertFile).then(vertSrc => {
+				fetchFile(fragFile).then(fragSrc => {
+
+					// We have both the shaders as source code, compile them
+					const vertShader = compileShader(gl, vertSrc, gl.VERTEX_SHADER);
+					const fragShader = compileShader(gl, fragSrc, gl.FRAGMENT_SHADER);
+					if (!vertShader || !fragShader) return reject("Failed to compile shaders, aborting");
+
+					// Shaders compiled correctly, create and link program
+					const program = gl.createProgram();
+					gl.attachShader(program, vertShader);
+					gl.attachShader(program, fragShader);
+					gl.linkProgram(program);
+					if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+						return reject(`Failed to link shader program: ${gl.getProgramInfoLog(program)}`)
+					}
+
+					// done :)
+					resolve(program)
+
+				}).catch(reject);
+			}).catch(reject);
+
+		});
+	}
+
+
 	resize() {
 		const size = Math.min(window.innerHeight * 0.73, document.querySelector("#content").clientWidth) - 60;
 		this.canvas.width = size;

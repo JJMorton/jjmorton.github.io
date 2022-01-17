@@ -185,3 +185,18 @@ button::-moz-focus-inner {
 .checkbox > label {
 	padding-right: 8px;
 }
+
+/* TEXT INPUT */
+
+input[type="text"] {
+	width: 70px;
+	border: 1px dashed var(--text-color-dim);
+	color: var(--text-color);
+	padding: 5px;
+	margin: 2px 2px;
+}
+
+input[type="text"]:focus {
+	border: 1px solid var(--accent-color);
+	font-weight: bold;
+}

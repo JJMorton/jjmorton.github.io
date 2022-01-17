@@ -2,57 +2,6 @@ import {Simulation} from './main.js';
 import {Mouse} from './main.js';
 import {Vector} from './vector.js';
 
-const createShaderProgram = (gl, vertFile, fragFile) => new Promise((resolve, reject) => {
-	// Creates a shader program from vertex and fragment shader files
-
-	const fetchFile = path => new Promise((resolve, reject) => {
-		const request = new XMLHttpRequest();
-		request.addEventListener("load", () => {
-			if (request.status != 200) return reject(`Failed to fetch "${path}", response status ${request.status}`);
-			resolve(request.responseText);
-		});
-		request.addEventListener("error", reject);
-		request.addEventListener("abort", reject);
-		request.open("GET", path);
-		request.send();
-	});
-
-	const compileShader = (gl, src, type) => {
-		const shader = gl.createShader(type);
-		gl.shaderSource(shader, src);
-		gl.compileShader(shader);
-		if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-			console.error(`Could not compile ${type === gl.VERTEX_SHADER ? "vertex" : "fragment"} shader: ${gl.getShaderInfoLog(shader)}`)
-			return null;
-		}
-		return shader;
-	};
-
-	fetchFile(vertFile).then(vertSrc => {
-		fetchFile(fragFile).then(fragSrc => {
-
-			// We have both the shaders as source code, compile them
-			const vertShader = compileShader(gl, vertSrc, gl.VERTEX_SHADER);
-			const fragShader = compileShader(gl, fragSrc, gl.FRAGMENT_SHADER);
-			if (!vertShader || !fragShader) return reject("Failed to compile shaders, aborting");
-
-			// Shaders compiled correctly, create and link program
-			const program = gl.createProgram();
-			gl.attachShader(program, vertShader);
-			gl.attachShader(program, fragShader);
-			gl.linkProgram(program);
-			if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-				return reject(`Failed to link shader program: ${gl.getProgramInfoLog(program)}`)
-			}
-
-			// done :)
-			resolve(program)
-
-		}).catch(reject);
-	}).catch(reject);
-
-});
-
 window.addEventListener("load", function() {
 
 	'use strict';
@@ -60,7 +9,7 @@ window.addEventListener("load", function() {
 	const sim = new Simulation("webgl2");
 	const gl = sim.ctx;
 
-	createShaderProgram(gl, "/scripts/canvas/raymarching/shader.vs", "/scripts/canvas/raymarching/shader.fs").then(program => {
+	sim.createShaderProgram("/shaders/passthrough.vs", "/shaders/raymarching.fs").then(program => {
 
 		// We just want to draw a square covering the entire canvas surface and let the fragment shader do the rest
 		const positions = new Float32Array([

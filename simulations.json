@@ -43,5 +43,10 @@
 		"title": "Ray Marching",
 		"description": "A demonstration of ray marching with basic shapes in a pixel shader. Requires WebGL2 support",
 		"id": "raymarching"
+	},
+	{
+		"title": "Fractals",
+		"description": "Visualisation of the Mandelbrot set and arbitrary quadratic Julia sets",
+		"id": "fractal"
 	}
 ]

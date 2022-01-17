@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>Fractals - JJMorton</title>
+<link rel="stylesheet" type="text/css" href="/styles/animations.css">
+<link rel="stylesheet" type="text/css" href="/styles/style.css">
+<div id="background"></div>
+	<link rel="stylesheet" type="text/css" href="/styles/canvas.css"/>
+	<script type="module" src="/scripts/canvas/fractal.js"></script>
+</head>
+<body>
+	<header>
+		<nav role="navigation">
+	<ul id="nav-bar">
+		<li><a href="/">Home</a></li>
+		<li><a href="/lmc">LMC</a></li>
+		<li><a href="/about">About</a></li>
+	</ul>
+</nav>
+
+	</header>
+
+
+	<div id="content">
+		<main>
+			<h1>Fractals</h1>
+			<p>Visualisation of the Mandelbrot set and arbitrary quadratic Julia sets</p>
+		</main>
+
+		<section id="sec-simulation">
+			<noscript>Please enable JavaScript to view this simulation.</noscript>
+			<canvas class="box-shadow">Sorry, the canvas element is not supported by your browser.</canvas>
+		</section>
+
+		<section id="controls">
+			<button class="button box-shadow" id="playpause">Button</button>
+
+			<div class="combobox left-border" id="type">
+	<label for="type-select">Combobox</label>
+	<select id="type-select"></select>
+</div>
+
+			<p id="julia-custom" hidden>Custom quadratic Julia set:<br>
+				<image class="latex-inline" src="/tex/julia-0.png">
+				<input type="text" id="coeff0">
+				<image class="latex-inline" src="/tex/julia-1.png">
+				<input type="text" id="coeff1">
+				<image class="latex-inline" src="/tex/julia-2.png">
+				<input type="text" id="coeff2">
+				<image class="latex-inline" src="/tex/julia-3.png">
+			</p>
+			<div class="slider left-border" id="zoom">
+	<label for="zoom-slider">
+		<span class="name">Slider</span>
+		<output for="zoom-slider">0</output>
+		<span class="units">units</span>
+	</label>
+	<input type="range" id="zoom-slider" min="0" max="1" step="0.01" value="0"/>
+</div>
+
+			<div class="slider left-border" id="iterations">
+	<label for="iterations-slider">
+		<span class="name">Slider</span>
+		<output for="iterations-slider">0</output>
+		<span class="units">units</span>
+	</label>
+	<input type="range" id="iterations-slider" min="0" max="1" step="0.01" value="0"/>
+</div>
+
+		</section>
+
+		<section>
+			<footer>
+				<p>Compiled at <tt id="compiledate"></tt></p>
+<script>
+	const elt = document.getElementById("compiledate");
+	const req = new XMLHttpRequest();
+	req.addEventListener("load", () => elt.textContent = req.responseText);
+	req.open("GET", "/compiledate");
+	req.send();
+</script>
+
+
+			</footer>
+		</section>
+	</div>
+
+
+</body>
+</html>
