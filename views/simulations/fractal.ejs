@@ -25,14 +25,17 @@
 		<section id="controls">
 			<%- include(`/partials/controls/button`, { name: "playpause" }) %>
 			<%- include(`/partials/controls/combo`, { name: "type" }) %>
-			<p id="julia-custom" hidden>Custom quadratic Julia set:<br>
-				<image class="latex-inline" src="/tex/julia-0.png">
-				<input type="text" id="coeff0">
-				<image class="latex-inline" src="/tex/julia-1.png">
-				<input type="text" id="coeff1">
-				<image class="latex-inline" src="/tex/julia-2.png">
-				<input type="text" id="coeff2">
-				<image class="latex-inline" src="/tex/julia-3.png">
+			<p class="julia-custom mandelbrot-custom" hidden>
+				Customise map:<br>
+				<em>z</em> &rarr; <em>z</em><sup> <span id="coeff0" class="input" role="textbox" contenteditable onkeypress="return /[0-9|\.]/i.test(event.key)" placeholder="0">0</span></sup> +
+				<span class="julia-custom" hidden>
+					<span id="coeff1" class="input" role="textbox" contenteditable onkeypress="return /[0-9|\.|\-]/i.test(event.key)">0</span> +
+					<span id="coeff2" class="input" role="textbox" contenteditable onkeypress="return /[0-9|\.|\-]/i.test(event.key)">0</span> <em>i</em> +
+					<span id="coeff3" class="input" role="textbox" contenteditable onkeypress="return /[0-9|\.|\-]/i.test(event.key)">0</span> <em>e<sup> it</sup></em>
+				</span>
+				<span class="mandelbrot-custom" hidden>
+					<em>c</em>
+				</span>
 			</p>
 			<%- include(`/partials/controls/slider`, { name: "zoom" }) %>
 			<%- include(`/partials/controls/slider`, { name: "iterations" }) %>

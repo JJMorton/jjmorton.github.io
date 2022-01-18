@@ -188,15 +188,17 @@ button::-moz-focus-inner {
 
 /* TEXT INPUT */
 
-input[type="text"] {
-	width: 70px;
-	border: 1px dashed var(--text-color-dim);
+.input {
+	/*width: 70px;*/
+	width: max-content;
+	border: 1px solid var(--accent-color);
 	color: var(--text-color);
-	padding: 5px;
-	margin: 2px 2px;
+	padding: 4px 4px 0 4px;
+	margin: 0;
 }
 
-input[type="text"]:focus {
-	border: 1px solid var(--accent-color);
+.input:focus {
+	border-bottom: 2px solid var(--text-color-dim);
+	outline: none;
 	font-weight: bold;
 }

@@ -41,12 +41,19 @@ window.addEventListener("load", function() {
 		let needsRender = true;
 		window.addEventListener("resize", () => needsRender = true);
 
+		const type = {
+			MANDELBROT: 0,
+			JULIA: 1,
+			TRICORN: 2,
+			BURNINGSHIP: 3
+		}
+
 		const state = {
 			position: new Vector([0, 0]),
 			zoom: 0.5,
 			iterations: 100,
 			mousePos: new Vector([0, 0]),
-			coeffs: new Vector([0, 0, 0]),
+			coeffs: new Vector([0, 0, 0, 0]),
 			type: 0
 		};
 
@@ -63,8 +70,8 @@ window.addEventListener("load", function() {
 		const typeLoc = gl.getUniformLocation(program, "u_type");
 
 		gl.uniform3fv(colorfgLoc, new Float32Array(hexToRGB(sim.colours.foreground)));
-		gl.uniform3fv(colorbgLoc, new Float32Array(hexToRGB(sim.colours.background)));
-		gl.uniform3fv(coloraccentLoc, new Float32Array(hexToRGB(sim.colours.accent)));
+		gl.uniform3fv(colorbgLoc, new Float32Array(hexToRGB(sim.colours.accent)));
+		gl.uniform3fv(coloraccentLoc, new Float32Array(hexToRGB(sim.colours.background)));
 		gl.uniform2fv(positionLoc, new Float32Array([0, 0]));
 
 		// Add the sliders to control them
@@ -75,7 +82,7 @@ window.addEventListener("load", function() {
 				sim.timer.pause();
 		});
 		sim.addSlider("zoom", "Zoom", "%", 0, 0, 100, 0.1, value => {
-			state.zoom = 0.5 + 50 * Math.pow(value / 100, 2);
+			state.zoom = Math.exp(value/9 - 0.8);
 			needsRender = true;
 		}).setValue(0);
 		sim.addSlider("iterations", "Iterations (level of detail)", "", 0, 5, 500, 5, value => {
@@ -83,41 +90,50 @@ window.addEventListener("load", function() {
 			needsRender = true;
 		}).setValue(200);
 
-		const coeffElts = [0, 1, 2].map(x => document.getElementById("coeff" + x));
+		const coeffElts = [0, 1, 2, 3].map(x => document.getElementById("coeff" + x));
 		for (let i = 0; i < coeffElts.length; i++) {
 			const elt = coeffElts[i];
 			elt.value = 0;
 			elt.addEventListener("input", () => {
-				state.coeffs[i] = parseFloat(elt.value) || 0;
+				if (!elt.textContent) return;
+				state.coeffs[i] = parseFloat(elt.textContent) || 0;
 				playButton.disabled = state.coeffs[2] === 0;
 				needsRender = true;
 			});
+			elt.addEventListener("blur", () => {
+				elt.textContent = state.coeffs[i];
+			})
 		}
 
 		sim.addComboBox("type", "Presets", value => {
 			state.type = value === 0 ? 0 : 1;
-			if (state.type === 1) {
-				document.getElementById("julia-custom").removeAttribute("hidden");
-			} else {
-				document.getElementById("julia-custom").setAttribute("hidden", "");
-			}
 
 			switch (value) {
-				case 0: state.coeffs = [0, 0, 0]; break;
-				case 1: state.coeffs = [0, 0, 0.7885]; break;
-				case 2: state.coeffs = [-0.38197, 0.61803, 0.01]; break;
-				case 3: state.coeffs = [0.285, 0.01, 0.001]; break;
-				case 4: state.coeffs = [-0.8, 0.156, 0.001]; break;
-				case 5: state.coeffs = [-0.70176, -0.3842, 0.01]; break;
+				case 0: state.coeffs = [2, 0, 0, 0]; state.type = type.MANDELBROT; break;
+				case 1: state.coeffs = [7, 0, 0, 0]; state.type = type.MANDELBROT; break;
+				case 2: state.coeffs = [2, -0.38197, 0.61803, 0.01]; state.type = type.JULIA; break;
+				case 3: state.coeffs = [2, 0.285, 0.01, 0.001]; state.type = type.JULIA; break;
+				case 4: state.coeffs = [2, -0.8, 0.156, 0.001]; state.type = type.JULIA; break;
+				case 5: state.coeffs = [6, 0.736, -0.417355, 0]; state.type = type.JULIA; break;
+				case 6: state.coeffs = [1.5, -0.1948, 0, 0]; state.type = type.JULIA; break;
+				case 7: state.coeffs = [0, 0, 0, 0]; state.type = type.TRICORN; break;
+				case 8: state.coeffs = [0, 0, 0, 0]; state.type = type.BURNINGSHIP; break;
 			}
 			for (let i = 0; i < state.coeffs.length; i++) {
-				coeffElts[i].value = state.coeffs[i];
+				coeffElts[i].textContent = state.coeffs[i];
 			}
 
-			playButton.disabled = state.coeffs[2] === 0
+			const hideElts = className => [...document.getElementsByClassName(className)].forEach(elt => elt.setAttribute("hidden", ""));
+			const showElts = className => [...document.getElementsByClassName(className)].forEach(elt => elt.removeAttribute("hidden"));
+			hideElts("julia-custom");
+			hideElts("mandelbrot-custom");
+			if (state.type === type.MANDELBROT) showElts("mandelbrot-custom");
+			else if (state.type === type.JULIA) showElts("julia-custom");
+
+			playButton.disabled = state.coeffs[3] === 0;
 			needsRender = true;
 
-		}).setOptions([ "Mandelbrot", "Julia 1", "Julia 2", "Julia 3", "Julia 4", "Julia 5" ]).setValue(0);
+		}).setOptions([ "Mandelbrot", "Multibrot (7th power)", "Julia Set 1", "Julia Set 2", "Julia Set 3", "Julia Set 4 (6-point star)", "Julia Set 5 (Glynn fractal)", "Tricorn", "Burning Ship" ]).setValue(0);
 
 		sim.onmousedown = function() {
 			state.mousePos = new Vector([sim.mouse.x, sim.mouse.y]);
@@ -143,7 +159,7 @@ window.addEventListener("load", function() {
 			gl.useProgram(program);
 
 			gl.uniform1i(iterationsLoc, state.iterations);
-			gl.uniform3fv(coeffsLoc, new Float32Array(state.coeffs));
+			gl.uniform4fv(coeffsLoc, new Float32Array(state.coeffs));
 			gl.uniform2fv(resolutionLoc, new Float32Array([sim.canvas.width, sim.canvas.height]));
 			gl.uniform1f(timeLoc, sim.timer.getTime());
 			gl.uniform1f(zoomLoc, state.zoom);
