@@ -27,14 +27,23 @@
 			<%- include(`/partials/controls/combo`, { name: "type" }) %>
 			<p class="julia-custom mandelbrot-custom" hidden>
 				Customise map:<br>
-				<em>z</em> &rarr; <em>z</em><sup> <span id="coeff0" class="input" role="textbox" contenteditable onkeypress="return /[0-9|\.]/i.test(event.key)" placeholder="0">0</span></sup> +
+				<em>z</em> &rarr; <em>z</em><sup> <%- include('/partials/controls/numinput', { id: "coeff0", pattern: "[0-9|\.]" }) %></sup> +
 				<span class="julia-custom" hidden>
-					<span id="coeff1" class="input" role="textbox" contenteditable onkeypress="return /[0-9|\.|\-]/i.test(event.key)">0</span> +
-					<span id="coeff2" class="input" role="textbox" contenteditable onkeypress="return /[0-9|\.|\-]/i.test(event.key)">0</span> <em>i</em> +
-					<span id="coeff3" class="input" role="textbox" contenteditable onkeypress="return /[0-9|\.|\-]/i.test(event.key)">0</span> <em>e<sup> it</sup></em>
+					<%- include('/partials/controls/numinput', { id: "coeff1", pattern: "[0-9|\.|\-]" }) %> +
+					<%- include('/partials/controls/numinput', { id: "coeff2", pattern: "[0-9|\.|\-]" }) %> <em>i</em> +
+					<%- include('/partials/controls/numinput', { id: "coeff3", pattern: "[0-9|\.|\-]" }) %> <em>e<sup> it</sup></em>
 				</span>
 				<span class="mandelbrot-custom" hidden>
 					<em>c</em>
+				</span>
+			</p>
+			<p class="newton-custom" hidden>
+				Custom polynomial:<br>
+				<span>
+					<% for (let i = 8; i > 0; i--) { %>
+						<%- include('/partials/controls/numinput', { id: `newton${i}`, pattern: "[0-9|\.|\-]" }); %> <em>z</em><sup> <%= i %></sup> +
+					<% } %>
+					<%- include('/partials/controls/numinput', { id: "newton0", pattern: "[0-9|\.|\-]" }) %>
 				</span>
 			</p>
 			<%- include(`/partials/controls/slider`, { name: "zoom" }) %>

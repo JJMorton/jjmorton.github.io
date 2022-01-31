@@ -26,7 +26,7 @@
 	<div id="content">
 		<main>
 			<h1>Fractals</h1>
-			<p>Visualisation of the Mandelbrot set and arbitrary quadratic Julia sets</p>
+			<p>Visualisation of the Mandelbrot set, quadratic Julia sets and polynomial Newton fractals</p>
 		</main>
 
 		<section id="sec-simulation">
@@ -44,14 +44,50 @@
 
 			<p class="julia-custom mandelbrot-custom" hidden>
 				Customise map:<br>
-				<em>z</em> &rarr; <em>z</em><sup> <span id="coeff0" class="input" role="textbox" contenteditable onkeypress="return /[0-9|\.]/i.test(event.key)" placeholder="0">0</span></sup> +
+				<em>z</em> &rarr; <em>z</em><sup> <span id="coeff0" class="input" role="textbox" contenteditable onkeypress="return /[0-9|.]/i.test(event.key)">0</span>
+</sup> +
 				<span class="julia-custom" hidden>
-					<span id="coeff1" class="input" role="textbox" contenteditable onkeypress="return /[0-9|\.|\-]/i.test(event.key)">0</span> +
-					<span id="coeff2" class="input" role="textbox" contenteditable onkeypress="return /[0-9|\.|\-]/i.test(event.key)">0</span> <em>i</em> +
-					<span id="coeff3" class="input" role="textbox" contenteditable onkeypress="return /[0-9|\.|\-]/i.test(event.key)">0</span> <em>e<sup> it</sup></em>
+					<span id="coeff1" class="input" role="textbox" contenteditable onkeypress="return /[0-9|.|-]/i.test(event.key)">0</span>
+ +
+					<span id="coeff2" class="input" role="textbox" contenteditable onkeypress="return /[0-9|.|-]/i.test(event.key)">0</span>
+ <em>i</em> +
+					<span id="coeff3" class="input" role="textbox" contenteditable onkeypress="return /[0-9|.|-]/i.test(event.key)">0</span>
+ <em>e<sup> it</sup></em>
 				</span>
 				<span class="mandelbrot-custom" hidden>
 					<em>c</em>
+				</span>
+			</p>
+			<p class="newton-custom" hidden>
+				Custom polynomial:<br>
+				<span>
+					
+						<span id="newton8" class="input" role="textbox" contenteditable onkeypress="return /[0-9|.|-]/i.test(event.key)">0</span>
+ <em>z</em><sup> 8</sup> +
+					
+						<span id="newton7" class="input" role="textbox" contenteditable onkeypress="return /[0-9|.|-]/i.test(event.key)">0</span>
+ <em>z</em><sup> 7</sup> +
+					
+						<span id="newton6" class="input" role="textbox" contenteditable onkeypress="return /[0-9|.|-]/i.test(event.key)">0</span>
+ <em>z</em><sup> 6</sup> +
+					
+						<span id="newton5" class="input" role="textbox" contenteditable onkeypress="return /[0-9|.|-]/i.test(event.key)">0</span>
+ <em>z</em><sup> 5</sup> +
+					
+						<span id="newton4" class="input" role="textbox" contenteditable onkeypress="return /[0-9|.|-]/i.test(event.key)">0</span>
+ <em>z</em><sup> 4</sup> +
+					
+						<span id="newton3" class="input" role="textbox" contenteditable onkeypress="return /[0-9|.|-]/i.test(event.key)">0</span>
+ <em>z</em><sup> 3</sup> +
+					
+						<span id="newton2" class="input" role="textbox" contenteditable onkeypress="return /[0-9|.|-]/i.test(event.key)">0</span>
+ <em>z</em><sup> 2</sup> +
+					
+						<span id="newton1" class="input" role="textbox" contenteditable onkeypress="return /[0-9|.|-]/i.test(event.key)">0</span>
+ <em>z</em><sup> 1</sup> +
+					
+					<span id="newton0" class="input" role="textbox" contenteditable onkeypress="return /[0-9|.|-]/i.test(event.key)">0</span>
+
 				</span>
 			</p>
 			<div class="slider left-border" id="zoom">

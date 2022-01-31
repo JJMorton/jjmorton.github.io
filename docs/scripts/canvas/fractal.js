@@ -10,6 +10,7 @@ function hexToRGB(hexString) {
 	return [0, 2, 4].map(i => parseInt(hexString.substring(i, i + 2), 16) / 255);
 }
 
+
 window.addEventListener("load", function() {
 
 	'use strict';
@@ -38,24 +39,26 @@ window.addEventListener("load", function() {
 
 		gl.useProgram(program);
 
-		let needsRender = true;
-		window.addEventListener("resize", () => needsRender = true);
-
 		const type = {
 			MANDELBROT: 0,
 			JULIA: 1,
 			TRICORN: 2,
-			BURNINGSHIP: 3
+			BURNINGSHIP: 3,
+			NEWTON: 4
 		}
 
 		const state = {
+			needsRender: true,
 			position: new Vector([0, 0]),
 			zoom: 0.5,
 			iterations: 100,
 			mousePos: new Vector([0, 0]),
 			coeffs: new Vector([0, 0, 0, 0]),
+			newton: [-1, 0, 0, 1, 0, 0, 0, 0, 0],
 			type: 0
 		};
+
+		window.addEventListener("resize", () => state.needsRender = true);
 
 		// Get locations of uniforms we can control
 		const resolutionLoc = gl.getUniformLocation(program, "u_resolution");
@@ -68,6 +71,7 @@ window.addEventListener("load", function() {
 		const positionLoc = gl.getUniformLocation(program, "u_position");
 		const coeffsLoc = gl.getUniformLocation(program, "u_coeffs");
 		const typeLoc = gl.getUniformLocation(program, "u_type");
+		const newtonLoc = gl.getUniformLocation(program, "u_newton");
 
 		gl.uniform3fv(colorfgLoc, new Float32Array(hexToRGB(sim.colours.foreground)));
 		gl.uniform3fv(colorbgLoc, new Float32Array(hexToRGB(sim.colours.accent)));
@@ -81,29 +85,47 @@ window.addEventListener("load", function() {
 			else
 				sim.timer.pause();
 		});
+
 		sim.addSlider("zoom", "Zoom", "%", 0, 0, 100, 0.1, value => {
-			state.zoom = Math.exp(value/9 - 0.8);
-			needsRender = true;
+			state.zoom = Math.exp(value/9 - 0.7);
+			state.needsRender = true;
 		}).setValue(0);
+
 		sim.addSlider("iterations", "Iterations (level of detail)", "", 0, 5, 500, 5, value => {
 			state.iterations = value;
-			needsRender = true;
+			state.needsRender = true;
 		}).setValue(200);
 
-		const coeffElts = [0, 1, 2, 3].map(x => document.getElementById("coeff" + x));
-		for (let i = 0; i < coeffElts.length; i++) {
-			const elt = coeffElts[i];
-			elt.value = 0;
-			elt.addEventListener("input", () => {
-				if (!elt.textContent) return;
-				state.coeffs[i] = parseFloat(elt.textContent) || 0;
-				playButton.disabled = state.coeffs[2] === 0;
-				needsRender = true;
-			});
-			elt.addEventListener("blur", () => {
-				elt.textContent = state.coeffs[i];
-			})
+		function CoeffInput(id, setter, callback) {
+			this.elt = document.getElementById(id);
+			this.getValue = () => parseFloat(this.elt.textContent) || null;
+			this.update = () => this.elt.textContent = setter();
+			this.elt.addEventListener("input", () => callback(this.getValue()));
+			this.elt.addEventListener("blur", () => this.update());
+
+			this.update();
+			callback(this.getValue());
 		}
+
+		const coeffElts = new Array(state.coeffs.length).fill(0).map((_, i) => new CoeffInput(
+			"coeff" + i,
+			() => state.coeffs[i],
+			val => {
+				state.coeffs[i] = val || 0;
+				playButton.disabled = state.coeffs[2] === 0;
+				state.needsRender = true;
+			}
+		));
+
+		const newtonElts = new Array(state.newton.length).fill(0).map((_, i) => new CoeffInput(
+			"newton" + i,
+			() => state.newton[i],
+			val => {
+				state.newton[i] = val || 0;
+				gl.uniform1fv(newtonLoc, new Float32Array(state.newton));
+				state.needsRender = true;
+			}
+		));
 
 		sim.addComboBox("type", "Presets", value => {
 			state.type = value === 0 ? 0 : 1;
@@ -118,22 +140,31 @@ window.addEventListener("load", function() {
 				case 6: state.coeffs = [1.5, -0.1948, 0, 0]; state.type = type.JULIA; break;
 				case 7: state.coeffs = [0, 0, 0, 0]; state.type = type.TRICORN; break;
 				case 8: state.coeffs = [0, 0, 0, 0]; state.type = type.BURNINGSHIP; break;
+				case 9: state.coeffs = [0, 0, 0, 0]; state.type = type.NEWTON; break;
 			}
 			for (let i = 0; i < state.coeffs.length; i++) {
-				coeffElts[i].textContent = state.coeffs[i];
+				coeffElts[i].update();
 			}
 
 			const hideElts = className => [...document.getElementsByClassName(className)].forEach(elt => elt.setAttribute("hidden", ""));
 			const showElts = className => [...document.getElementsByClassName(className)].forEach(elt => elt.removeAttribute("hidden"));
 			hideElts("julia-custom");
 			hideElts("mandelbrot-custom");
+			hideElts("newton-custom");
 			if (state.type === type.MANDELBROT) showElts("mandelbrot-custom");
 			else if (state.type === type.JULIA) showElts("julia-custom");
+			else if (state.type === type.NEWTON) showElts("newton-custom");
 
 			playButton.disabled = state.coeffs[3] === 0;
-			needsRender = true;
+			state.needsRender = true;
 
-		}).setOptions([ "Mandelbrot", "Multibrot (7th power)", "Julia Set 1", "Julia Set 2", "Julia Set 3", "Julia Set 4 (6-point star)", "Julia Set 5 (Glynn fractal)", "Tricorn", "Burning Ship" ]).setValue(0);
+		}).setOptions([
+			"Mandelbrot", "Multibrot (7th power)",
+			"Julia Set 1", "Julia Set 2", "Julia Set 3", "Julia Set 4 (6-point star)", "Julia Set 5 (Glynn fractal)",
+			"Tricorn",
+			"Burning Ship",
+			"Newton (Polynomials)"
+		]).setValue(0);
 
 		sim.onmousedown = function() {
 			state.mousePos = new Vector([sim.mouse.x, sim.mouse.y]);
@@ -144,13 +175,12 @@ window.addEventListener("load", function() {
 			if (sim.mouse.pressed === Mouse.buttons.LEFT && (sim.mouse.x != state.mousePos.x || sim.mouse.y != state.mousePos.y)) {
 				const mousePos = new Vector([sim.mouse.x, sim.mouse.y]);
 				state.position = state.position.add(state.mousePos.sub(mousePos).divide(0.5 * sim.canvas.width * state.zoom));
-				gl.uniform2fv(positionLoc, new Float32Array(state.position));
 				state.mousePos = mousePos;
-				needsRender = true;
+				state.needsRender = true;
 			}
 
-			if (sim.timer.isPaused && !needsRender) return;
-			needsRender = false;
+			if (sim.timer.isPaused && !state.needsRender) return;
+			state.needsRender = false;
 			if (state.coeffs[2] === 0) sim.timer.pause();
 
 			gl.clearColor(0, 1, 0, 1);
@@ -158,6 +188,7 @@ window.addEventListener("load", function() {
 
 			gl.useProgram(program);
 
+			gl.uniform2fv(positionLoc, new Float32Array(state.position));
 			gl.uniform1i(iterationsLoc, state.iterations);
 			gl.uniform4fv(coeffsLoc, new Float32Array(state.coeffs));
 			gl.uniform2fv(resolutionLoc, new Float32Array([sim.canvas.width, sim.canvas.height]));

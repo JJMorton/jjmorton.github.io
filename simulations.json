@@ -46,7 +46,7 @@
 	},
 	{
 		"title": "Fractals",
-		"description": "Visualisation of the Mandelbrot set and arbitrary quadratic Julia sets",
+		"description": "Visualisation of the Mandelbrot set, quadratic Julia sets and polynomial Newton fractals",
 		"id": "fractal"
 	}
 ]
