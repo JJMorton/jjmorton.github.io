@@ -6,13 +6,19 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - run: |
+          # Set up the github-pages branch, discard any previous compilations
           git config --global user.email "jjmorton1636@gmail.com"
           git config --global user.name "JJMorton"
           git checkout -b github-pages
           git reset --hard master
+          # Compile the static version
           npm install
           npm run build
+          # Remove all the source files, leave only 'docs/' and '.git/'
           find . -maxdepth 1 ! -name '.' ! -name '..' ! -name 'docs' ! -name '.git' ! -name 'README.md' -exec rm -rf {} +
+          # Tell GitHub not to use Jekyll
+          touch .nojekyll
+          # Push the compiled version to the github-pages branch
           git add .
           git commit -m "Compile for GitHub Pages"
           git push --force -u origin github-pages
