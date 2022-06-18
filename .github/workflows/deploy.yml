@@ -1,0 +1,20 @@
+name: deploy
+on: [push]
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: |
+          git config --global user.email "jjmorton1636@gmail.com"
+          git config --global user.name "JJMorton"
+          git checkout -b github-pages
+          git reset --hard master
+          npm install
+          ./compile.sh
+          find . ! -name 'docs' -type f -exec rm -f {} +
+          find . ! -name 'docs' -type d -exec rm -rf {} +
+          git add .
+          git commit -m "Compile for GitHub Pages"
+          git push --force -u origin github-pages
+

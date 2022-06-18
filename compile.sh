@@ -8,15 +8,15 @@ sleep 1
 output_dir="./docs"
 static_dir="./static"
 
-echo "Compiling latex..."
-cd "$static_dir/tex"
-for file in *.tex; do
-	equation="$(cat "$file")"
-	output="$(basename "$file" | cut -d '.' -f 1).png"
-	echo "Processing $file -> $output... "
-	pnglatex -p bm -b transparent -Sf "$equation" -o "$output" -d 500
-done
-cd ../..
+# echo "Compiling latex..."
+# cd "$static_dir/tex"
+# for file in *.tex; do
+# 	equation="$(cat "$file")"
+# 	output="$(basename "$file" | cut -d '.' -f 1).png"
+# 	echo "Processing $file -> $output... "
+# 	pnglatex -p bm -b transparent -Sf "$equation" -o "$output" -d 500
+# done
+# cd ../..
 
 rm -rf "$output_dir"
 
