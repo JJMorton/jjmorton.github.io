@@ -11,9 +11,8 @@ jobs:
           git checkout -b github-pages
           git reset --hard master
           npm install
-          ./compile.sh
-          find . ! -name 'docs' -type f -exec rm -f {} +
-          find . ! -name 'docs' -type d -exec rm -rf {} +
+          npm run build
+          find . -maxdepth 1 ! -name '.' ! -name '..' ! -name 'docs' ! -name '.git' ! -name 'README.md' -exec rm -rf {} +
           git add .
           git commit -m "Compile for GitHub Pages"
           git push --force -u origin github-pages
