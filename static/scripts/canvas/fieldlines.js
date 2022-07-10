@@ -15,7 +15,10 @@ window.addEventListener("load", function() {
 	};
 
 	const state = {
+		fullrender: true,
+		partialrender: 0,
 		charges: [],
+		moving: false,
 		selected: null // The selected charge
 	};
 
@@ -77,24 +80,31 @@ window.addEventListener("load", function() {
 
 	sim.render = function() {
 		const c = sim.ctx;
-		c.clearRect(0, 0, c.canvas.width, c.canvas.height);
+		if (state.fullrender) c.clearRect(0, 0, c.canvas.width, c.canvas.height);
 
-		for (const charge of state.charges) {
-			addToPaths(charge);
+		if (!state.moving) {
+			for (const charge of state.charges) {
+				addToPaths(charge);
+			}
+
+			// Draw paths
+			for (const charge of state.charges) {
+				c.beginPath();
+				for (const path of charge.paths) {
+					const starti = state.fullrender ? 0 : path.length - 2;
+					const start = path[starti];
+					c.moveTo(sim.mToPx(start.x), sim.mToPx(start.y));
+					for (let i = starti + 1; i < path.length; i++) {
+						const p = path[i];
+						c.lineTo(sim.mToPx(p.x), sim.mToPx(p.y));
+					}
+				}
+				c.stroke();
+			}
 		}
 
-		// Draw paths
-		for (const charge of state.charges) {
-			c.beginPath();
-			for (const path of charge.paths) {
-				const start = path[0];
-				c.moveTo(sim.mToPx(start.x), sim.mToPx(start.y));
-				for (let i = 1; i < path.length; i++) {
-					const p = path[i];
-					c.lineTo(sim.mToPx(p.x), sim.mToPx(p.y));
-				}
-			}
-			c.stroke();
+		if (state.moving) {
+			state.selected.pos = new Vector([sim.pxToM(sim.mouse.x), sim.pxToM(sim.mouse.y)]);
 		}
 
 		// Draw charges
@@ -118,36 +128,48 @@ window.addEventListener("load", function() {
 			c.lineWidth = prevWidth;
 		}
 
+		state.fullrender = state.moving;
 	};
+
+	window.addEventListener("resize", () => state.fullrender = true);
 
 	// Create the controls
 	{
-		const sliderStrength = sim.addKnob("strength", "Magnitude of charge", "C", 0, -2, 2, 0.01, value => {
+		const sliderStrength = sim.addKnob("strength", "Magnitude of selected charge", "C", 0, -2, 2, 0.01, value => {
 			if (!state.selected) return;
 			state.selected.strength = value
 			state.charges.forEach(charge => createPaths(charge));
+			state.fullrender = true;
 		});
-		const comboSelect = sim.addComboBox("select", "Selected charge", index => {
-			state.selected = index >= 0 ? state.charges[index] : null;
-			if (!state.selected) return;
-			sliderStrength.setValue(state.selected.strength);
-		});
+		const selectCharge = charge => {
+			state.selected = charge;
+			sliderStrength.setValue(charge.strength);
+		};
 		const buttonCreate = sim.addButton("create", "Create charge", () => {
 			state.charges.forEach(charge => createPaths(charge));
 			state.charges.push(createCharge(Math.random() * sim.scale, Math.random() * sim.scale));
-			comboSelect.setOptions(state.charges.map((charge, i) => `Charge ${i + 1}`));
-			comboSelect.setValue(state.charges.length - 1);
+			selectCharge(state.charges[state.charges.length - 1]);
+			state.fullrender = true;
 		});
 		const buttonRemove = sim.addButton("remove", "Remove selected charge", () => {
 			if (!state.selected) return;
 			state.charges.forEach(charge => createPaths(charge));
 			state.charges.splice(state.charges.indexOf(state.selected), 1);
-			comboSelect.setOptions(state.charges.map((charge, i) => `Charge ${i + 1}`));
+			selectCharge(state.charges[0]);
+			state.fullrender = true;
 		});
 		sim.onmousedown = function() {
+			const mousePos = { x: sim.pxToM(sim.mouse.x), y: sim.pxToM(sim.mouse.y) };
+			const clicked = state.charges.filter(c => Math.pow(mousePos.x - c.pos.x, 2) + Math.pow(mousePos.y - c.pos.y, 2) <= Math.pow(params.chargeradius * 2, 2))
+			if (clicked.length > 0) selectCharge(clicked[0]);
 			if (!state.selected) return;
-			state.selected.pos = new Vector([sim.pxToM(sim.mouse.x), sim.pxToM(sim.mouse.y)]);
+			state.moving = true;
+			state.fullrender = true;
+		};
+		sim.onmouseup = function() {
+			state.moving = false;
 			state.charges.forEach(charge => createPaths(charge));
+			state.fullrender = true;
 		};
 
 		// Add two initial charges
