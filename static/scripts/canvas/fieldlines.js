@@ -122,7 +122,7 @@ window.addEventListener("load", function() {
 
 	// Create the controls
 	{
-		const sliderStrength = sim.addSlider("strength", "Magnitude of charge", "C", 0, -2, 2, 0.01, value => {
+		const sliderStrength = sim.addKnob("strength", "Magnitude of charge", "C", 0, -2, 2, 0.01, value => {
 			if (!state.selected) return;
 			state.selected.strength = value
 			state.charges.forEach(charge => createPaths(charge));

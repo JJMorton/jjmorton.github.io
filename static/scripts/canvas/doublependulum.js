@@ -179,28 +179,28 @@ window.addEventListener("load", function() {
 		drawcircle(...pos2_px, sim.mToPx(params.r2));
 	}
 
-	sim.addSlider("m1", "Mass 1", "kg", params.m1, 0.1, 3, 0.01, value => {
+	sim.addKnob("m1", "Mass 1", "kg", params.m1, 0.1, 3, 0.01, value => {
 		params.m1 = value;
 		init();
 	});
-	sim.addSlider("m2", "Mass 2", "kg", params.m2, 0.1, 3, 0.01, value => {
+	sim.addKnob("m2", "Mass 2", "kg", params.m2, 0.1, 3, 0.01, value => {
 		params.m2 = value;
 		init();
 	});
-	sim.addSlider("l1", "Length 1", "m", params.l1, 0.1, 3, 0.01, value => {
+	sim.addKnob("l1", "Length 1", "m", params.l1, 0.1, 3, 0.01, value => {
 		params.l1 = value;
 		init();
 	});
-	sim.addSlider("l2", "Length 2", "m", params.l2, 0.1, 3, 0.01, value => {
+	sim.addKnob("l2", "Length 2", "m", params.l2, 0.1, 3, 0.01, value => {
 		params.l2 = value;
 		init();
 	});
-	sim.addSlider("g", "Gravity", "m/s^2", params.g, 0.1, 20, 0.1, value => {
+	sim.addKnob("g", "Gravity", "m/s^2", params.g, 0.1, 20, 0.1, value => {
 		params.g = value;
 		init();
 	});
 	sim.addCheckbox("trail", "Show Trail", params.showtrail, value => params.showtrail = value);
-	sim.addSlider("timestep", "Integration Timestep", "s", integrator.h, 0.001, 0.1, 0.001, value => integrator.h = value);
+	sim.addKnob("timestep", "Integration Timestep", "s", integrator.h, 0.001, 0.1, 0.001, value => integrator.h = value);
 	sim.addButton("playpause", "Play/Pause", () => {
 		if (sim.timer.isPaused) {
 			sim.timer.start();

@@ -25,7 +25,7 @@ window.addEventListener("load", function() {
 
 	/* Create DOM elements */
 
-	const scaleSlider = sim.addSlider("scale", "Viewing Scale", "m", sim.scale, 1, 20, 0.1, value => sim.scale = value);
+	const scaleSlider = sim.addKnob("scale", "Viewing Scale", "m", sim.scale, 1, 20, 0.1, value => sim.scale = value);
 
 	const selectCombo = sim.addComboBox("select", "Selected Wave", index => {
 		// Set the selected wave and update the sliders associated with its properties
@@ -52,26 +52,26 @@ window.addEventListener("load", function() {
 	});
 
 	const sliders = {
-		wavelength: sim.addSlider("wavelength", "Wavelength", "m", 0, 0.1, 10, 0.01, value => {
+		wavelength: sim.addKnob("wavelength", "Wavelength", "m", 0, 0.1, 10, 0.01, value => {
 			state.selected.wavelength = value;
 			state.selected.freq = 1 / value;
 		}),
-		amp: sim.addSlider("amplitude", "Amplitude", "m", 0, 0.1, 5, 0.01, value => state.selected.amp = value),
-		offset: sim.addSlider("offset", "Phase Offset", "degrees", 0, 0, 360, 0.1, value => state.selected.offset = value * Math.PI / 180)
+		amp: sim.addKnob("amplitude", "Amplitude", "m", 0, 0.1, 5, 0.01, value => state.selected.amp = value),
+		offset: sim.addKnob("offset", "Phase Offset", "degrees", 0, 0, 360, 1, value => state.selected.offset = value * Math.PI / 180)
 	};
 
 	sliders.wavelength.DOM.addEventListener("mousedown", () => {
 		sim.timer.reset();
 		sim.timer.pause();
 	});
-	sliders.wavelength.DOM.addEventListener("mouseup", () => {
+	window.addEventListener("mouseup", () => {
 		sim.timer.start();
 	});
 	sliders.wavelength.DOM.addEventListener("touchstart", () => {
 		sim.timer.reset();
 		sim.timer.pause();
 	});
-	sliders.wavelength.DOM.addEventListener("touchend", () => {
+	window.addEventListener("touchend", () => {
 		sim.timer.start();
 	});
 
@@ -135,7 +135,7 @@ window.addEventListener("load", function() {
 				c.globalAlpha = 0.3;
 			drawWave(c, arr.map(y => halfHeight + sim.mToPx(y)));
 		}
-		
+
 		// Draw resultant wave
 		c.globalAlpha = 1;
 		const strokeStyleTmp = c.strokeStyle;
@@ -145,9 +145,9 @@ window.addEventListener("load", function() {
 		c.lineWidth /= 2;
 		c.strokeStyle = strokeStyleTmp;
 	};
-	
+
 	addWave(createWave(defaultWave));
-	
+
 	sim.start();
 
 });

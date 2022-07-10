@@ -85,10 +85,10 @@ window.addEventListener("load", function() {
 			else
 				sim.timer.pause();
 		});
-		sim.addSlider("shadowsharp", "Shadow sharpness", "%", 20, 0, 100, 1, value => { gl.uniform1f(shadowsharpLoc, 8 + 80 * value / 100); needsRender = true; });
-		sim.addSlider("smoothing", "Union smoothing", "%", 20, 0, 100, 1, value => { gl.uniform1f(smoothingLoc, value / 3000); needsRender = true; });
-		sim.addSlider("shininess", "Specular size", "%", 60, 0, 100, 1, value => { gl.uniform1f(shininessLoc, value / 100); needsRender = true; });
-		sim.addSlider("ao", "Ambient occlusion strength", "%", 50, 0, 100, 1, value => { gl.uniform1f(aoLoc, 40 * value / 100); needsRender = true; });
+		sim.addKnob("shadowsharp", "Shadow sharpness", "%", 20, 0, 100, 1, value => { gl.uniform1f(shadowsharpLoc, 8 + 80 * value / 100); needsRender = true; });
+		sim.addKnob("smoothing", "Union smoothing", "%", 20, 0, 100, 1, value => { gl.uniform1f(smoothingLoc, value / 3000); needsRender = true; });
+		sim.addKnob("shininess", "Specular size", "%", 60, 0, 100, 1, value => { gl.uniform1f(shininessLoc, value / 100); needsRender = true; });
+		sim.addKnob("ao", "Ambient occlusion strength", "%", 50, 0, 100, 1, value => { gl.uniform1f(aoLoc, 40 * value / 100); needsRender = true; });
 		const stepsSlider = sim.addCheckbox("showsteps", "Show steps taken to reach surface", false, value => { gl.uniform1i(showstepsLoc, value ? 1 : 0); needsRender = true; });
 		const normalSlider = sim.addCheckbox("shownormal", "Visualise normals", false, value => {
 			gl.uniform1i(shownormalLoc, value ? 1 : 0);

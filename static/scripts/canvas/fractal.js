@@ -86,12 +86,12 @@ window.addEventListener("load", function() {
 				sim.timer.pause();
 		});
 
-		sim.addSlider("zoom", "Zoom", "%", 0, 0, 100, 0.1, value => {
+		sim.addKnob("zoom", "Zoom", "%", 0, 0, 100, 0.1, value => {
 			state.zoom = Math.exp(value/9 - 0.7);
 			state.needsRender = true;
 		}).setValue(0);
 
-		sim.addSlider("iterations", "Iterations (level of detail)", "", 0, 5, 500, 5, value => {
+		sim.addKnob("iterations", "Iterations (level of detail)", "", 0, 5, 500, 5, value => {
 			state.iterations = value;
 			state.needsRender = true;
 		}).setValue(200);

@@ -139,10 +139,10 @@ window.addEventListener("load", function() {
 		drawArc(c, CENTRE - sim.mToPx(params.focal_length), CENTRE, 3, 0, 2 * Math.PI).fill();
 	};
 
-	sim.addSlider("focallength", "Focal length", "m", params.focal_length, -0.75, 0.75, 0.05, value => params.focal_length = value);
-	sim.addSlider("distance", "Object Distance", "m", params.object_pos, 0, 2, 0.005, value => params.object_pos = value);
-	sim.addSlider("size", "Object Size", "m", params.object_height, 0.05, 0.3, 0.001, value => params.object_height = value);
-	sim.addSlider("scale", "Viewing Scale", "m", sim.scale, 0.05, 5, 0.01, value => sim.scale = value);
+	sim.addKnob("focallength", "Focal length", "m", params.focal_length, -0.75, 0.75, 0.05, value => params.focal_length = value);
+	sim.addKnob("distance", "Object Distance", "m", params.object_pos, 0, 2, 0.005, value => params.object_pos = value);
+	sim.addKnob("size", "Object Size", "m", params.object_height, 0.05, 0.3, 0.001, value => params.object_height = value);
+	sim.addKnob("scale", "Viewing Scale", "m", sim.scale, 0.05, 5, 0.01, value => sim.scale = value);
 
 	sim.start();
 

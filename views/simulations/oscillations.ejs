@@ -24,13 +24,15 @@
 
 		<section id="controls">
 			<h3>Physical properties</h3>
-			<%- include(`/partials/controls/slider`, { name: "springconstant" }) %>
-			<%- include(`/partials/controls/slider`, { name: "damping" }) %>
-			<%- include(`/partials/controls/slider`, { name: "mass" }) %>
-			<%- include(`/partials/controls/slider`, { name: "frequency" }) %>
-			<%- include(`/partials/controls/slider`, { name: "amplitude" }) %>
+			<div class="control-group">
+				<%- include(`/partials/controls/knob`, { name: "springconstant" }) %>
+				<%- include(`/partials/controls/knob`, { name: "damping" }) %>
+				<%- include(`/partials/controls/knob`, { name: "mass" }) %>
+				<%- include(`/partials/controls/knob`, { name: "frequency" }) %>
+				<%- include(`/partials/controls/knob`, { name: "amplitude" }) %>
+			</div>
 			<h3>Visualisation</h3>
-			<%- include(`/partials/controls/slider`, { name: "scale" }) %>
+			<%- include(`/partials/controls/knob`, { name: "scale" }) %>
 			<!-- <%- include(`/partials/controls/meter`, { name: "energy" }) %>
 			<%- include(`/partials/controls/meter`, { name: "potential" }) %>
 			<%- include(`/partials/controls/meter`, { name: "kinetic" }) %> -->

@@ -27,11 +27,15 @@
 			<%- include(`/partials/controls/button`, { name: "add" }) %>
 			<%- include(`/partials/controls/button`, { name: "duplicate" }) %>
 			<%- include(`/partials/controls/button`, { name: "remove" }) %>
-			<%- include(`/partials/controls/slider`, { name: "wavelength" }) %>
-			<%- include(`/partials/controls/slider`, { name: "amplitude" }) %>
-			<%- include(`/partials/controls/slider`, { name: "offset" }) %>
+			<h3>Wave Properties</h3>
+			<div class="control-group">
+				<%- include(`/partials/controls/knob`, { name: "wavelength" }) %>
+				<%- include(`/partials/controls/knob`, { name: "amplitude" }) %>
+				<%- include(`/partials/controls/knob`, { name: "offset" }) %>
+			</div>
 			<%- include(`/partials/controls/checkbox`, { name: "reverse" }) %>
-			<%- include(`/partials/controls/slider`, { name: "scale" }) %>
+			<h3>Visualisation</h3>
+			<%- include(`/partials/controls/knob`, { name: "scale" }) %>
 		</section>
 
 		<section id="about">

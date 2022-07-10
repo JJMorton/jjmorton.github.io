@@ -23,17 +23,19 @@
 		</section>
 
 		<section id="controls">
+			<h3>Physical properties</h3>
+			<div class="control-group">
+				<%- include(`/partials/controls/knob`, { name: "ballmass" }) %>
+				<%- include(`/partials/controls/knob`, { name: "balldensity" }) %>
+				<%- include(`/partials/controls/knob`, { name: "liquiddensity" }) %>
+				<%- include(`/partials/controls/knob`, { name: "liquidviscosity" }) %>
+				<%- include(`/partials/controls/knob`, { name: "gravity" }) %>
+			</div>
 			<h3>Visualisation</h3>
 			<%- include(`/partials/controls/meter`, { name: "energy" }) %>
 			<%- include(`/partials/controls/meter`, { name: "potential" }) %>
 			<%- include(`/partials/controls/meter`, { name: "kinetic" }) %>
 			<%- include(`/partials/controls/checkbox`, { name: "arrows" }) %>
-			<h3>Physical properties</h3>
-			<%- include(`/partials/controls/slider`, { name: "ballmass" }) %>
-			<%- include(`/partials/controls/slider`, { name: "balldensity" }) %>
-			<%- include(`/partials/controls/slider`, { name: "liquiddensity" }) %>
-			<%- include(`/partials/controls/slider`, { name: "liquidviscosity" }) %>
-			<%- include(`/partials/controls/slider`, { name: "gravity" }) %>
 		</section>
 
 		<section id="about">

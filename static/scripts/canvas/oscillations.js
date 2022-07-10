@@ -99,15 +99,15 @@ window.addEventListener("load", function() {
 
 	sim.scale = 8;
 
-	sim.addSlider("springconstant", "Spring Constant", "N/m", params.k, 2, 20, 0.1, value => params.k = value);
-	sim.addSlider("damping", "Damping", "kg/s", params.b, 0, 2, 0.01, value => params.b = value);
-	sim.addSlider("mass", "Mass", "kg", params.m, 0.1, 5, 0.1, value => params.m = value);
-	sim.addSlider("frequency", "Driving Frequency", "Hz", params.d_f, 0, 5, 0.01, value => {
+	sim.addKnob("springconstant", "Spring Constant", "N/m", params.k, 2, 20, 0.1, value => params.k = value);
+	sim.addKnob("damping", "Damping", "kg/s", params.b, 0, 2, 0.01, value => params.b = value);
+	sim.addKnob("mass", "Mass", "kg", params.m, 0.1, 5, 0.1, value => params.m = value);
+	sim.addKnob("frequency", "Driving Frequency", "Hz", params.d_f, 0, 5, 0.01, value => {
 		params.d_phi += sim.timer.getTime() * 2 * Math.PI * (params.d_f - value);
 		params.d_f = value;
 	});
-	sim.addSlider("amplitude", "Driving Amplitude", "m", params.d_a, 0, 0.2, 0.01, value => params.d_a = value);
-	sim.addSlider("scale", "Viewing Scale", "m", sim.scale, 3, 20, 0.1, value => sim.scale = value);
+	sim.addKnob("amplitude", "Driving Amplitude", "m", params.d_a, 0, 0.2, 0.01, value => params.d_a = value);
+	sim.addKnob("scale", "Viewing Scale", "m", sim.scale, 3, 20, 0.1, value => sim.scale = value);
 
 	sim.start();
 

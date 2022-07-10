@@ -29,13 +29,15 @@
 			<%- include(`/partials/controls/meter`, { name: "kinetic" }) %>
 			<%- include(`/partials/controls/checkbox`, { name: "trail" }) %>
 			<h3>Physical properties</h3>
-			<%- include(`/partials/controls/slider`, { name: "l1" }) %>
-			<%- include(`/partials/controls/slider`, { name: "l2" }) %>
-			<%- include(`/partials/controls/slider`, { name: "m1" }) %>
-			<%- include(`/partials/controls/slider`, { name: "m2" }) %>
-			<%- include(`/partials/controls/slider`, { name: "g" }) %>
+			<div class="control-group">
+				<%- include(`/partials/controls/knob`, { name: "l1" }) %>
+				<%- include(`/partials/controls/knob`, { name: "l2" }) %>
+				<%- include(`/partials/controls/knob`, { name: "m1" }) %>
+				<%- include(`/partials/controls/knob`, { name: "m2" }) %>
+				<%- include(`/partials/controls/knob`, { name: "g" }) %>
+			</div>
 			<h3>Timestepping</h3>
-			<%- include(`/partials/controls/slider`, { name: "timestep" }) %>
+			<%- include(`/partials/controls/knob`, { name: "timestep" }) %>
 			<%- include(`/partials/controls/combo`, { name: "method" }) %>
 		</section>
 	

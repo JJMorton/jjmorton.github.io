@@ -76,7 +76,7 @@ export function Mouse(elt, onclick) {
 		e.preventDefault();
 	});
 	window.addEventListener("touchend", () => mousepress(Mouse.buttons.NONE));
-	elt.addEventListener("touchmove", e => mousemove(e.changedTouches[0]));
+	window.addEventListener("touchmove", e => mousemove(e.changedTouches[0]));
 
 	// Listeners for mouse
 	elt.addEventListener("mousedown", e => {
@@ -84,7 +84,7 @@ export function Mouse(elt, onclick) {
 		e.preventDefault();
 	});
 	window.addEventListener("mouseup", () => mousepress(Mouse.buttons.NONE));
-	elt.addEventListener("mousemove", e => mousemove(e));
+	window.addEventListener("mousemove", e => mousemove(e));
 }
 
 Mouse.buttons = {
@@ -307,6 +307,75 @@ export class Simulation {
 	 * for the control's relevant value, and potentially other useful methods.
 	 * The setter simulates a user interaction so calls the 'onupdate' callback
 	 */
+
+	addKnob(id, label, units, init, min, max, step, onupdate) {
+		// A 'volume knob' style control to adjust continuous values
+
+		// Get DOM elements
+		const outer = document.getElementById(id);
+		if (!outer) return null;
+		outer.querySelector(".name").textContent = label;
+		outer.querySelector(".units").textContent = units;
+		const wheel = outer.querySelector(".wheel");
+		const marker = outer.querySelector(".marker");
+		const output = outer.querySelector("output");
+
+		let value = init;
+		const updateKnob = () => {
+			output.textContent = value;
+			value = value;
+			wheel.style = `rotate: ${(value - min) / (max - min) * 2 * Math.PI}rad;`;
+		}
+		updateKnob();
+
+		// External control
+		const control = {};
+		onupdate = onupdate.bind(control);
+		control.DOM = wheel;
+		control.getValue = () => value;
+		control.setValue = newValue => {
+			value = parseFloat((step * Math.round(newValue / step)).toFixed(10));
+			updateKnob();
+			onupdate(value);
+			return control;
+		}
+
+		// Input event listener
+		const listener = e => {
+			let pageY = 0;
+			if (e.type === "mousedown") pageY = e.pageY;
+			else if (e.type === "touchstart") pageY = e.touches[0].pageY;
+			else return;
+
+			wheel.classList.add("changing");
+
+			e.preventDefault();
+			const startY = pageY;
+			const startValue = value;
+			const moveListener = e => {
+				const pageY = e.type === "mousemove" ? e.pageY : e.touches[0].pageY;
+				let val = startValue + (max - min) * (startY - pageY) * 3 / window.screen.height;
+				val = Math.min(max, Math.max(min, val));
+				control.setValue(val);
+			};
+			const upListener = e => {
+				if (e.type === "touchend" && e.touches.length !== 0) return;
+				window.removeEventListener("mousemove", moveListener);
+				window.removeEventListener("touchmove", moveListener);
+				window.removeEventListener("mouseup", upListener);
+				window.removeEventListener("touchend", upListener);
+				wheel.classList.remove("changing");
+			};
+			window.addEventListener("mousemove", moveListener);
+			window.addEventListener("touchmove", moveListener);
+			window.addEventListener("mouseup", upListener);
+			window.addEventListener("touchend", upListener);
+		}
+		wheel.addEventListener("mousedown", listener);
+		outer.addEventListener("touchstart", listener);
+
+		return control;
+	}
 
 	addSlider(id, label, units, init, min, max, step, onupdate) {
 		// A slider that can be used to choose a float value

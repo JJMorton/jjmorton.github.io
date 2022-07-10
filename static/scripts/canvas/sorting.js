@@ -216,7 +216,7 @@ window.addEventListener("load", function() {
 
 	/* Create controls */
 
-	sim.addSlider("datalength", "Data points", "", params.datalength, 10, 100, 1, value => params.datalength = value);
+	sim.addKnob("datalength", "Data points", "", params.datalength, 10, 100, 1, value => params.datalength = value);
 
 	sim.addComboBox("datagen", "Data distribution", value => {
 		switch (value) {
@@ -250,7 +250,7 @@ window.addEventListener("load", function() {
 		state.redraw = true;
 	});
 
-	sim.addSlider("speed", "Speed", "operations/s", 1000/params.delay, 1, 200, 1, value => params.delay = 1000/value);
+	sim.addKnob("speed", "Speed", "operations/s", 1000/params.delay, 1, 200, 1, value => params.delay = 1000/value);
 
 	sim.start();
 

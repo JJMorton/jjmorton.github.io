@@ -132,24 +132,24 @@ window.addEventListener("load", function() {
 
 	}
 
-	sim.addSlider("m", "Mass", "kg", params.m, 0.01, 5, 0.01, value => {
+	sim.addKnob("m", "Mass", "kg", params.m, 0.01, 5, 0.01, value => {
 		params.m = value;
 		state.E0 = totalEn();
 	});
-	sim.addSlider("k", "Spring Constant", "N/m", params.k, 0.1, 20, 0.1, value => {
+	sim.addKnob("k", "Spring Constant", "N/m", params.k, 0.1, 20, 0.1, value => {
 		params.k = value;
 		state.E0 = totalEn();
 	});
-	sim.addSlider("l", "Equilibrium Length", "m", params.l, 0.1, 5, 0.01, value => {
+	sim.addKnob("l", "Equilibrium Length", "m", params.l, 0.1, 5, 0.01, value => {
 		params.l = value;
 		state.E0 = totalEn();
 	});
-	sim.addSlider("g", "Gravity", "m/s^2", params.g, 0, 20, 0.1, value => {
+	sim.addKnob("g", "Gravity", "m/s^2", params.g, 0, 20, 0.1, value => {
 		params.g = value;
 		state.E0 = totalEn();
 	});
 	sim.addCheckbox("trail", "Show Trail", params.showtrail, value => params.showtrail = value);
-	sim.addSlider("timestep", "Integration Timestep", "s", integrator.h, 0.001, 0.1, 0.001, value => integrator.h = value);
+	sim.addKnob("timestep", "Integration Timestep", "s", integrator.h, 0.001, 0.1, 0.001, value => integrator.h = value);
 	sim.addComboBox("method", "Integration method", opt => {
 		const method = opt === 0 ? Integrators.EulerIntegrator : Integrators.RK4Integrator;
 		integrator = new method(
