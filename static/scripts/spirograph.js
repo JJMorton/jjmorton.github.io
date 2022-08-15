@@ -12,15 +12,6 @@ import {Vector} from './canvas/vector.js';
  */
 
 
-class WheelLayout {
-	static Spiral
-
-	constructor(name) {
-		this.name = name;
-	}
-}
-
-
 // I have visualised the parametric equations at https://www.desmos.com/calculator/ahhx7y1d00
 class ParametricShape {
 
@@ -574,16 +565,18 @@ class Drawing {
 class Tutorial {
 
 	currentStep;
-	#eventCallback;
 	#hint;
+	#stepCompleteCallback = this.nextStep.bind(this);
 	steps;
 
 	constructor() {
 		this.currentStep = -1;
-		this.#eventCallback = this.nextStep.bind(this);
 		this.steps = [];
 		this.#hint = document.createElement("p");
 		this.#hint.classList.add("hint");
+		window.addEventListener("wheel", this.#repositionHint.bind(this));
+		window.addEventListener("touchmove", this.#repositionHint.bind(this));
+		window.addEventListener("resize", this.#repositionHint.bind(this));
 	}
 
 	get started() { return this.currentStep >= 0; }
@@ -594,17 +587,29 @@ class Tutorial {
 		return this;
 	}
 
+	#repositionHint() {
+		if (!this.started || this.finished) return;
+		const element = this.steps[this.currentStep].element;
+		const hint = this.#hint;
+		const boundsElement = element.getBoundingClientRect();
+		const boundsHint = hint.getBoundingClientRect();
+		const minY = boundsHint.height / 2;
+		const maxY = window.innerHeight - boundsHint.height / 2;
+		const y = Math.min(maxY, Math.max(minY, boundsElement.top + boundsElement.height / 2));
+		hint.style.top = `${y}px`;
+	}
+
 	#loadCurrentStep() {
 		if (!this.started || this.finished) return;
 		const step = this.steps[this.currentStep];
+		step.element.scrollIntoView({behaviour: "smooth", block: "nearest"})
 		const parent = step.element.offsetParent;
 		this.#hint.classList.add(parent.offsetLeft > window.innerWidth / 2 ? "left" : "right");
 		this.#hint.textContent = step.text;
-		const bounds = step.element.getBoundingClientRect();
-		this.#hint.style.top = `${bounds.top + bounds.height / 2}px`;
 		parent.appendChild(this.#hint);
 		step.element.classList.add("hint-element");
-		step.events.forEach(ev => step.element.addEventListener(ev, this.#eventCallback));
+		step.events.forEach(ev => step.element.addEventListener(ev, this.#stepCompleteCallback));
+		this.#repositionHint();
 	}
 
 	#unloadCurrentStep() {
@@ -614,7 +619,7 @@ class Tutorial {
 		this.#hint.classList.remove("right");
 		this.#hint.parentElement.removeChild(this.#hint);
 		step.element.classList.remove("hint-element");
-		step.events.forEach(ev => step.element.removeEventListener(ev, this.#eventCallback));
+		step.events.forEach(ev => step.element.removeEventListener(ev, this.#stepCompleteCallback));
 	}
 
 	nextStep() {
