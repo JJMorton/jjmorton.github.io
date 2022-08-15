@@ -1,4 +1,4 @@
-import {Simulation} from './main.js';
+import {Simulation, ComboBox, Checkbox, Knob, Button} from './main.js';
 
 window.addEventListener("load", function() {
 
@@ -216,41 +216,35 @@ window.addEventListener("load", function() {
 
 	/* Create controls */
 
-	sim.addKnob("datalength", "Data points", "", params.datalength, 10, 100, 1, value => params.datalength = value);
+	new Knob("datalength", "Data points", "", params.datalength, 10, 100, 1, value => params.datalength = value);
 
-	sim.addComboBox("datagen", "Data distribution", value => {
-		switch (value) {
-			case 0: params.datagen = gendata.random; break;
-			case 1: params.datagen = gendata.backwards; break;
-			case 2: params.datagen = gendata.triangle; break;
-			case 3: params.datagen = gendata.singleswap; break;
-			case 4: params.datagen = gendata.sorted; break;
-		}
-	}).setOptions([ "Random", "Backwards", "Triangle", "Single Swap", "Sorted" ]);
+	new ComboBox("datagen", "Data distribution", value => params.datagen = value)
+		.addOption({name: "Random",      value: gendata.random})
+		.addOption({name: "Backwards",   value: gendata.backwards})
+		.addOption({name: "Triangle",    value: gendata.triangle})
+		.addOption({name: "Single Swap", value: gendata.singleswap})
+		.addOption({name: "Sorted",      value: gendata.sorted});
 
-	sim.addComboBox("method", "Sorting Method", value => {
-		switch (value) {
-			case 0: params.method = sortmethods.bubble; break;
-			case 1: params.method = sortmethods.quick; break;
-			case 2: params.method = sortmethods.insertion; break;
-			case 3: params.method = sortmethods.selection; break;
-		}
-	}).setOptions([ "Bubble Sort", "Quick Sort", "Insertion Sort", "Selection Sort" ]);
+	new ComboBox("method", "Sorting Method", value => params.method = value)
+		.addOption({name: "Bubble Sort", value: sortmethods.bubble})
+		.addOption({name: "Quick Sort", value: sortmethods.quick})
+		.addOption({name: "Insertion Sort", value: sortmethods.insertion})
+		.addOption({name: "Selection Sort", value: sortmethods.selection});
 
-	const startbutton = sim.addButton("start", "Sort", () => runsort(params.datagen(params.datalength), params.method));
+	const startbutton = new Button("start", "Sort", () => runsort(params.datagen(params.datalength), params.method));
 
-	sim.addCheckbox("showswap", "Show swaps", params.showswap, value => {
+	new Checkbox("showswap", "Show swaps", params.showswap, value => {
 		params.showswap = value;
 		state.hiswap = [ -1, -1 ];
 		state.redraw = true;
 	});
-	sim.addCheckbox("showcompare", "Show comparisons", params.showcompare, value => {
+	new Checkbox("showcompare", "Show comparisons", params.showcompare, value => {
 		params.showcompare = value;
 		state.hicompare = [ -1, -1 ];
 		state.redraw = true;
 	});
 
-	sim.addKnob("speed", "Speed", "operations/s", 1000/params.delay, 1, 200, 1, value => params.delay = 1000/value);
+	new Knob("speed", "Speed", "operations/s", 1000/params.delay, 1, 200, 1, value => params.delay = 1000/value);
 
 	sim.start();
 

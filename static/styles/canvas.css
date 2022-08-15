@@ -1,46 +1,79 @@
-canvas {
+/* the canvas takes on the size of its container in the js */
+.canvas-container {
+	max-width: calc(73vh - 50px);
+	width: calc(100% - 50px);
 	display: block;
-	left: 0;
-	right: 0;
 	margin: 0 auto;
 	border: 5px solid var(--accent-color);
 	box-sizing: border-box;
 	background: var(--background-color);
+	aspect-ratio: 1;
+	position: relative;
+}
+
+/* Remove the canvas from the document flow, so that it doesn't affect size of the container */
+canvas {
+	vertical-align: bottom;
+	position: absolute;
 }
 
 #controls > .left-border, .control-group {
 	border-left: 5px solid rgba(0, 0, 0, 0.4);
-	border-color: rgba(0, 0, 0, 0.4);
-	transition: border-left-width 100ms, border-color 100ms;
+	border-bottom: 1px solid transparent;
+	border-top: 1px solid transparent;
+	border-image: linear-gradient(to right, rgba(0, 0, 0, 0.4) 0% 1px, transparent 1px) 1;
+	transition: border-left-width 100ms, border-color 100ms, border-image 400ms;
 	padding: 5px 10px;
 	font-family: var(--font-family);
 }
 
 #controls > .left-border:nth-of-type(odd), .control-group:nth-of-type(odd) {
-	border-left: 5px solid rgba(0, 0, 0, 0.2);
+	border-image: linear-gradient(to right, rgba(0, 0, 0, 0.2) 0% 1px, transparent 1px) 1;
 }
 
 #controls > .left-border:hover,
 #controls > .left-border.expanded,
 .control-group:hover {
-	border-color: var(--text-color) !important;
+	border-image: linear-gradient(to right, var(--text-color) 0% 1px, var(--border-color-dim) 1px, transparent 80%) 1;
 }
 
 .control-group {
+	word-spacing: 2em;
 }
 
 .control-group > * {
 	display: inline-block;
 	margin-bottom: 5px;
 	margin-top: 5px;
+	word-spacing: initial;
+	position: relative;
+	height: 100%;
+	vertical-align: middle;
+}
+
+.control-group > *:not(:last-child)::after {
+	content: "";
+	display: block;
+	height: 16px;
+	rotate: 15deg;
+	width: 1px;
+	background-color: var(--border-color-dim);
+	position: absolute;
+	right: -1.3em;
+	top: 0;
+	bottom: 0;
+	margin: auto 0;
 }
 
 /* KNOBS */
 
 .knob {
-	margin-right: 1.5em;
-	min-width: 175px;
+	/*min-width: 175px;*/
 	box-sizing: border-box;
+}
+
+.knob.disabled > .wheel, .knob.disabled output, .knob.disabled .units {
+	opacity: 0.5;
 }
 
 .knob > * {
@@ -75,18 +108,23 @@ canvas {
 	border-radius: 50%;
 	/*background-color: var(--accent-color);*/
 	border: 2px solid var(--text-color);
+	box-sizing: border-box;
 	outline: 0px solid var(--accent-color);
-	width: 2em;
-	height: 2em;
+	width: calc(2em + 4px);
+	aspect-ratio: 1;
 	padding: 0;
-	cursor: ns-resize;
 	position: relative;
 	top: 0; bottom: 0;
 	margin-top: auto; margin-bottom: auto;
 }
 
-.knob > .wheel:hover, .knob > .wheel.changing {
+.knob:not(.disabled) > .wheel {
+	cursor: ns-resize;
+}
+
+.knob:not(.disabled) > .wheel:hover, .knob:not(.disabled) > .wheel.changing {
 	outline-width: 3px;
+	border-width: 3px;
 }
 
 .knob > .wheel > .marker {
@@ -194,10 +232,11 @@ button {
 	font-family: var(--font-family);
 	padding: 1em;
 	left: 0; right: 0;
-	margin: 0 auto;
+	margin: 5px auto;
 	border-radius: 0;
 	background-color: var(--background-color);
 	width: 100%;
+	max-width: 400px;
 	border: 2px solid rgba(0, 0, 0, 0.4);
 }
 
@@ -221,12 +260,11 @@ button::-moz-focus-inner {
 	border: none;
 }
 
-.button {
-	max-width: 400px;
-	margin: 10px auto;
-}
-
 /* COMBO BOX */
+
+.combobox > label {
+	color: var(--text-color-dim);
+}
 
 .combobox > select {
 	min-width: 100px;
@@ -238,19 +276,24 @@ button::-moz-focus-inner {
 
 /* CHECKBOX */
 
-.checkbox {
-	color: var(--text-color);
-	display: flex;
-}
-
+.checkbox,
 .checkbox > input[type="checkbox"],
 .checkbox > label {
-	cursor: pointer;
+	color: var(--text-color);
 	margin: 0;
 }
 
+.checkbox:not(.disabled) > input[type="checkbox"],
+.checkbox:not(.disabled) > label {
+	cursor: pointer;
+}
+
 .checkbox > label {
-	padding-right: 8px;
+	padding-left: 6px;
+}
+
+.checkbox.disabled > label {
+	opacity: 0.6;
 }
 
 /* TEXT INPUT */

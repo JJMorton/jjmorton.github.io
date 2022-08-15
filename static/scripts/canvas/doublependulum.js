@@ -1,4 +1,4 @@
-import {Simulation} from './main.js';
+import {Simulation, Meter, Knob, ComboBox, Checkbox, Button} from './main.js';
 import {Vector} from './vector.js';
 import * as Integrators from './integrator.js';
 
@@ -52,9 +52,9 @@ window.addEventListener("load", function() {
 		0.01
 	);
 
-	const energyerrorMeter = sim.addMeter("energyerror", "Divergence From Initial Energy", "%", 0, 0, 1);
-	const kineticMeter = sim.addMeter("kinetic", "Kinetic Energy", "%", 0, 0, 100);
-	const potentialMeter = sim.addMeter("potential", "Potential Energy", "%", 0, 0, 100);
+	const energyerrorMeter = new Meter("energyerror", "Divergence From Initial Energy", "%", 0, 0, 1);
+	const kineticMeter = new Meter("kinetic", "Kinetic Energy", "%", 0, 0, 100);
+	const potentialMeter = new Meter("potential", "Potential Energy", "%", 0, 0, 100);
 
 	function kineticEn() {
 		const {m1, m2, l1, l2, g} = params;
@@ -179,29 +179,29 @@ window.addEventListener("load", function() {
 		drawcircle(...pos2_px, sim.mToPx(params.r2));
 	}
 
-	sim.addKnob("m1", "Mass 1", "kg", params.m1, 0.1, 3, 0.01, value => {
+	new Knob("m1", "Mass 1", "kg", params.m1, 0.1, 3, 0.01, value => {
 		params.m1 = value;
 		init();
 	});
-	sim.addKnob("m2", "Mass 2", "kg", params.m2, 0.1, 3, 0.01, value => {
+	new Knob("m2", "Mass 2", "kg", params.m2, 0.1, 3, 0.01, value => {
 		params.m2 = value;
 		init();
 	});
-	sim.addKnob("l1", "Length 1", "m", params.l1, 0.1, 3, 0.01, value => {
+	new Knob("l1", "Length 1", "m", params.l1, 0.1, 3, 0.01, value => {
 		params.l1 = value;
 		init();
 	});
-	sim.addKnob("l2", "Length 2", "m", params.l2, 0.1, 3, 0.01, value => {
+	new Knob("l2", "Length 2", "m", params.l2, 0.1, 3, 0.01, value => {
 		params.l2 = value;
 		init();
 	});
-	sim.addKnob("g", "Gravity", "m/s^2", params.g, 0.1, 20, 0.1, value => {
+	new Knob("g", "Gravity", "m/s^2", params.g, 0.1, 20, 0.1, value => {
 		params.g = value;
 		init();
 	});
-	sim.addCheckbox("trail", "Show Trail", params.showtrail, value => params.showtrail = value);
-	sim.addKnob("timestep", "Integration Timestep", "s", integrator.h, 0.001, 0.1, 0.001, value => integrator.h = value);
-	sim.addButton("playpause", "Play/Pause", () => {
+	new Checkbox("trail", "Show Trail", params.showtrail, value => params.showtrail = value);
+	new Knob("timestep", "Integration Timestep", "s", integrator.h, 0.001, 0.1, 0.001, value => integrator.h = value);
+	new Button("playpause", "Play/Pause", () => {
 		if (sim.timer.isPaused) {
 			sim.timer.start();
 		} else {
@@ -209,15 +209,16 @@ window.addEventListener("load", function() {
 		}
 	});
 
-	sim.addComboBox("method", "Integration method", opt => {
-		const method = opt === 0 ? Integrators.EulerIntegrator : Integrators.RK4Integrator;
-		integrator = new method(
+	new ComboBox("method", "Integration method", method => {
+		integrator = new (method)(
 			integrator.funcAccel,
 			integrator.pos,
 			integrator.vel,
 			integrator.h
 		);
-	}).setOptions(["Euler", "Runge-Kutta (4th order)"]).setValue(1);
+	}).addOption({name: "Euler", value: Integrators.EulerIntegrator})
+	  .addOption({name: "Runge-Kutta (4th order)", value: Integrators.RK4Integrator})
+	  .setValue(Integrators.RK4Integrator);
 
 	sim.start();
 	init();

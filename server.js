@@ -21,6 +21,10 @@ app.get("/lmc", (req, res) => {
 	res.render("lmc", { title: "Little Man Computer" });
 });
 
+app.get("/spirograph", (req, res) => {
+	res.render("spirograph", { title: "Spirograph" });
+});
+
 app.get("/about", (req, res) => {
 	res.render("about", { title: "About" });
 });

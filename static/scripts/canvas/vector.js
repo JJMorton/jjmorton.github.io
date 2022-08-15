@@ -25,6 +25,11 @@ export class Vector extends Array {
 		return Math.hypot(...this);
 	}
 
+	getHeading() {
+		if (this.length !== 2) throw Error("Can only calculate heading of 2D vector");
+		return Math.atan2(this.y, this.x);
+	}
+
 	get x() {
 		return (this.length >= 1 ? this[0] : null);
 	}

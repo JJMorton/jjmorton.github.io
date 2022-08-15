@@ -1,4 +1,4 @@
-import {Simulation} from './main.js';
+import {Simulation, ComboBox, Button, Knob, Checkbox} from './main.js';
 
 window.addEventListener("load", function() {
 
@@ -12,7 +12,7 @@ window.addEventListener("load", function() {
 	const state = {
 		waves: [],
 		selectedIndex: 0,
-		selected: null,
+		selected: {},
 		scale: 10
 	};
 
@@ -25,9 +25,9 @@ window.addEventListener("load", function() {
 
 	/* Create DOM elements */
 
-	const scaleSlider = sim.addKnob("scale", "Viewing Scale", "m", sim.scale, 1, 20, 0.1, value => sim.scale = value);
+	const scaleSlider = new Knob("scale", "Viewing Scale", "m", sim.scale, 1, 20, 0.1, value => sim.scale = value);
 
-	const selectCombo = sim.addComboBox("select", "Selected Wave", index => {
+	const selectCombo = new ComboBox("select", "Selected Wave", index => {
 		// Set the selected wave and update the sliders associated with its properties
 		console.log("Selecting wave index", index);
 		state.selectedIndex = index;
@@ -37,27 +37,28 @@ window.addEventListener("load", function() {
 		}
 	});
 
-	const addBtn = sim.addButton("add", "Add Wave", () => {
+	const addBtn = new Button("add", "Add Wave", () => {
 		addWave(createWave(defaultWave));
 	});
 
-	const dupeBtn = sim.addButton("duplicate", "Duplicate Wave", () => {
+	const dupeBtn = new Button("duplicate", "Duplicate Wave", () => {
 		addWave(createWave(state.selected));
 	});
 
-	const remBtn = sim.addButton("remove", "Remove Wave", () => {
+	const remBtn = new Button("remove", "Remove Wave", () => {
 		if (state.waves.length <= 1) return;
 		state.waves.splice(state.selectedIndex, 1);
-		selectCombo.setOptions(state.waves.map((_, i) => `Wave ${i + 1}`));
+		selectCombo.clearOptions();
+		state.waves.forEach((_, i) => selectCombo.addOption({name: "Wave " + (i + 1), value: i}));
 	});
 
 	const sliders = {
-		wavelength: sim.addKnob("wavelength", "Wavelength", "m", 0, 0.1, 10, 0.01, value => {
+		wavelength: new Knob("wavelength", "Wavelength", "m", 0, 0.1, 10, 0.01, value => {
 			state.selected.wavelength = value;
 			state.selected.freq = 1 / value;
 		}),
-		amp: sim.addKnob("amplitude", "Amplitude", "m", 0, 0.1, 5, 0.01, value => state.selected.amp = value),
-		offset: sim.addKnob("offset", "Phase Offset", "degrees", 0, 0, 360, 1, value => state.selected.offset = value * Math.PI / 180)
+		amp: new Knob("amplitude", "Amplitude", "m", 0, 0.1, 5, 0.01, value => state.selected.amp = value),
+		offset: new Knob("offset", "Phase Offset", "degrees", 0, 0, 360, 1, value => state.selected.offset = value * Math.PI / 180)
 	};
 
 	sliders.wavelength.DOM.addEventListener("mousedown", () => {
@@ -74,9 +75,10 @@ window.addEventListener("load", function() {
 	window.addEventListener("touchend", () => {
 		sim.timer.start();
 	});
+	sliders.wavelength.DOM.addEventListener("wheel", () => sim.timer.reset());
 
 
-	sim.addCheckbox("reverse", "Reverse direction", false, value => state.selected.reverse = value);
+	new Checkbox("reverse", "Reverse direction", false, value => state.selected.reverse = value);
 
 
 
@@ -88,7 +90,8 @@ window.addEventListener("load", function() {
 
 	function addWave(wave) {
 		state.waves.push(wave);
-		selectCombo.setOptions(state.waves.map((_, i) => `Wave ${i + 1}`));
+		selectCombo.addOption({name: "Wave " + state.waves.length, value: state.waves.length - 1});
+// 		selectCombo.setOptions(state.waves.map((_, i) => `Wave ${i + 1}`));
 		selectCombo.setValue(state.waves.length - 1);
 	}
 

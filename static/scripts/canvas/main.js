@@ -5,6 +5,7 @@ function Timer() {
 
 	let timePaused = 0; // -1 -> not paused
 	let offset = 0; // amounts to the amount of time spent paused
+	let scale = 1; // Speed of the timer, 1 corresponds to actual time
 
 	let userPaused = true;
 
@@ -12,7 +13,7 @@ function Timer() {
 
 	this.start = function() {
 		if (!this.isPaused) return;
-		offset += performance.now() - timePaused;
+		offset += (performance.now() - timePaused) * scale;
 		timePaused = -1;
 		this.isPaused = false;
 	};
@@ -24,17 +25,32 @@ function Timer() {
 		userPaused = true;
 	}
 
+	this.getTimescale = function() {
+		return scale;
+	}
+
+	this.setTimescale = function(newScale) {
+		const t = this.getTime();
+		scale = newScale;
+		this.setTime(t);
+	}
+
 	this.getTime = function() {
 		if (this.isPaused) {
-			return (timePaused - offset) / 1000;
+			return (scale * timePaused - offset) / 1000;
 		} else {
-			return (performance.now() - offset) / 1000;
+			return (scale * performance.now() - offset) / 1000;
 		}
 	}
 
+	this.setTime = function(newTime) {
+		// Adjust offset such that it is now `newTime`
+		const time = this.getTime();
+		offset += (time - newTime) * 1000;
+	}
+
 	this.reset = function() {
-		offset = performance.now();
-		timePaused = 0;
+		this.setTime(0);
 	}
 
 	document.addEventListener("visibilitychange", () => {
@@ -56,8 +72,16 @@ export function Mouse(elt, onclick) {
 
 	// These two functions are called from the event listeners when needed
 	const mousemove = ({ pageX, pageY }) => {
-		this.x = pageX - elt.offsetLeft;
-		this.y = pageY - elt.offsetTop;
+		let offsetTop = elt.offsetTop;
+		let offsetLeft = elt.offsetLeft;
+		let parent = elt.offsetParent;
+		while (parent) {
+			offsetTop += parent.offsetTop;
+			offsetLeft += parent.offsetLeft;
+			parent = parent.offsetParent;
+		}
+		this.x = pageX - offsetLeft;
+		this.y = pageY - offsetTop;
 	};
 	const mousepress = button => {
 		if (Object.values(Mouse.buttons).includes(button)) {
@@ -105,6 +129,8 @@ export class Simulation {
 		this.canvas = document.querySelector("canvas");
 		this.ctx = this.canvas.getContext(contextType);
 
+		this.offscreenCanvases = [];
+
 		// Get colours defined on root element in css
 		const style = window.getComputedStyle(document.documentElement);
 		this.colours = {
@@ -133,6 +159,25 @@ export class Simulation {
 		// Automatically resize the canvas with the window
 		this.resize();
 		window.addEventListener("resize", () => this.resize());
+	}
+
+
+	createOffscreenCanvas() {
+		// Creates a separate canvas (with the 2d context) that is automatically drawn to the main canvas each frame
+		// The offscreen canvases are drawn over the main canvas, in the order of their creation
+		const canvas = document.createElement("canvas");
+		const ctx = canvas.getContext("2d");
+		const obj = {canvas, ctx};
+		this.offscreenCanvases.push(obj);
+		this.resize();
+		return obj;
+	}
+
+
+	renderOffscreenCanvases() {
+		for (const {canvas} of this.offscreenCanvases) {
+			this.ctx.drawImage(canvas, 0, 0);
+		}
 	}
 
 
@@ -196,18 +241,25 @@ export class Simulation {
 
 
 	resize() {
-		const size = Math.min(window.innerHeight * 0.73, document.querySelector("#content").clientWidth) - 60;
-		this.canvas.width = size;
-		this.canvas.height = size;
+		// Make the canvas fill its parent element
+		const width = this.canvas.parentNode.clientWidth;
+		const height = this.canvas.parentNode.clientHeight;
 
-		// When the window is resized, stroke and fill styles are lost so we need to set them again
-		this.ctx.strokeStyle = this.colours.accent;
-		this.ctx.fillStyle = this.colours.foreground;
-		this.ctx.lineJoin = "round";
-		this.ctx.font = "bold 0.8em sans-serif";
+		const resizeCanvas = (canvas, ctx) => {
+			canvas.width = width;
+			canvas.height = height;
+			// When the window is resized, stroke and fill styles are lost so we need to set them again
+			ctx.strokeStyle = this.colours.accent;
+			ctx.fillStyle = this.colours.foreground;
+			ctx.lineJoin = "round";
+			ctx.font = "bold 0.8em sans-serif";
+		};
+
+		resizeCanvas(this.canvas, this.ctx);
+		for (const {canvas, ctx} of this.offscreenCanvases) resizeCanvas(canvas, ctx);
 
 		if (this.contextType === "webgl2" || this.contextType === "webgl") {
-			this.ctx.viewport(0, 0, size, size);
+			this.ctx.viewport(0, 0, width, height);
 		}
 
 		return this.canvas;
@@ -232,7 +284,7 @@ export class Simulation {
 
 		const render = () => {
 			// We want all the units in seconds, to make other units more realistic
-			const time = this.timer.getTime();
+			const time = performance.now() / 1000;
 			this.delta = time - prevTime;
 			prevTime = time;
 
@@ -256,6 +308,14 @@ export class Simulation {
 		// Start animation loop
 		this.timer.start();
 		window.requestAnimationFrame(render);
+	}
+
+	/*
+	 * Render a single frame, manually
+	 */
+
+	oneshot() {
+		this.render(this.ctx);
 	}
 
 
@@ -283,62 +343,352 @@ export class Simulation {
 	}
 
 
-	/*
-	 * Methods to add various types of controls to the DOM
-	 */
+// 	/*
+// 	 * Methods to add various types of controls to the DOM
+// 	 */
+//
+// 	addButton(id, label, onclick) {
+// 		const btn = document.getElementById(id);
+// 		if (!btn) return null;
+// 		btn.textContent = label;
+// 		const control = {
+// 			DOM: btn,
+// 			click: () => btn.click(),
+// 			set disabled(value) {
+// 				btn.disabled = value;
+// 			}
+// 		};
+// 		btn.addEventListener("click", onclick.bind(control));
+// 		return control;
+// 	}
+//
+// 	/*
+// 	 * The following controls all return an object with a getter and setter
+// 	 * for the control's relevant value, and potentially other useful methods.
+// 	 * The setter simulates a user interaction so calls the 'onupdate' callback
+// 	 */
+//
+// 	addKnob(id, label, units, init, min, max, step, onupdate) {
+// 		// A 'volume knob' style control to adjust continuous values
+//
+// 		// Get DOM elements
+// 		const outer = document.getElementById(id);
+// 		if (!outer) return null;
+// 		outer.querySelector(".name").textContent = label;
+// 		outer.querySelector(".units").textContent = units;
+// 		const wheel = outer.querySelector(".wheel");
+// 		const marker = outer.querySelector(".marker");
+// 		const output = outer.querySelector("output");
+//
+// 		let disabled = false;
+// 		let value = init;
+// 		const updateKnob = () => {
+// 			output.textContent = value;
+// 			value = value;
+// 			wheel.style = `rotate: ${(value - min) / (max - min) * 2 * Math.PI}rad;`;
+// 		}
+// 		updateKnob();
+//
+// 		// External control
+// 		const control = {
+// 			get disabled() { return disabled; },
+// 			set disabled(val) {
+// 				disabled = val;
+// 				outer.classList[disabled ? "add" : "remove"]("disabled");
+// 			}
+// 		};
+// 		onupdate = onupdate.bind(control);
+// 		control.DOM = wheel;
+// 		control.getValue = () => value;
+// 		control.setValue = newValue => {
+// 			newValue = parseFloat((step * Math.round(newValue / step)).toFixed(10));
+// 			if (newValue === value) return;
+// 			value = newValue;
+// 			updateKnob();
+// 			onupdate(value);
+// 			return control;
+// 		}
+//
+// 		// Input event listener
+// 		const listener = e => {
+// 			let pageY = 0;
+// 			if (e.type === "mousedown") pageY = e.pageY;
+// 			else if (e.type === "touchstart") pageY = e.touches[0].pageY;
+// 			else return;
+//
+// 			e.preventDefault();
+// 			if (disabled) return;
+// 			wheel.classList.add("changing");
+//
+// 			const startY = pageY;
+// 			const startValue = value;
+// 			const moveListener = e => {
+// 				const pageY = e.type === "mousemove" ? e.pageY : e.touches[0].pageY;
+// 				let val = startValue + (max - min) * (startY - pageY) * 3 / window.screen.height;
+// 				val = Math.min(max, Math.max(min, val));
+// 				control.setValue(val);
+// 			};
+// 			const upListener = e => {
+// 				if (e.type === "touchend" && e.touches.length !== 0) return;
+// 				window.removeEventListener("mousemove", moveListener);
+// 				window.removeEventListener("touchmove", moveListener);
+// 				window.removeEventListener("mouseup", upListener);
+// 				window.removeEventListener("touchend", upListener);
+// 				wheel.classList.remove("changing");
+// 			};
+// 			window.addEventListener("mousemove", moveListener);
+// 			window.addEventListener("touchmove", moveListener);
+// 			window.addEventListener("mouseup", upListener);
+// 			window.addEventListener("touchend", upListener);
+// 		}
+// 		wheel.addEventListener("mousedown", listener);
+// 		outer.addEventListener("touchstart", listener);
+//
+// 		// Reset on right click
+// 		wheel.addEventListener("dblclick", e => {
+// 			e.preventDefault();
+// 			if (!disabled) control.setValue(init);
+// 		});
+//
+// 		return control;
+// 	}
+//
+// 	addSlider(id, label, units, init, min, max, step, onupdate) {
+// 		// A slider that can be used to choose a float value
+//
+// 		// Get DOM elements
+// 		const outer = document.getElementById(id);
+// 		if (!outer) return null;
+// 		outer.querySelector(".name").textContent = label;
+// 		outer.querySelector(".units").textContent = units;
+// 		const slider = outer.querySelector("input");
+// 		const output = outer.querySelector("output");
+// 		slider.min = min; slider.max = max; slider.step = step; slider.value = init;
+// 		output.value = init;
+//
+// 		// External control
+// 		let value = init;
+// 		const control = {};
+// 		onupdate = onupdate.bind(control);
+// 		control.DOM = slider;
+// 		control.getValue = () => value;
+// 		control.setValue = newValue => {
+// 			slider.value = newValue;
+// 			output.textContent = newValue;
+// 			value = newValue;
+// 			onupdate(value);
+// 			return control;
+// 		}
+//
+// 		// Show the slider when the label is clicked
+// 		outer.addEventListener("click", e => {
+// 			if (e.target === slider) return;
+// 			// Toggle clicked label and contract all others
+// 			document.querySelectorAll(".slider").forEach(x => x.classList[
+// 				x === outer ? "toggle" : "remove"
+// 			]("expanded"));
+// 		});
+//
+// 		// Input event listener
+// 		slider.addEventListener("input", e => {
+// 			output.textContent = e.target.valueAsNumber;
+// 			onupdate(e.target.valueAsNumber);
+// 		});
+//
+// 		return control;
+// 	}
+//
+// 	addComboBox(id, label) {
+//
+// 		// Create DOM elements
+// 		const outer = document.getElementById(id);
+// 		if (!outer) return null;
+// 		outer.querySelector("label").textContent = label;
+// 		const select = outer.querySelector("select");
+//
+// 		let onupdate = value => { return; };
+//
+// 		let options = [];
+//
+// 		// External control
+// 		const control = {
+// 			get disabled() { return select.disabled; },
+// 			set disabled(val) { select.disabled = val; }
+// 		};
+// 		control.DOM = select,
+// 		control.getValue = () => options[select.selectedIndex].value;
+// 		control.setValue = newValue => {
+// 			select.selectedIndex = options.map(o => o.value).indexOf(newValue);
+// 			onupdate(control.getValue());
+// 			return control;
+// 		}
+// 		control.addOption = ({ name, value }) => {
+// 			options.push({ name, value });
+// 			const option = document.createElement("option");
+// 			option.text = name;
+// 			select.add(option);
+// 			onupdate(control.getValue());
+// 			return control;
+// 		}
+// 		control.onUpdate = func => {
+// 			onupdate = func;
+// 			return control;
+// 		}
+// // 		control.setOptions = labels => {
+// // 			// Clear existing options
+// // 			while (select.length > 0) select.remove(0);
+// // 			// Add new options
+// // 			labels.map(label => {
+// // 				const option = document.createElement("option");
+// // 				option.text = label;
+// // 				return option;
+// // 			}).forEach(option => select.add(option));
+// // 			// Emit update
+// // 			onupdate(select.selectedIndex);
+// // 			return control;
+// // 		}
+//
+// 		// Event listener
+// 		select.addEventListener("input", () => onupdate(control.getValue()));
+//
+// 		return control;
+// 	}
+//
+// 	addCheckbox(id, label, init, onupdate) {
+//
+// 		// Create DOM elements
+// 		const outer = document.getElementById(id);
+// 		outer.querySelector("label").textContent = label;
+// 		const checkbox = outer.querySelector("input");
+// 		checkbox.checked = init;
+//
+// 		// External control
+// 		const control = {
+// 			get disabled() { return checkbox.disabled; },
+// 			set disabled(val) { checkbox.disabled = val; }
+// 		};
+// 		control.DOM = checkbox;
+// 		control.getValue = () => checkbox.checked;
+// 		control.setValue = newValue => {
+// 			checkbox.checked = newValue;
+// 			onupdate(checkbox.checked);
+// 			return control;
+// 		}
+//
+// 		// Event listener
+// 		checkbox.addEventListener("input", () => onupdate(checkbox.checked));
+//
+// 		return control;
+// 	}
+//
+// 	addMeter(id, label, units, init, min, max) {
+// 		// A slider that can be used to choose a float value
+//
+// 		// Get DOM elements
+// 		const outer = document.getElementById(id);
+// 		if (!outer) return null;
+// 		outer.querySelector(".name").textContent = label;
+// 		outer.querySelector(".units").textContent = units;
+// 		const meter = outer.querySelector("progress");
+// 		const output = outer.querySelector("output");
+// 		meter.min = min; meter.max = max; meter.value = init;
+// 		output.value = init;
+//
+// 		// External control
+// 		let value = init;
+// 		const control = {};
+// 		control.DOM = meter;
+// 		control.getValue = () => value;
+// 		control.setValue = newValue => {
+// 			meter.value = newValue;
+// 			output.textContent = newValue.toString();
+// 			value = newValue;
+// 			return control;
+// 		}
+//
+// 		return control;
+// 	}
+//
+}
 
-	addButton(id, label, onclick) {
-		const btn = document.getElementById(id);
-		if (!btn) return null;
-		btn.textContent = label;
-		const control = {
-			DOM: btn,
-			click: () => btn.click(),
-			set disabled(value) {
-				btn.disabled = value;
-			}
-		};
-		btn.addEventListener("click", onclick.bind(control));
-		return control;
+/*
+ * TODO: Implement changes
+ * - sim.add(...) --> new (...)
+ * - .disabled --> .isDisabled()
+ * - combobox.setOptions --> combobox.addOption
+ * - .DOM has changed to the outermost element
+ */
+class Control {
+
+	#value = null;
+	#disabled = false;
+	#onupdate = null;
+
+	DOM = null;
+
+	constructor(id, onupdate = () => { return; }) {
+		this.#onupdate = onupdate;
+		this.DOM = document.getElementById(id);
+		if (!this.DOM) throw Error("Control does not exist");
 	}
 
-	/*
-	 * The following controls all return an object with a getter and setter
-	 * for the control's relevant value, and potentially other useful methods.
-	 * The setter simulates a user interaction so calls the 'onupdate' callback
-	 */
+	onUpdate(func) {
+		this.#onupdate = func;
+	}
 
-	addKnob(id, label, units, init, min, max, step, onupdate) {
-		// A 'volume knob' style control to adjust continuous values
+	getValue() {
+		return this.#value;
+	}
+	setValue(val) {
+		this.#value = val;
+		this.#onupdate(this.#value);
+		this.DOM.dispatchEvent(new Event("change"));
+		return this;
+	}
 
-		// Get DOM elements
-		const outer = document.getElementById(id);
-		if (!outer) return null;
-		outer.querySelector(".name").textContent = label;
-		outer.querySelector(".units").textContent = units;
-		const wheel = outer.querySelector(".wheel");
-		const marker = outer.querySelector(".marker");
-		const output = outer.querySelector("output");
+	isDisabled() {
+		return this.#disabled;
+	}
+	setDisabled(val) {
+		this.#disabled = val;
+		this.DOM.classList[val ? "add" : "remove"]("disabled");
+		return this;
+	}
+}
 
-		let value = init;
-		const updateKnob = () => {
-			output.textContent = value;
-			value = value;
-			wheel.style = `rotate: ${(value - min) / (max - min) * 2 * Math.PI}rad;`;
-		}
-		updateKnob();
+export class Button extends Control {
+	constructor(id, label, onclick = undefined) {
+		super(id, onclick);
+		this.DOM.textContent = label;
+		this.DOM.addEventListener("click", () => this.setValue(null));
+	}
+	setDisabled(val) {
+		this.DOM.disabled = val;
+		return super.setDisabled(val);
+	}
+	click() {
+		this.DOM.click();
+	}
+}
 
-		// External control
-		const control = {};
-		onupdate = onupdate.bind(control);
-		control.DOM = wheel;
-		control.getValue = () => value;
-		control.setValue = newValue => {
-			value = parseFloat((step * Math.round(newValue / step)).toFixed(10));
-			updateKnob();
-			onupdate(value);
-			return control;
-		}
+export class Knob extends Control {
+
+	// The unrounded value so that scrolling can change it at a reasonable rate
+	// instead of by a step every scroll event
+	#scrollValue = 0;
+
+	constructor(id, label, units, init, min, max, step, onupdate = undefined) {
+		super(id, onupdate);
+		this.DOM.querySelector(".name").textContent = label;
+		this.DOM.querySelector(".units").textContent = units;
+		this.wheel = this.DOM.querySelector(".wheel");
+		this.marker = this.DOM.querySelector(".marker");
+		this.output = this.DOM.querySelector("output");
+		this.min = min;
+		this.max = max;
+		this.step = step;
+
+		this.#scrollValue = init;
 
 		// Input event listener
 		const listener = e => {
@@ -347,16 +697,17 @@ export class Simulation {
 			else if (e.type === "touchstart") pageY = e.touches[0].pageY;
 			else return;
 
-			wheel.classList.add("changing");
-
 			e.preventDefault();
+			if (this.isDisabled()) return;
+			this.wheel.classList.add("changing");
+
 			const startY = pageY;
-			const startValue = value;
+			const startValue = this.getValue();
 			const moveListener = e => {
 				const pageY = e.type === "mousemove" ? e.pageY : e.touches[0].pageY;
-				let val = startValue + (max - min) * (startY - pageY) * 3 / window.screen.height;
-				val = Math.min(max, Math.max(min, val));
-				control.setValue(val);
+				let val = startValue + (this.max - this.min) * (startY - pageY) * 3 / window.screen.height;
+				val = Math.min(this.max, Math.max(this.min, val));
+				this.setValue(val);
 			};
 			const upListener = e => {
 				if (e.type === "touchend" && e.touches.length !== 0) return;
@@ -364,152 +715,130 @@ export class Simulation {
 				window.removeEventListener("touchmove", moveListener);
 				window.removeEventListener("mouseup", upListener);
 				window.removeEventListener("touchend", upListener);
-				wheel.classList.remove("changing");
+				this.wheel.classList.remove("changing");
 			};
 			window.addEventListener("mousemove", moveListener);
 			window.addEventListener("touchmove", moveListener);
 			window.addEventListener("mouseup", upListener);
 			window.addEventListener("touchend", upListener);
 		}
-		wheel.addEventListener("mousedown", listener);
-		outer.addEventListener("touchstart", listener);
+		this.wheel.addEventListener("mousedown", listener);
+		this.DOM.addEventListener("touchstart", listener);
 
-		return control;
-	}
-
-	addSlider(id, label, units, init, min, max, step, onupdate) {
-		// A slider that can be used to choose a float value
-
-		// Get DOM elements
-		const outer = document.getElementById(id);
-		if (!outer) return null;
-		outer.querySelector(".name").textContent = label;
-		outer.querySelector(".units").textContent = units;
-		const slider = outer.querySelector("input");
-		const output = outer.querySelector("output");
-		slider.min = min; slider.max = max; slider.step = step; slider.value = init;
-		output.value = init;
-		
-		// External control
-		let value = init;
-		const control = {};
-		onupdate = onupdate.bind(control);
-		control.DOM = slider;
-		control.getValue = () => value;
-		control.setValue = newValue => {
-			slider.value = newValue;
-			output.textContent = newValue;
-			value = newValue;
-			onupdate(value);
-			return control;
-		}
-		
-		// Show the slider when the label is clicked
-		outer.addEventListener("click", e => {
-			if (e.target === slider) return;
-			// Toggle clicked label and contract all others
-			document.querySelectorAll(".slider").forEach(x => x.classList[
-				x === outer ? "toggle" : "remove"
-			]("expanded"));
+		// Change the value by scrolling
+		this.wheel.addEventListener("wheel", e => {
+			e.preventDefault();
+			if (this.isDisabled()) return;
+			const scale = (this.max - this.min) / 50;
+			this.#scrollValue = Math.min(this.max, Math.max(this.min, this.#scrollValue + e.deltaY/100 * scale));
+			this.setValue(this.#scrollValue);
 		});
 
-		// Input event listener
-		slider.addEventListener("input", e => {
-			output.textContent = e.target.valueAsNumber;
-			onupdate(e.target.valueAsNumber);
+		// Reset on right click
+		this.wheel.addEventListener("dblclick", e => {
+			e.preventDefault();
+			if (!this.isDisabled()) this.setValue(init);
 		});
 
-		return control;
+		this.setValue(init);
 	}
 
-	addComboBox(id, label, onupdate) {
-
-		// Create DOM elements
-		const outer = document.getElementById(id);
-		if (!outer) return null;
-		outer.querySelector("label").textContent = label;
-		const select = outer.querySelector("select");
-
-		// External control
-		const control = {};
-		control.DOM = select,
-		control.getValue = () => select.selectedIndex;
-		control.setValue = newValue => {
-			select.selectedIndex = newValue;
-			onupdate(select.selectedIndex);
-			return control;
-		}
-		control.setOptions = labels => {
-			// Clear existing options
-			while (select.length > 0) select.remove(0);
-			// Add new options
-			labels.map(label => {
-				const option = document.createElement("option");
-				option.text = label;
-				return option;
-			}).forEach(option => select.add(option));
-			// Emit update
-			onupdate(select.selectedIndex);
-			return control;
-		}
-
-		// Event listener
-		select.addEventListener("input", () => onupdate(select.selectedIndex));
-
-		return control;
+	setDisabled(val) {
+		return super.setDisabled(val);
 	}
 
-	addCheckbox(id, label, init, onupdate) {
-
-		// Create DOM elements
-		const outer = document.getElementById(id);
-		outer.querySelector("label").textContent = label;
-		const checkbox = outer.querySelector("input");
-		checkbox.checked = init;
-
-		// External control
-		const control = {};
-		control.DOM = checkbox;
-		control.getValue = () => checkbox.checked;
-		control.setValue = newValue => {
-			checkbox.checked = newValue;
-			onupdate(checkbox.checked);
-			return control;
-		}
-
-		// Event listener
-		checkbox.addEventListener("input", () => onupdate(checkbox.checked));
-
-		return control;
+	updateKnob() {
+		const value = this.getValue();
+		this.output.textContent = value;
+		this.wheel.style = `rotate: ${(value - this.min) / (this.max - this.min) * 2 * Math.PI}rad;`;
 	}
 
-	addMeter(id, label, units, init, min, max) {
-		// A slider that can be used to choose a float value
-
-		// Get DOM elements
-		const outer = document.getElementById(id);
-		if (!outer) return null;
-		outer.querySelector(".name").textContent = label;
-		outer.querySelector(".units").textContent = units;
-		const meter = outer.querySelector("progress");
-		const output = outer.querySelector("output");
-		meter.min = min; meter.max = max; meter.value = init;
-		output.value = init;
-		
-		// External control
-		let value = init;
-		const control = {};
-		control.DOM = meter;
-		control.getValue = () => value;
-		control.setValue = newValue => {
-			meter.value = newValue;
-			output.textContent = newValue.toString();
-			value = newValue;
-			return control;
-		}
-
-		return control;
+	setValue(value) {
+		value = parseFloat((this.step * Math.round(value / this.step)).toFixed(10));
+		if (value === this.getValue()) return;
+		super.setValue(value);
+		this.#scrollValue = this.getValue();
+		this.updateKnob();
+		return this;
 	}
-
 }
 
+export class ComboBox extends Control {
+	constructor(id, label, onupdate = undefined) {
+		super(id, onupdate);
+		this.DOM.querySelector("label").textContent = label;
+		this.select = this.DOM.querySelector("select");
+		this.options = [];
+
+		this.select.addEventListener("input", () => {
+			this.setValue(this.options[this.select.selectedIndex].value);
+		});
+	}
+
+	setDisabled(val) {
+		this.select.disabled = val;
+		return super.setDisabled(val);
+	}
+
+	setValue(val) {
+		this.select.selectedIndex = this.options.map(o => o.value).indexOf(val);
+		return super.setValue(val);
+	}
+
+	addOption({ name, value }) {
+		this.options.push({ name, value });
+		const option = document.createElement("option");
+		option.text = name;
+		this.select.add(option);
+		const val = this.getValue() || this.options[0].value;
+		this.setValue(val);
+		return this;
+	}
+
+	clearOptions() {
+		this.options = [];
+		while (this.select.length) this.select.remove(0);
+	}
+}
+
+export class Checkbox extends Control {
+	constructor(id, label, init, onupdate = undefined) {
+		super(id, onupdate);
+		this.DOM.querySelector("label").textContent = label;
+		this.checkbox = this.DOM.querySelector("input");
+		this.setValue(init);
+
+		this.checkbox.addEventListener("input", () => {
+			this.setValue(this.checkbox.checked);
+		});
+	}
+	setDisabled(val) {
+		this.checkbox.disabled = val;
+		return super.setDisabled(val);
+	}
+	setValue(val) {
+		this.checkbox.checked = val;
+		return super.setValue(val);
+	}
+}
+
+export class Meter extends Control {
+	constructor(id, label, units, init, min, max) {
+		super(id);
+		this.DOM.querySelector(".name").textContent = label;
+		this.DOM.querySelector(".units").textContent = units;
+		this.meter = this.DOM.querySelector("progress");
+		this.output = this.DOM.querySelector("output");
+		this.meter.min = min; this.meter.max = max;
+		this.setValue(init);
+	}
+	setDisabled(val) {
+		console.warn("Disabling a meter has no effect");
+		return super.setDisabled(val);
+	}
+	setValue(val) {
+		this.meter.value = val;
+		this.output.textContent = val.toString();
+		return super.setValue(val);
+	}
+}

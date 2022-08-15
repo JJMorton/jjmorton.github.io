@@ -1,4 +1,4 @@
-import {Simulation} from './main.js';
+import {Simulation, Meter, Knob, Checkbox, ComboBox} from './main.js';
 import {Vector} from './vector.js';
 import * as Integrators from './integrator.js';
 
@@ -42,7 +42,7 @@ window.addEventListener("load", function() {
 		0.01
 	);
 
-	const energyerrorMeter = sim.addMeter("energyerror", "Divergence From Initial Energy", "%", 0, 0, 1);
+	const energyerrorMeter = new Meter("energyerror", "Divergence From Initial Energy", "%", 0, 0, 1);
 
 	function kineticEn() {
 		const [omega, vx] = integrator.vel;
@@ -132,33 +132,34 @@ window.addEventListener("load", function() {
 
 	}
 
-	sim.addKnob("m", "Mass", "kg", params.m, 0.01, 5, 0.01, value => {
+	new Knob("m", "Mass", "kg", params.m, 0.01, 5, 0.01, value => {
 		params.m = value;
 		state.E0 = totalEn();
 	});
-	sim.addKnob("k", "Spring Constant", "N/m", params.k, 0.1, 20, 0.1, value => {
+	new Knob("k", "Spring Constant", "N/m", params.k, 0.1, 20, 0.1, value => {
 		params.k = value;
 		state.E0 = totalEn();
 	});
-	sim.addKnob("l", "Equilibrium Length", "m", params.l, 0.1, 5, 0.01, value => {
+	new Knob("l", "Equilibrium Length", "m", params.l, 0.1, 5, 0.01, value => {
 		params.l = value;
 		state.E0 = totalEn();
 	});
-	sim.addKnob("g", "Gravity", "m/s^2", params.g, 0, 20, 0.1, value => {
+	new Knob("g", "Gravity", "m/s^2", params.g, 0, 20, 0.1, value => {
 		params.g = value;
 		state.E0 = totalEn();
 	});
-	sim.addCheckbox("trail", "Show Trail", params.showtrail, value => params.showtrail = value);
-	sim.addKnob("timestep", "Integration Timestep", "s", integrator.h, 0.001, 0.1, 0.001, value => integrator.h = value);
-	sim.addComboBox("method", "Integration method", opt => {
-		const method = opt === 0 ? Integrators.EulerIntegrator : Integrators.RK4Integrator;
-		integrator = new method(
+	new Checkbox("trail", "Show Trail", params.showtrail, value => params.showtrail = value);
+	new Knob("timestep", "Integration Timestep", "s", integrator.h, 0.001, 0.1, 0.001, value => integrator.h = value);
+	new ComboBox("method", "Integration method", method => {
+		integrator = new (method)(
 			integrator.funcAccel,
 			integrator.pos,
 			integrator.vel,
 			integrator.h
 		);
-	}).setOptions(["Euler", "Runge-Kutta (4th order)"]).setValue(1);
+	}).addOption({name: "Euler", value: Integrators.EulerIntegrator})
+	  .addOption({name: "Runge-Kutta (4th order)", value: Integrators.RK4Integrator})
+	  .setValue(Integrators.RK4Integrator);
 
 	state.E0 = totalEn();
 	sim.start();

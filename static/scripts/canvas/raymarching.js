@@ -1,4 +1,4 @@
-import {Simulation} from './main.js';
+import {Simulation, Knob, Checkbox, Button} from './main.js';
 import {Mouse} from './main.js';
 import {Vector} from './vector.js';
 
@@ -79,27 +79,27 @@ window.addEventListener("load", function() {
 		window.addEventListener("resize", () => needsRender = true);
 
 		// Add the sliders to control them
-		sim.addButton("playpause", "Start/stop animation", () => {
+		new Button("playpause", "Start/stop animation", () => {
 			if (sim.timer.isPaused)
 				sim.timer.start();
 			else
 				sim.timer.pause();
 		});
-		sim.addKnob("shadowsharp", "Shadow sharpness", "%", 20, 0, 100, 1, value => { gl.uniform1f(shadowsharpLoc, 8 + 80 * value / 100); needsRender = true; });
-		sim.addKnob("smoothing", "Union smoothing", "%", 20, 0, 100, 1, value => { gl.uniform1f(smoothingLoc, value / 3000); needsRender = true; });
-		sim.addKnob("shininess", "Specular size", "%", 60, 0, 100, 1, value => { gl.uniform1f(shininessLoc, value / 100); needsRender = true; });
-		sim.addKnob("ao", "Ambient occlusion strength", "%", 50, 0, 100, 1, value => { gl.uniform1f(aoLoc, 40 * value / 100); needsRender = true; });
-		const stepsSlider = sim.addCheckbox("showsteps", "Show steps taken to reach surface", false, value => { gl.uniform1i(showstepsLoc, value ? 1 : 0); needsRender = true; });
-		const normalSlider = sim.addCheckbox("shownormal", "Visualise normals", false, value => {
+		new Knob("shadowsharp", "Shadow sharpness", "%", 20, 0, 100, 1, value => { gl.uniform1f(shadowsharpLoc, 8 + 80 * value / 100); needsRender = true; });
+		new Knob("smoothing", "Union smoothing", "%", 20, 0, 100, 1, value => { gl.uniform1f(smoothingLoc, value / 3000); needsRender = true; });
+		new Knob("shininess", "Specular size", "%", 60, 0, 100, 1, value => { gl.uniform1f(shininessLoc, value / 100); needsRender = true; });
+		new Knob("ao", "Ambient occlusion strength", "%", 50, 0, 100, 1, value => { gl.uniform1f(aoLoc, 40 * value / 100); needsRender = true; });
+		const stepsSlider = new Checkbox("showsteps", "Show steps taken to reach surface", false, value => { gl.uniform1i(showstepsLoc, value ? 1 : 0); needsRender = true; });
+		const normalSlider = new Checkbox("shownormal", "Visualise normals", false, value => {
 			gl.uniform1i(shownormalLoc, value ? 1 : 0);
 			if (value) stepsSlider.setValue(false);
 			needsRender = true;
 		});
-		sim.addCheckbox("showshadow", "Show shadows", true, value => { gl.uniform1i(showshadowLoc, value ? 1 : 0); needsRender = true; });
-		sim.addCheckbox("showspec", "Show specular highlights", true, value => { gl.uniform1i(showspecLoc, value ? 1 : 0); needsRender = true; });
-		sim.addCheckbox("sun", "Enable sun lighting", true, value => { gl.uniform1i(sunLoc, value ? 1 : 0); needsRender = true; });
-		sim.addCheckbox("sky", "Enable sky lighting", true, value => { gl.uniform1i(skyLoc, value ? 1 : 0); needsRender = true; });
-		sim.addCheckbox("antialias", "Enable antialiasing (large performance hit)", false, value => { gl.uniform1i(antialiasLoc, value ? 1 : 0); needsRender = true; });
+		new Checkbox("showshadow", "Show shadows", true, value => { gl.uniform1i(showshadowLoc, value ? 1 : 0); needsRender = true; });
+		new Checkbox("showspec", "Show specular highlights", true, value => { gl.uniform1i(showspecLoc, value ? 1 : 0); needsRender = true; });
+		new Checkbox("sun", "Enable sun lighting", true, value => { gl.uniform1i(sunLoc, value ? 1 : 0); needsRender = true; });
+		new Checkbox("sky", "Enable sky lighting", true, value => { gl.uniform1i(skyLoc, value ? 1 : 0); needsRender = true; });
+		new Checkbox("antialias", "Enable antialiasing (large performance hit)", false, value => { gl.uniform1i(antialiasLoc, value ? 1 : 0); needsRender = true; });
 
 		sim.render = function() {
 

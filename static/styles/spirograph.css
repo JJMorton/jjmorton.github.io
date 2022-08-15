@@ -1,0 +1,230 @@
+:root {
+	--toolbar-size: 32px;
+}
+
+html, body {
+	margin: 0;
+	padding: 0;
+	width: 100vw;
+	height: 100vh;
+}
+
+body {
+	display: flex;
+	flex-direction: row;
+}
+
+#background {
+	opacity: 0.07;
+}
+
+.offset-parent {
+	position: relative;
+	display: flex; /* Make the child element fill */
+}
+
+#controls-bar, #toolbar {
+	overflow-y: scroll;
+	margin: 10px 0;
+}
+
+#controls-bar {
+	width: 265px;
+	min-width: 265px;
+	padding: 0 20px;
+	border-right: 1px solid var(--border-color-dim);
+	display: flex;
+	flex-direction: column;
+	row-gap: 10px;
+}
+
+#controls-bar > .spacer {
+	flex: 1;
+}
+
+.control-group {
+	border: none;
+	padding: 0;
+}
+
+#controls-bar > h3 {
+	margin: 20px 0 0 0;
+	border-bottom: 1px solid var(--border-color-dim);
+}
+
+#controls-bar > p {
+	color: var(--text-color-dim);
+	font-size: 90%;
+}
+
+a#home-link {
+	text-decoration: none;
+	color: var(--text-color-dim);
+	transition: color 200ms;
+	text-align: center;
+	border-bottom: 1px solid var(--border-color-dim);
+	margin: 0;
+	padding: 5px 0;
+	bottom: 0;
+	font-size: 90%;
+}
+
+a#home-link:hover {
+	color: var(--text-color);
+}
+
+a#home-link::before {
+	content: "‹";
+	font-size: 200%;
+	margin-right: 10px;
+	vertical-align: middle;
+}
+
+
+.canvas-container {
+	flex: 1;
+	margin: 0;
+	max-width: unset;
+	border: none;
+	box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+
+#toolbar {
+	padding: 0 10px;
+	width: var(--toolbar-size);
+	min-width: var(--toolbar-size);
+	border-left: 1px solid var(--border-color-dim);
+	list-style: none;
+}
+
+#toolbar > div.separator {
+	width: 100%;
+	height: 1px;
+	background-color: var(--border-color-dim);
+	margin: 20px 0;
+}
+
+#toolbar > button {
+	position: relative;
+	width: 100%;
+	aspect-ratio: 1;
+	border-radius: 6px;
+	margin: 4px 0;
+	border: none;
+	padding: 0;
+}
+
+#toolbar > button:hover {
+	background-color: rgba(0, 0, 0, 0.1);
+}
+
+#toolbar > button.thickness::after, #toolbar > button.colour::after {
+	content: "";
+	display: block;
+	position: absolute;
+	width: 80%;
+	aspect-ratio: 1;
+	top: 0; bottom: 0; left: 0; right: 0;
+	margin: auto auto;
+	background-color: black;
+}
+
+#toolbar > button.colour::after {
+	border-radius: 4px;
+}
+
+#toolbar > button.selected {
+	background-color: rgba(0, 0, 0, 0.2);
+}
+
+#toolbar > #thickness-0::after { height: 2px; }
+#toolbar > #thickness-1::after { height: 4px; }
+#toolbar > #thickness-2::after { height: 6px; }
+
+#toolbar > #colour-0::after { background-color: #000000; }
+#toolbar > #colour-1::after { background-color: #5e5c64; }
+#toolbar > #colour-2::after { background-color: #9a9996; }
+#toolbar > #colour-3::after { background-color: red; }
+#toolbar > #colour-4::after { background-color: green; }
+#toolbar > #colour-5::after { background-color: blue; }
+#toolbar > #colour-6::after { background-color: orange; }
+#toolbar > #colour-7::after { background-color: purple; }
+
+#toolbar > .icon {
+	font-size: 130%;
+	position: relative;
+}
+
+#toolbar > .icon::after {
+	line-height: var(--toolbar-size);
+	display: block;
+}
+
+#toolbar > #undo::after {
+	content: "↶";
+}
+
+#toolbar > #clear::after {
+	content: "✕";
+}
+
+#toolbar > #save::after {
+	content: "⤋";
+}
+
+.hint {
+	position: absolute;
+	z-index: 999;
+	width: 300px;
+	max-width: 80vw;
+	background-color: var(--background-color);
+	color: var(--text-color);
+	border: 2px solid var(--text-color);
+	border-radius: 4px;
+	padding: 10px;
+	margin: 0;
+	transform: translateY(-50%);
+}
+
+.hint.right {
+	left: calc(100% + 15px);
+}
+
+.hint.left {
+	transform: translate(calc(-15px - 100%), -50%);
+}
+
+.hint.right::before {
+	content: "";
+	display: block;
+	position: absolute;
+	left: 0;
+	top: 50%;
+	transform: translate(-100%, -50%);
+	width: 0;
+	height: 0;
+	border-width: 10px;
+	border-style: solid;
+	border-top-color: transparent;
+	border-bottom-color: transparent;
+	border-right-color: var(--text-color);
+	border-left: none;
+}
+
+.hint.left::before {
+	content: "";
+	display: block;
+	position: absolute;
+	left: 100%;
+	top: 50%;
+	transform: translate(0, -50%);
+	width: 0;
+	height: 0;
+	border-width: 10px;
+	border-style: solid;
+	border-top-color: transparent;
+	border-bottom-color: transparent;
+	border-left-color: var(--text-color);
+	border-right: none;
+}

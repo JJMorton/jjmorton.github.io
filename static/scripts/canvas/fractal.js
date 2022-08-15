@@ -1,4 +1,4 @@
-import {Simulation} from './main.js';
+import {Simulation, Button, Knob, ComboBox} from './main.js';
 import {Mouse} from './main.js';
 import {Vector} from './vector.js';
 
@@ -79,19 +79,19 @@ window.addEventListener("load", function() {
 		gl.uniform2fv(positionLoc, new Float32Array([0, 0]));
 
 		// Add the sliders to control them
-		const playButton = sim.addButton("playpause", "Start/stop animation", () => {
+		const playButton = new Button("playpause", "Start/stop animation", () => {
 			if (sim.timer.isPaused)
 				sim.timer.start();
 			else
 				sim.timer.pause();
 		});
 
-		sim.addKnob("zoom", "Zoom", "%", 0, 0, 100, 0.1, value => {
+		new Knob("zoom", "Zoom", "%", 0, 0, 100, 0.1, value => {
 			state.zoom = Math.exp(value/9 - 0.7);
 			state.needsRender = true;
 		}).setValue(0);
 
-		sim.addKnob("iterations", "Iterations (level of detail)", "", 0, 5, 500, 5, value => {
+		new Knob("iterations", "Iterations (level of detail)", "", 0, 5, 500, 5, value => {
 			state.iterations = value;
 			state.needsRender = true;
 		}).setValue(200);
@@ -127,7 +127,7 @@ window.addEventListener("load", function() {
 			}
 		));
 
-		sim.addComboBox("type", "Presets", value => {
+		new ComboBox("type", "Presets", value => {
 			state.type = value === 0 ? 0 : 1;
 
 			switch (value) {
@@ -158,13 +158,17 @@ window.addEventListener("load", function() {
 			playButton.disabled = state.coeffs[3] === 0;
 			state.needsRender = true;
 
-		}).setOptions([
-			"Mandelbrot", "Multibrot (7th power)",
-			"Julia Set 1", "Julia Set 2", "Julia Set 3", "Julia Set 4 (6-point star)", "Julia Set 5 (Glynn fractal)",
-			"Tricorn",
-			"Burning Ship",
-			"Newton (Polynomials)"
-		]).setValue(0);
+		})	.addOption({name: "Mandelbrot", value: 0})
+			.addOption({name: "Multibrot (7th power)", value: 1})
+			.addOption({name: "Julia Set 1", value: 2})
+			.addOption({name: "Julia Set 2", value: 3})
+			.addOption({name: "Julia Set 3", value: 4})
+			.addOption({name: "Julia Set 4 (6-point star)", value: 5})
+			.addOption({name: "Julia Set 5 (Glynn fractal)", value: 6})
+			.addOption({name: "Tricorn", value: 7})
+			.addOption({name: "Burning Ship", value: 8})
+			.addOption({name: "Newton (Polynomials)", value: 9})
+			.setValue(0);
 
 		sim.onmousedown = function() {
 			state.mousePos = new Vector([sim.mouse.x, sim.mouse.y]);

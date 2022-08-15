@@ -1,12 +1,12 @@
 :root {
 	--header-height: 3em;
-	--header-color: #666;
+	--header-color: #666666;
 	--header-size: 1em;
 	
-	--background-color: #fff;
-	--text-color: #444;
+	--background-color: #ffffff;
+	--text-color: #444444;
 	--text-color-dim: #808080;
-	--border-color-dim: #ddd;
+	--border-color-dim: #dddddd;
 	--text-size: 1em;
 	/*--accent-color: #a3be8c;*/
 	--accent-color: #99c6ff;
@@ -262,6 +262,13 @@ nav {
 	left: 0;
 	right: 0;
 	display: block;
+}
+
+
+.tooltip {
+	text-decoration: underline dotted;
+	font-style: italic;
+	cursor: help;
 }
 
 

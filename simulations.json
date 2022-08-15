@@ -5,6 +5,26 @@
 		"id": "fluids"
 	},
 	{
+		"title": "Double Pendulum",
+		"description": "A simulation of a double pendulum -- a system which exhibits chaotic behaviour",
+		"id": "doublependulum"
+	},
+	{
+		"title": "Fractals",
+		"description": "Visualisation of the Mandelbrot set, quadratic Julia sets and polynomial Newton fractals",
+		"id": "fractal"
+	},
+	{
+		"title": "Sorting Algorithms",
+		"description": "Watch how different sorting algorithms work on different data sets",
+		"id": "sorting"
+	},
+	{
+		"title": "Ray Marching",
+		"description": "A demonstration of ray marching with basic shapes in a pixel shader. Requires WebGL2 support",
+		"id": "raymarching"
+	},
+	{
 		"title": "Oscillations",
 		"description": "Simulate an oscillating spring with optional damping and a driving force",
 		"id": "oscillations"
@@ -25,28 +45,8 @@
 		"id": "fieldlines"
 	},
 	{
-		"title": "Sorting Algorithms",
-		"description": "Watch how different sorting algorithms work on different data sets",
-		"id": "sorting"
-	},
-	{
 		"title": "Elastic Pendulum",
 		"description": "A simulation of a pendulum with a spring in place of the rod",
 		"id": "elasticpendulum"
-	},
-	{
-		"title": "Double Pendulum",
-		"description": "A simulation of a double pendulum -- a system which exhibits chaotic behaviour",
-		"id": "doublependulum"
-	},
-	{
-		"title": "Ray Marching",
-		"description": "A demonstration of ray marching with basic shapes in a pixel shader. Requires WebGL2 support",
-		"id": "raymarching"
-	},
-	{
-		"title": "Fractals",
-		"description": "Visualisation of the Mandelbrot set, quadratic Julia sets and polynomial Newton fractals",
-		"id": "fractal"
 	}
 ]

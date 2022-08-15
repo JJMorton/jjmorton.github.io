@@ -1,4 +1,4 @@
-import {Simulation} from './main.js';
+import {Simulation, Knob, Checkbox, Meter} from './main.js';
 import {Vector} from './vector.js';
 import * as Integrators from './integrator.js';
 
@@ -41,9 +41,9 @@ window.addEventListener("load", function() {
 	);
 
 
-	const energyMeter = sim.addMeter("energy", "Total Energy (% of initial)", "%", 100, 0, 100);
-	const kineticMeter = sim.addMeter("kinetic", "Kinetic Energy (% of total)", "%", 0, 0, 100);
-	const potentialMeter = sim.addMeter("potential", "Potential Energy (% of total)", "%", 0, 0, 100);
+	const energyMeter = new Meter("energy", "Total Energy (% of initial)", "%", 100, 0, 100);
+	const kineticMeter = new Meter("kinetic", "Kinetic Energy (% of total)", "%", 0, 0, 100);
+	const potentialMeter = new Meter("potential", "Potential Energy (% of total)", "%", 0, 0, 100);
 	function kineticEnergy() {
 		return 0.5 * params.mass * Math.pow(integrator.vel.getSize(), 2);
 	}
@@ -257,12 +257,12 @@ window.addEventListener("load", function() {
 	};
 
 	
-	sim.addKnob("ballmass", "Ball Mass", "kg", params.mass, 0.1, 5, 0.1, value => params.mass = value);
-	sim.addKnob("balldensity", "Ball Density", "kg/m^3", params.b_density, 50, 1500, 10, value => params.b_density = value);
-	sim.addKnob("liquiddensity", "Fluid Density", "kg/m^3", params.f_density, 50, 1500, 10, value => params.f_density = value);
-	sim.addKnob("liquidviscosity", "Viscosity", "Pa s", params.f_viscosity, 0, 10, 0.01, value => params.f_viscosity = value);
-	sim.addKnob("gravity", "Gravity", "m/s^2", params.gravity, 0, 20, 0.01, value => params.gravity = value);
-	sim.addCheckbox("arrows", "Show forces", params.showforces, value => params.showforces = value);
+	new Knob("ballmass", "Ball Mass", "kg", params.mass, 0.1, 5, 0.1, value => params.mass = value);
+	new Knob("balldensity", "Ball Density", "kg/m^3", params.b_density, 50, 1500, 10, value => params.b_density = value);
+	new Knob("liquiddensity", "Fluid Density", "kg/m^3", params.f_density, 50, 1500, 10, value => params.f_density = value);
+	new Knob("liquidviscosity", "Viscosity", "Pa s", params.f_viscosity, 0, 10, 0.01, value => params.f_viscosity = value);
+	new Knob("gravity", "Gravity", "m/s^2", params.gravity, 0, 20, 0.01, value => params.gravity = value);
+	new Checkbox("arrows", "Show forces", params.showforces, value => params.showforces = value);
 
 	sim.start();
 

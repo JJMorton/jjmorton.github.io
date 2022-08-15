@@ -1,4 +1,4 @@
-import {Simulation} from './main.js';
+import {Simulation, Knob} from './main.js';
 
 window.addEventListener("load", function() {
 	
@@ -139,10 +139,10 @@ window.addEventListener("load", function() {
 		drawArc(c, CENTRE - sim.mToPx(params.focal_length), CENTRE, 3, 0, 2 * Math.PI).fill();
 	};
 
-	sim.addKnob("focallength", "Focal length", "m", params.focal_length, -0.75, 0.75, 0.05, value => params.focal_length = value);
-	sim.addKnob("distance", "Object Distance", "m", params.object_pos, 0, 2, 0.005, value => params.object_pos = value);
-	sim.addKnob("size", "Object Size", "m", params.object_height, 0.05, 0.3, 0.001, value => params.object_height = value);
-	sim.addKnob("scale", "Viewing Scale", "m", sim.scale, 0.05, 5, 0.01, value => sim.scale = value);
+	new Knob("focallength", "Focal length", "m", params.focal_length, -0.75, 0.75, 0.05, value => params.focal_length = value);
+	new Knob("distance", "Object Distance", "m", params.object_pos, 0, 2, 0.005, value => params.object_pos = value);
+	new Knob("size", "Object Size", "m", params.object_height, 0.05, 0.3, 0.001, value => params.object_height = value);
+	new Knob("scale", "Viewing Scale", "m", sim.scale, 0.05, 5, 0.01, value => sim.scale = value);
 
 	sim.start();
 

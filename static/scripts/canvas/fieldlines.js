@@ -1,4 +1,4 @@
-import {Simulation} from './main.js';
+import {Simulation, Button, Knob} from './main.js';
 import {Vector} from './vector.js';
 
 window.addEventListener("load", function() {
@@ -135,7 +135,7 @@ window.addEventListener("load", function() {
 
 	// Create the controls
 	{
-		const sliderStrength = sim.addKnob("strength", "Magnitude of selected charge", "C", 0, -2, 2, 0.01, value => {
+		const sliderStrength = new Knob("strength", "Magnitude of selected charge", "C", 0, -2, 2, 0.01, value => {
 			if (!state.selected) return;
 			state.selected.strength = value
 			state.charges.forEach(charge => createPaths(charge));
@@ -145,13 +145,13 @@ window.addEventListener("load", function() {
 			state.selected = charge;
 			sliderStrength.setValue(charge.strength);
 		};
-		const buttonCreate = sim.addButton("create", "Create charge", () => {
+		const buttonCreate = new Button("create", "Create charge", () => {
 			state.charges.forEach(charge => createPaths(charge));
 			state.charges.push(createCharge(Math.random() * sim.scale, Math.random() * sim.scale));
 			selectCharge(state.charges[state.charges.length - 1]);
 			state.fullrender = true;
 		});
-		const buttonRemove = sim.addButton("remove", "Remove selected charge", () => {
+		const buttonRemove = new Button("remove", "Remove selected charge", () => {
 			if (!state.selected) return;
 			state.charges.forEach(charge => createPaths(charge));
 			state.charges.splice(state.charges.indexOf(state.selected), 1);
