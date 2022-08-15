@@ -28,6 +28,7 @@ urls=(
 	"/"
 	"/about"
 	"/lmc"
+	"/spirograph"
 	"/404"
 )
 
@@ -35,6 +36,7 @@ files=(
 	"/index.html"
 	"/about/index.html"
 	"/lmc/index.html"
+	"/spirograph/index.html"
 	"/404.html"
 )
 
