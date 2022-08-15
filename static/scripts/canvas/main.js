@@ -80,8 +80,8 @@ export function Mouse(elt, onclick) {
 			offsetLeft += parent.offsetLeft;
 			parent = parent.offsetParent;
 		}
-		this.x = pageX - offsetLeft;
-		this.y = pageY - offsetTop;
+		this.x = (pageX - offsetLeft) * window.devicePixelRatio;
+		this.y = (pageY - offsetTop) * window.devicePixelRatio;
 	};
 	const mousepress = button => {
 		if (Object.values(Mouse.buttons).includes(button)) {
