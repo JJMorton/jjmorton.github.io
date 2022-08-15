@@ -750,7 +750,7 @@ export class Knob extends Control {
 	updateKnob() {
 		const value = this.getValue();
 		this.output.textContent = value;
-		this.wheel.style = `rotate: ${(value - this.min) / (this.max - this.min) * 2 * Math.PI}rad;`;
+		this.wheel.style = `transform: rotate(${(value - this.min) / (this.max - this.min) * 2 * Math.PI}rad);`;
 	}
 
 	setValue(value) {
