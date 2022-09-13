@@ -951,9 +951,11 @@ window.addEventListener("load", function() {
 			.createStep(controls.startstop.DOM, "Begin drawing again.", ["change"])
 			.createStep(controls.save.DOM, "When you're happy with the drawing you can click this button to view the image.", ["change"])
 			.nextStep();
-		setInterval(function() {
-			if (tutorial.finished) window.localStorage.setItem("doneTutorial", "true");
-		})
+		const interval = setInterval(function() {
+			if (!tutorial.finished) return;
+			window.localStorage.setItem("doneTutorial", "true");
+			window.clearInterval(interval);
+		}, 1000)
 	}
 
 });
