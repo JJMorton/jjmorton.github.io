@@ -1,49 +1,36 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<%- include("partials/head") %>
+	<%- include("/partials/head") %>
 </head>
 <body>
 
-	<header>
-		<%- include("partials/header") %>
-	</header>
-	
+	<%- include("/partials/header") %>
+	<main>
+		<p>On this website, you can find simulations of various physical systems as well as any other odd things I've made.</p>
+		<p>
+			You must have JavaScript enbled in your browser to view them, as they use the
+			<a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/canvas">HTML canvas element</a>
+			and its
+			<a href="https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API">JavaScript API</a>
+			for rendering.
+		</p>
+	</main>
 
-	<div id="content">
-		<main>
-			<h1><%= title %></h1>
-			<p>On this website, you can find simulations of various physical systems as well as any other odd things I've made.</p>
-			<p>
-				You must have JavaScript enbled in your browser to view them, as they use the
-				<a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/canvas">HTML canvas element</a>
-				and its
-				<a href="https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API">JavaScript API</a>
-				for rendering.
-			</p>
-		</main>
+	<section>
+		<ul class="list-preview">
+			<% simulations.forEach(function(item) { %>
+			<li class="item-preview">
+				<a class="box-shadow" href="/simulations/<%= item.id %>">
+					<p class="title"><%= item.title %></p>
+					<p class="description"><%= item.description %></p>
+				</a>
+			</li>
+			<% }); %>
+		</ul>
+	</section>
 
-		<section>
-			<ul class="list-preview">
-				<% simulations.forEach(function(item) { %>
-					<li class="item-preview">
-						<a class="box-shadow" href="/simulations/<%= item.id %>">
-							<p class="title"><%= item.title %></p>
-							<p class="description"><%= item.description %></p>
-						</a>
-					</li>
-				<% }); %>
-			</ul>
-		</section>
-
-		<section>
-			<footer>
-				<%- include("partials/footer") %>
-			</footer>
-		</section>
-	</div>
-
-	
+	<%- include("/partials/footer") %>
 
 </body>
 </html>

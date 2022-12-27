@@ -6,42 +6,32 @@
 	<script type="module" src="/scripts/canvas/<%= id %>.js"></script>
 </head>
 <body>
-	<header>
-		<%- include("/partials/header") %>
-	</header>
+	<%- include("/partials/header") %>
 
+	<main>
+	<p><%= description %></p>
+	</main>
 
-	<div id="content">
-		<main>
-			<h1><%= title %></h1>
-			<p><%= description %></p>
-		</main>
+	<section id="sec-simulation">
+		<%- include("/partials/canvas") %>
+	</section>
 
-		<section id="sec-simulation">
-			<%- include("/partials/canvas") %>
-		</section>
+	<section id="controls">
+		<%- include(`/partials/controls/button`, { name: "playpause" }) %>
+		<%- include(`/partials/controls/knob`, { name: "shadowsharp" }) %>
+		<%- include(`/partials/controls/knob`, { name: "smoothing" }) %>
+		<%- include(`/partials/controls/knob`, { name: "shininess" }) %>
+		<%- include(`/partials/controls/knob`, { name: "ao" }) %>
+		<%- include(`/partials/controls/checkbox`, { name: "showsteps" }) %>
+		<%- include(`/partials/controls/checkbox`, { name: "shownormal" }) %>
+		<%- include(`/partials/controls/checkbox`, { name: "showshadow" }) %>
+		<%- include(`/partials/controls/checkbox`, { name: "showspec" }) %>
+		<%- include(`/partials/controls/checkbox`, { name: "sun" }) %>
+		<%- include(`/partials/controls/checkbox`, { name: "sky" }) %>
+		<%- include(`/partials/controls/checkbox`, { name: "antialias" }) %>
+	</section>
 
-		<section id="controls">
-			<%- include(`/partials/controls/button`, { name: "playpause" }) %>
-			<%- include(`/partials/controls/knob`, { name: "shadowsharp" }) %>
-			<%- include(`/partials/controls/knob`, { name: "smoothing" }) %>
-			<%- include(`/partials/controls/knob`, { name: "shininess" }) %>
-			<%- include(`/partials/controls/knob`, { name: "ao" }) %>
-			<%- include(`/partials/controls/checkbox`, { name: "showsteps" }) %>
-			<%- include(`/partials/controls/checkbox`, { name: "shownormal" }) %>
-			<%- include(`/partials/controls/checkbox`, { name: "showshadow" }) %>
-			<%- include(`/partials/controls/checkbox`, { name: "showspec" }) %>
-			<%- include(`/partials/controls/checkbox`, { name: "sun" }) %>
-			<%- include(`/partials/controls/checkbox`, { name: "sky" }) %>
-			<%- include(`/partials/controls/checkbox`, { name: "antialias" }) %>
-		</section>
-
-		<section>
-			<footer>
-				<%- include("/partials/footer") %>
-			</footer>
-		</section>
-	</div>
+	<%- include("/partials/footer") %>
 
 
 </body>

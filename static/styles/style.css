@@ -4,12 +4,14 @@
 	--header-size: 1em;
 	
 	--background-color: #ffffff;
-	--text-color: #444444;
+	--text-color: #333333;
 	--text-color-dim: #808080;
+	--text-color-bold: #222222;
 	--border-color-dim: #dddddd;
 	--text-size: 1em;
-	/*--accent-color: #a3be8c;*/
+/*	--accent-color: #a3be8c;*/
 	--accent-color: #99c6ff;
+/*	--accent-color: #ddbb88;*/
 	--font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 
 	--footer-size: 0.8em;
@@ -41,22 +43,6 @@ html {
 	opacity: 0.1;
 	z-index: -1;
 }
-
-
-#content {
-	margin: 30px auto;
-	width: 75%;
-	min-width: 350px;
-	max-width: 900px;
-	background-color: var(--background-color);
-	border: 1px solid var(--border-color-dim);
-	border-radius: 10px;
-
-	/* To remove the gaps between sections */
-	display: flex;
-	flex-direction: column;
-}
-
 
 main, section {
 	margin: 0;
@@ -128,43 +114,6 @@ a:active {
 	outline: none;
 	color: var(--text-color);
 }
-
-header {
-	margin-top: 30px;
-}
-
-nav {
-	text-align: center;
-}
-
-#nav-bar {
-	list-style: none;
-	margin: 0;
-	padding: 0;
-	height: var(--header-height);
-}
-
-#nav-bar > li {
-	display: inline-block;
-}
-
-#nav-bar > li > a {
-	line-height: var(--header-height);
-	display: block;
-	text-decoration: none;
-	color: var(--header-color);
-	padding: 0 1em 0 1em;
-	text-transform: uppercase;
-	font-size: var(--header-size);
-	transform: translateY(0);
-	transition: transform 0.1s;
-}
-
-#nav-bar > li > a:hover {
-	color: var(--text-color);
-	transform: translateY(-2px);
-}
-
 
 .list-preview {
 	padding: 0;
@@ -278,4 +227,315 @@ footer p {
 	animation: slideup-fade 0.3s ease-in-out;
 	margin: 0;
 }
+
+/* NEW LAYOUT */
+
+:root {
+	--sidebar-width: 270px;
+	--sidebar-collapsed-width: 42px;
+	--navbar-inner-height: 2em;
+	--navbar-height: calc(2 * var(--structure-padding) + var(--navbar-inner-height));
+	--structure-padding: 20px;
+	--min-page-width: 350px;
+	--max-content-width: 800px;
+	--title-ypos: calc(3 * var(--structure-padding));
+	--title-height: 1.5em;
+}
+
+.tiled-bg {
+	position: relative;
+}
+
+.tiled-bg > * {
+	/*Make sure the children are positioned above the texture*/
+	position: relative;
+	z-index: 1;
+}
+
+.tiled-bg::after {
+	content: "";
+	display: block;
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	left: 0;
+	top: 0;
+	opacity: 0.1;
+	background-image: url("/assets/bg-tiled.png");
+	background-position: top left;
+	background-repeat: repeat;
+	background-size: 200px;
+	background-attachment: fixed;
+	z-index: 0;
+}
+
+#structure-outer {
+	width: 100%;
+	min-width: var(--min-page-width);
+	min-height: 100vh;
+	background-color: var(--background-color);
+}
+
+/* LOGO */
+
+.logo {
+	display: inline-block;
+	/*
+	Using !important here, as we want the logo to always
+	look the same, no matter what
+	*/
+	font-family: monospace !important;
+	text-decoration: none !important;
+	font-size: 1.5em !important;
+	border-radius: 4px !important;
+	font-weight: bold !important;
+	box-sizing: border-box;
+	width: 100%;
+	height: 100%;
+	text-align: center;
+}
+.logo::before {
+	/* Website favicon next to home menu item */
+	position: relative;
+	content: "";
+	display: inline-block;
+	background-image: url("/favicon.ico");
+	background-repeat: no-repeat;
+	background-size: 1em 1em;
+	width: 1em;
+	height: 1em;
+	margin: 0 0.5em 0 0;
+	vertical-align: middle;
+	background-position: center;
+}
+
+/* SIDEBAR */
+
+menu#structure-sidebar {
+	position: fixed;
+	height: 100vh;
+	padding: var(--structure-padding);
+	margin: 0;
+	width: var(--sidebar-width);
+	left: 0;
+	list-style: none;
+	box-sizing: border-box;
+	background-color: var(--text-color);
+	color: var(--background-color);
+	z-index: 999;
+/*	transition: left 200ms;*/
+}
+
+menu#structure-sidebar > li {
+	position: relative;
+	border-radius: 4px;
+	padding: 0px;
+	margin: 0;
+	color: var(--background-color);
+}
+
+menu#structure-sidebar > li + li {
+	margin-top: 10px;
+}
+
+menu#structure-sidebar > li:hover {
+	background-color: var(--text-color-dim);
+	color: var(--background-color);
+}
+
+/* Sidebar menu item text styling */
+menu#structure-sidebar > li > a:not(.logo) {
+	display: block;
+	text-decoration: none;
+	color: inherit;
+	font-family: inherit;
+	padding: 5px 10px;
+	box-sizing: border-box;
+	width: 100%;
+	height: 100%;
+}
+
+menu#structure-sidebar > li > .logo{
+	line-height: 2em;
+	padding: var(--structure-padding);
+	background-color: var(--accent-color);
+	color: var(--text-color);
+}
+
+menu#structure-sidebar > #sidebar-footer {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	display: block;
+	width: var(--sidebar-width);
+	margin: 0;
+	padding: var(--structure-padding);
+	box-sizing: border-box;
+	color: var(--border-color-dim);
+	background-color: var(--text-color-bold);
+	font-size: var(--footer-size);
+	text-decoration: none;
+}
+
+menu#structure-sidebar > #sidebar-footer svg {
+	width: calc(2 * var(--footer-size));
+	height: calc(2 * var(--footer-size));
+	vertical-align: middle;
+	margin-right: 10px;
+}
+
+menu#structure-sidebar > #sidebar-footer svg path {
+	fill: var(--background-color);
+}
+
+/* NAVBAR */
+
+menu#structure-navbar {
+	height: var(--navbar-inner-height);
+	padding: var(--structure-padding);
+	width: 100%;
+	min-width: var(--min-page-width);
+	position: fixed;
+	top: 0;
+	margin: 0;
+	list-style: none;
+	background-color: var(--text-color);
+	z-index: 999;
+}
+
+menu#structure-navbar > li {
+	display: inline-block;
+	height: var(--navbar-inner-height);
+	vertical-align: top;
+	position: relative;
+	margin-right: var(--structure-padding);
+}
+
+menu#structure-navbar #sidebar-toggle .hamburger {
+	rotate: 0;
+	transition: rotate 300ms;
+}
+
+menu#structure-navbar #sidebar-toggle:hover .hamburger {
+	stroke: var(--accent-color);
+	border-radius: 4px;
+	rotate: 180deg;
+}
+
+menu#structure-navbar .hamburger {
+	width: var(--navbar-inner-height);
+	height: var(--navbar-inner-height);
+	padding: 5px;
+	box-sizing: border-box;
+	cursor: pointer;
+}
+
+menu#structure-navbar .hamburger path {
+	stroke: var(--background-color);
+}
+
+menu#structure-navbar .logo {
+	color: var(--background-color);
+	text-decoration: none;
+}
+
+menu#structure-navbar .logo::before {
+	margin: 0 10px 0 15px;
+	background-color: var(--accent-color);
+	border-radius: 4px;
+	padding: 5px;
+}
+
+/* TITLE */
+
+h1 {
+	position: relative;
+	display: inline-block;
+	background-color: var(--text-color);
+	color: var(--background-color);
+	padding: var(--structure-padding);
+}
+
+h1::before {
+	content: "";
+	display: block;
+	position: absolute;
+	background-color: var(--text-color);
+}
+
+/* MAIN CONTENT */
+
+div#structure-content-wrapper {
+	flex: 1;
+	padding: var(--structure-padding);
+}
+
+div#structure-content {
+	box-sizing: border-box;
+	padding: var(--structure-padding);
+	left: 0;
+	right: 0;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+/* LARGE VIEW */
+@media (min-width: 801px) {
+	menu#structure-sidebar {
+		left: 0;
+	}
+	div#structure-content-wrapper {
+		margin-left: var(--sidebar-width);
+	}
+	div#structure-content {
+		max-width: var(--max-content-width);
+	}
+	menu#structure-navbar {
+		display: none;
+	}
+	h1 {
+		border-top-right-radius: 4px;
+		border-bottom-right-radius: 4px;
+		border-right: 4px solid var(--accent-color);
+	}
+	h1::before {
+		top: 0;
+		left: -50vw;
+		width: 50vw;
+		height: 100%;
+	}
+}
+
+/* SMALL/MOBILE VIEW */
+@media (max-width: 800px) {
+	menu#structure-sidebar {
+		position: fixed;
+		left: calc(-1 * var(--sidebar-width));
+		top: var(--navbar-height);
+		height: calc(100vh - var(--navbar-height));
+		max-width: 100vw;
+	}
+	menu#structure-sidebar > li.title {
+		display: none;
+	}
+	div#structure-content-wrapper {
+		margin-top: var(--navbar-height);
+	}
+	menu#structure-sidebar.open {
+		left: 0;
+	}
+	h1 {
+		border-bottom-left-radius: 4px;
+		border-bottom-right-radius: 4px;
+		border-bottom: 4px solid var(--accent-color);
+	}
+	h1::before {
+		top: -50vh;
+		left: 0;
+		width: 100%;
+		height: 50vh;
+	}
+}
+
+/* END NEW LAYOUT */
 

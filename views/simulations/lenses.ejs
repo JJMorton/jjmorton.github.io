@@ -6,35 +6,25 @@
 	<script type="module" src="/scripts/canvas/<%= id %>.js"></script>
 </head>
 <body>
-	<header>
-		<%- include("/partials/header") %>
-	</header>
+	<%- include("/partials/header") %>
 
+	<main>
+	<p><%= description %></p>
+	</main>
 
-	<div id="content">
-		<main>
-			<h1><%= title %></h1>
-			<p><%= description %></p>
-		</main>
+	<section id="sec-simulation">
+		<%- include("/partials/canvas") %>
+	</section>
 
-		<section id="sec-simulation">
-			<%- include("/partials/canvas") %>
-		</section>
-
-		<section id="controls">
-			<div class="control-group">
-				<%- include(`/partials/controls/knob`, { name: "focallength" }) %>
-				<%- include(`/partials/controls/knob`, { name: "distance" }) %>
-				<%- include(`/partials/controls/knob`, { name: "size" }) %>
-				<%- include(`/partials/controls/knob`, { name: "scale" }) %>
-			</div>
-		</section>
+	<section id="controls">
+		<div class="control-group">
+			<%- include(`/partials/controls/knob`, { name: "focallength" }) %>
+			<%- include(`/partials/controls/knob`, { name: "distance" }) %>
+			<%- include(`/partials/controls/knob`, { name: "size" }) %>
+			<%- include(`/partials/controls/knob`, { name: "scale" }) %>
+		</div>
+	</section>
 	
-		<section>
-			<footer>
-				<%- include("/partials/footer") %>
-			</footer>
-		</section>
-	</div>
+	<%- include("/partials/footer") %>
 </body>
 </html>

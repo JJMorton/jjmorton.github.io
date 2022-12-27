@@ -1,29 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<%- include("partials/head") %>
+	<%- include("/partials/head") %>
 </head>
 <body>
 
-	<header>
-		<%- include("partials/header") %>
-	</header>
+	<%- include("/partials/header") %>
 
-	<div id="content">
-		<main>
-			<h1><%= title %></h1>
-			<p>This website was written with a backend in <a href="https://nodejs.org/en/">Node.js</a> with <a href="https://expressjs.com/">Express</a> and <a href="https://ejs.co/">EJS</a>.
-			I'm trying to keep the fontend as simple as possible, keeping the bloat away.</p>
-			<p>I don't know how long I'll maintain this for or how often it will be updated, but I'll do so whenever I have any ideas.</p>
-			<p>View the code on <a href="https://github.com/JJMorton/jjmorton.github.io">GitHub</a>.</p>
-		</main>
+	<main>
+		<p>This website was written with a backend in <a href="https://nodejs.org/en/">Node.js</a> with <a href="https://expressjs.com/">Express</a> and <a href="https://ejs.co/">EJS</a>.
+		I'm trying to keep the fontend as simple as possible, keeping the bloat away.</p>
+		<p>I don't know how long I'll maintain this for or how often it will be updated, but I'll do so whenever I have any ideas.</p>
+		<p>View the code on <a href="https://github.com/JJMorton/jjmorton.github.io">GitHub</a>.</p>
+	</main>
 	
-		<section>
-			<footer>
-				<%- include("partials/footer") %>
-			</footer>
-		</section>
-	</div>
+	<%- include("/partials/footer") %>
 
 </body>
 </html>

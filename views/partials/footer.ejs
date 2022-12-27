@@ -1,9 +1,15 @@
-<p>Compiled at <tt id="compiledate"></tt></p>
-<script>
-	const elt = document.getElementById("compiledate");
-	const req = new XMLHttpRequest();
-	req.addEventListener("load", () => elt.textContent = req.responseText);
-	req.open("GET", "/compiledate");
-	req.send();
-</script>
-
+			<section>
+				<footer>
+					<p>Compiled at <tt id="compiledate"></tt></p>
+					<script>
+						const elt = document.getElementById("compiledate");
+						const req = new XMLHttpRequest();
+						req.addEventListener("load", () => elt.textContent = req.responseText);
+						req.open("GET", "/compiledate");
+						req.send();
+					</script>
+				</footer>
+			</section>
+		</div>
+	</div>
+</div>

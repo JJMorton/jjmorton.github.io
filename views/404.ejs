@@ -1,25 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<% include partials/head %>
+	<%- include("/partials/head") %>
 </head>
 <body>
-	<header>
-		<%include partials/header %>
-	</header>
-	<div id="content">
-		<main>
-			<h1><%= title %></h1>
-			<p>Sorry, this page doesn't exist</p>
-			<p>Please let me know if you were brought here by a broken link on this website, thanks :)</p>
-			<img class="image-framed box-shadow" src="/assets/404.gif" width="250" height="250"/>
-		</main>
+	<%- include("/partials/header") %>
+
+	<main>
+		<p>Sorry, this page doesn't exist</p>
+		<p>Please let me know if you were brought here by a broken link on this website, thanks :)</p>
+		<img class="image-framed box-shadow" src="/assets/404.gif" width="250" height="250"/>
+	</main>
 	
-		<section>
-			<footer>
-				<%- include("partials/footer") %>
-			</footer>
-		</section>
-	</div>
+	<%- include("/partials/footer") %>
 </body>
 </html>
