@@ -19,9 +19,11 @@ out vec4 outcolor;
 
 vec2 cpow(vec2 z, float n)
 {
+    // In the case that both parts are zero, use any constant for arctan (it's a singularity otherwise)
+    float arctan = (z.x == 0.0 && z.y == 0.0) ? 0.0 : atan(z.y, z.x);
     return vec2(
-        pow(z.x * z.x + z.y * z.y, n/2.0) * cos(n * atan(z.y, z.x)),
-        pow(z.x * z.x + z.y * z.y, n/2.0) * sin(n * atan(z.y, z.x))
+        pow(z.x * z.x + z.y * z.y, n/2.0) * cos(n * arctan),
+        pow(z.x * z.x + z.y * z.y, n/2.0) * sin(n * arctan)
     );
 }
 
