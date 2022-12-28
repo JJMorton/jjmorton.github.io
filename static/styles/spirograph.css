@@ -13,6 +13,7 @@ body {
 	display: flex;
 	flex-direction: row;
 	overflow: hidden;
+	background-color: var(--background-color);
 }
 
 #background {
@@ -114,6 +115,7 @@ a#home-link::before {
 	margin: 4px 0;
 	border: none;
 	padding: 0;
+	background-color: transparent;
 }
 
 #toolbar > button:hover {
