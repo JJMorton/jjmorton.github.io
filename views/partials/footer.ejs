@@ -1,15 +1,17 @@
-			<section>
-				<footer>
-					<p>Compiled at <tt id="compiledate"></tt></p>
-					<script>
-						const elt = document.getElementById("compiledate");
-						const req = new XMLHttpRequest();
-						req.addEventListener("load", () => elt.textContent = req.responseText);
-						req.open("GET", "/compiledate");
-						req.send();
-					</script>
-				</footer>
-			</section>
+			<footer>
+				<p>
+					<span>
+						Compiled at <tt id="compiledate"></tt>
+					</span>
+					<span style="text-align: right">
+						<span class="color-sel" color="#99c6ff"></span>
+						<span class="color-sel" color="#ff89aa"></span>
+						<span class="color-sel" color="#e7dba0"></span>
+						<span class="color-sel" color="#cf9ee9"></span>
+						<span class="color-sel" color="#acdeaa"></span>
+					</span>
+				</p>
+			</footer>
 		</div>
 	</div>
 </div>

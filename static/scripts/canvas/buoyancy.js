@@ -13,13 +13,13 @@ window.addEventListener("load", function() {
 
 	// Initial parameters
 	const params = {
-		mass: 1,
+		mass: 2.5,
 		b_density: 800,
 		f_density: 1000,
 		f_viscosity: 0.1,
 		elasticity: 0.8,
 		gravity: 9.81,
-		showforces: false,
+		showforces: true,
 		surfaceHeight: 2, // Depth of the fluid in m
 		getVolume: () => params.mass / params.b_density,
 		getRadius: () => Math.cbrt(3/(4 * Math.PI) * params.getVolume()),
@@ -202,6 +202,8 @@ window.addEventListener("load", function() {
 
 		const cPos = integrator.pos.map(q => sim.mToPx(q));
 		const cRadius = sim.mToPx(params.getRadius());
+		sim.ctx.strokeStyle = sim.colours.accent;
+		sim.ctx.lineWidth = 2;
 
 		const fluidY = sim.mToPx(sim.scale - params.surfaceHeight);
 		sim.ctx.clearRect(0, 0, sim.canvas.width, sim.canvas.height);
@@ -223,13 +225,14 @@ window.addEventListener("load", function() {
 		sim.ctx.fill();
 
 		if (params.showforces) {
+			const mult = 10;
 			let strokeStyleTmp = sim.ctx.strokeStyle;
 			sim.ctx.strokeStyle = `#0000FF`;
-			drawArrow(cPos.x, cPos.y, 0, state.upthrust[1] * 5);
+			drawArrow(cPos.x, cPos.y, 0, state.upthrust[1] * mult);
 			sim.ctx.strokeStyle = `#008800`;
-			drawArrow(cPos.x, cPos.y, 0, params.gravity * 5);
+			drawArrow(cPos.x, cPos.y, 0, params.gravity * mult);
 			sim.ctx.strokeStyle = `rgba(255, 0, 0, ${(Math.pow(state.drag[0], 2) + Math.pow(state.drag[1], 2)) * 0.2})`;
-			drawArrow(cPos.x, cPos.y, state.drag[0] * 5, state.drag[1] * 5);
+			drawArrow(cPos.x, cPos.y, state.drag[0] * mult, state.drag[1] * mult);
 			sim.ctx.strokeStyle = strokeStyleTmp;
 		}
 

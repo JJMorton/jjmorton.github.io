@@ -1,10 +1,12 @@
 /* the canvas takes on the size of its container in the js */
 .canvas-container {
 	max-width: calc(73vh - 50px);
-	width: calc(100% - 50px);
+/*	width: calc(100% - 50px);*/
+	width: 100%;
 	display: block;
 	margin: 0 auto;
 	border: 5px solid var(--accent-color);
+	border-radius: 4px;
 	box-sizing: border-box;
 	background: var(--background-color);
 	aspect-ratio: 1;
@@ -31,12 +33,12 @@ canvas {
 	border-image: linear-gradient(to right, rgba(0, 0, 0, 0.2) 0% 1px, transparent 1px) 1;
 }
 
-#controls > .left-border:hover,
+/*#controls > .left-border:hover,
 #controls > .left-border.expanded,
 .control-group:hover {
 	border-image: linear-gradient(to right, var(--text-color) 0% 1px, var(--border-color-dim) 1px, transparent 80%) 1;
 }
-
+*/
 .control-group {
 	word-spacing: 2em;
 }
@@ -228,16 +230,21 @@ input[type=range]:focus::-webkit-slider-runnable-track {
 /* BUTTONS */
 
 button {
+	display: block;
 	color: var(--text-color);
 	font-family: var(--font-family);
 	padding: 1em;
 	left: 0; right: 0;
 	margin: 5px auto;
-	border-radius: 0;
-	background-color: var(--background-color);
+	border-radius: 4px;
+	background-color: var(--accent-color);
 	width: 100%;
 	max-width: 400px;
-	border: 2px solid rgba(0, 0, 0, 0.4);
+	border: 2px solid var(--text-color-dim);
+}
+
+button:not(:disabled) {
+	cursor: pointer;
 }
 
 button:not(:disabled):hover {

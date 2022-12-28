@@ -112,6 +112,7 @@ window.addEventListener("load", function() {
 		while (state.trail.length > params.traillength) state.trail.shift();
 
 		sim.ctx.clearRect(0, 0, sim.canvas.width, sim.canvas.height);
+		sim.ctx.strokeStyle = sim.colours.accent;
 
 		if (params.showtrail) {
 			for (let i = params.trailstep; i < state.trail.length - 1; i += params.trailstep) {

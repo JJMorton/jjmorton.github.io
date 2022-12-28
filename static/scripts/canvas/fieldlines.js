@@ -132,6 +132,10 @@ window.addEventListener("load", function() {
 	};
 
 	window.addEventListener("resize", () => state.fullrender = true);
+	window.addEventListener("recolour", () => {
+		sim.ctx.strokeStyle = sim.colours.accent;
+		state.fullrender = true;
+	});
 
 	// Create the controls
 	{
@@ -149,6 +153,7 @@ window.addEventListener("load", function() {
 			state.charges.forEach(charge => createPaths(charge));
 			state.charges.push(createCharge(Math.random() * sim.scale, Math.random() * sim.scale));
 			selectCharge(state.charges[state.charges.length - 1]);
+			buttonRemove.setDisabled(state.charges.length <= 1);
 			state.fullrender = true;
 		});
 		const buttonRemove = new Button("remove", "Remove selected charge", () => {
@@ -156,6 +161,7 @@ window.addEventListener("load", function() {
 			state.charges.forEach(charge => createPaths(charge));
 			state.charges.splice(state.charges.indexOf(state.selected), 1);
 			selectCharge(state.charges[0]);
+			buttonRemove.setDisabled(state.charges.length <= 1);
 			state.fullrender = true;
 		});
 		sim.onmousedown = function() {
@@ -167,6 +173,7 @@ window.addEventListener("load", function() {
 			state.fullrender = true;
 		};
 		sim.onmouseup = function() {
+			if (!state.moving) return;
 			state.moving = false;
 			state.charges.forEach(charge => createPaths(charge));
 			state.fullrender = true;

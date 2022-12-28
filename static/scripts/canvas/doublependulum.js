@@ -157,6 +157,7 @@ window.addEventListener("load", function() {
 
 		// Draw the trail
 		sim.ctx.lineWidth = 2;
+		sim.ctx.strokeStyle = sim.colours.accent;
 		if (params.showtrail && state.trail.length > 0) {
 			for (let i = 1; i < state.trail.length; i++) {
 				sim.ctx.globalAlpha = 1 - Math.pow((time - state.trailtime[i]) / params.trailduration, 4);

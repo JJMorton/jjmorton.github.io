@@ -2,6 +2,7 @@
 	--header-height: 3em;
 	--header-color: #666666;
 	--header-size: 1em;
+	--footer-size: 0.8em;
 	
 	--background-color: #ffffff;
 	--text-color: #333333;
@@ -9,58 +10,30 @@
 	--text-color-bold: #222222;
 	--border-color-dim: #dddddd;
 	--text-size: 1em;
-/*	--accent-color: #a3be8c;*/
 	--accent-color: #99c6ff;
-/*	--accent-color: #ddbb88;*/
 	--font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-
-	--footer-size: 0.8em;
 }
 
+* {
+	accent-color: var(--accent-color);
+}
 
 html, body {
 	margin: 0;
 	padding: 0;
 }
 
-
-/* So that the background image fills the page */
-html {
-	position: relative;
+body {
+	background-color: var(--text-color);
 }
 
-#background {
-	width: 100%;
-	height: 100%;
-	min-height: 100vh;
-	position: absolute;
-	left: 0;
-	top: 0;
-	background-image: url("/assets/bg-tiled.png");
-	background-position: top left;
-	background-repeat: repeat;
-	background-size: 200px;
-	opacity: 0.1;
-	z-index: -1;
-}
-
-main, section {
+main, section, footer {
 	margin: 0;
-	padding: 15px 30px;
+	padding: var(--structure-padding);
 	box-sizing: border-box;
 	width: 100%;
 	animation: fade 0.2s ease-in-out;
-	/*padding-bottom: 10px;*/
 }
-
-section {
-	/* padding-top: 15px; */
-	border-top: 1px dashed var(--border-color-dim);
-	display: flex;
-	flex-direction: column;
-	box-sizing: border-box;
-}
-
 
 /* To avoid unwanted space above sub-headings */
 h2 {
@@ -85,8 +58,6 @@ h1 {
 	text-align: left;
 	font-size: 2em;
 	animation: slidedown-fade 0.3s ease-in-out;
-	/* text-decoration: underline; */
-	/* text-decoration-color: var(--border-color-dim); */
 }
 
 
@@ -118,29 +89,18 @@ a:active {
 .list-preview {
 	padding: 0;
 	font-size: 0;
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+	gap: var(--structure-padding);
 }
 
 .item-preview {
 	display: inline-flex;
 	vertical-align: top;
 	list-style: none;
-	width: calc(33.33% - 20px); 
 	min-height: 200px;
-	margin: 10px;
 	font-size: initial;
 	animation: zoom-fade 0.2s ease-in-out;
-}
-
-@media (max-width: 1200px) {
-	.item-preview {
-		width: calc(50% - 20px);
-	}
-}
-
-@media (max-width: 800px) {
-	.item-preview {
-		width: calc(100% - 20px);
-	}
 }
 
 .item-preview * {
@@ -220,12 +180,31 @@ a:active {
 	cursor: help;
 }
 
+footer {
+	border-top: 1px solid var(--border-color-dim);
+}
 
-footer p {
+footer > p {
 	color: var(--text-color-dim);
 	font-size: var(--footer-size);
 	animation: slideup-fade 0.3s ease-in-out;
 	margin: 0;
+	display: flex;
+	flex-direction: row;
+}
+
+footer > p > span {
+	flex: 1;
+}
+
+span.color-sel {
+	display: inline-block;
+	height: 1em;
+	border-radius: 4px;
+	aspect-ratio: 1;
+/*	border: 1px solid var(--border-color-dim);*/
+	cursor: pointer;
+	vertical-align: middle;
 }
 
 /* NEW LAYOUT */
@@ -264,8 +243,7 @@ footer p {
 	background-image: url("/assets/bg-tiled.png");
 	background-position: top left;
 	background-repeat: repeat;
-	background-size: 200px;
-	background-attachment: fixed;
+	background-size: 150px;
 	z-index: 0;
 }
 
@@ -454,6 +432,7 @@ h1 {
 	background-color: var(--text-color);
 	color: var(--background-color);
 	padding: var(--structure-padding);
+	margin: var(--structure-padding) 0 0 0;
 }
 
 h1::before {
@@ -477,7 +456,12 @@ div#structure-content {
 	right: 0;
 	margin-left: auto;
 	margin-right: auto;
+/*	border: 2px solid var(--border-color-dim);*/
+	border-radius: 4px;
+	box-shadow: 0 0 2px 0 var(--border-color-dim);
+	background-color: var(--background-color);
 }
+
 
 /* LARGE VIEW */
 @media (min-width: 801px) {

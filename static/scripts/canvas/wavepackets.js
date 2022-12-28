@@ -32,6 +32,10 @@ window.addEventListener("load", function() {
 		console.log("Selecting wave index", index);
 		state.selectedIndex = index;
 		state.selected = state.waves[index];
+		if (!state.selected) {
+			selectCombo.select.selectedIndex = 0;
+			return;
+		}
 		for (const prop in sliders) {
 			if (sliders.hasOwnProperty(prop)) sliders[prop].setValue(state.selected[prop]);
 		}
@@ -50,6 +54,7 @@ window.addEventListener("load", function() {
 		state.waves.splice(state.selectedIndex, 1);
 		selectCombo.clearOptions();
 		state.waves.forEach((_, i) => selectCombo.addOption({name: "Wave " + (i + 1), value: i}));
+		remBtn.setDisabled(state.waves.length <= 1);
 	});
 
 	const sliders = {
@@ -93,6 +98,7 @@ window.addEventListener("load", function() {
 		selectCombo.addOption({name: "Wave " + state.waves.length, value: state.waves.length - 1});
 // 		selectCombo.setOptions(state.waves.map((_, i) => `Wave ${i + 1}`));
 		selectCombo.setValue(state.waves.length - 1);
+		remBtn.setDisabled(state.waves.length <= 1);
 	}
 
 	function drawWave(c, points) {

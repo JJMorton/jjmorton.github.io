@@ -130,14 +130,8 @@ export class Simulation {
 		this.ctx = this.canvas.getContext(contextType);
 
 		this.offscreenCanvases = [];
-
-		// Get colours defined on root element in css
-		const style = window.getComputedStyle(document.documentElement);
-		this.colours = {
-			background: style.getPropertyValue("--background-color"),
-			foreground: style.getPropertyValue("--text-color"),
-			accent: style.getPropertyValue("--accent-color")
-		};
+		this.recolour();
+		window.addEventListener("recolour", () => this.recolour());
 
 		// The number of metres that the canvas should cover.
 		this.scale = 5;
@@ -159,6 +153,17 @@ export class Simulation {
 		// Automatically resize the canvas with the window
 		this.resize();
 		window.addEventListener("resize", () => this.resize());
+	}
+
+
+	recolour() {
+		// Get colours defined on root element in css
+		const style = window.getComputedStyle(document.documentElement);
+		this.colours = {
+			background: style.getPropertyValue("--background-color"),
+			foreground: style.getPropertyValue("--text-color"),
+			accent: style.getPropertyValue("--accent-color")
+		};
 	}
 
 

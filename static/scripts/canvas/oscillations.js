@@ -40,6 +40,10 @@ window.addEventListener("load", function() {
 
 	const integrator = new Integrators.RK4Integrator(getAcc, [1], [0], 0.1);
 
+	window.addEventListener("recolour", () => {
+		sim.ctx.strokeStyle = sim.colours.accent;
+	});
+
 	sim.render = function() {
 
 		// Integrate motion

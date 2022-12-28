@@ -70,9 +70,14 @@ window.addEventListener("load", function() {
 		return c;
 	}
 
+	window.addEventListener("recolour", () => {
+		sim.ctx.strokeStyle = sim.colours.accent;
+	});
+
 	sim.render = function(c) {
 
 		c.clearRect(0, 0, sim.canvas.width, sim.canvas.height);
+		sim.ctx.lineWidth = 2;
 
 		const CENTRE = sim.percToPx(50);
 	
@@ -90,19 +95,22 @@ window.addEventListener("load", function() {
 			const originR = CENTRE - radius + (convex ? width : -width);
 			const originL = CENTRE + radius + (convex ? -width : width);
 			
-			c.beginPath();
-			c.arc(originL, CENTRE, radius, Math.PI - theta, Math.PI + theta);
-			c.arc(originR, CENTRE, radius, -theta, theta);
-			c.closePath();
-			c.stroke();
+			sim.withCanvasState(() => {
+				c.fillStyle = "rgba(0, 0, 0, 0.1)";
+				c.beginPath();
+				c.arc(originL, CENTRE, radius, Math.PI - theta, Math.PI + theta);
+				c.arc(originR, CENTRE, radius, -theta, theta);
+				c.closePath();
+				c.fill();
+			});
 
 			drawLine(c, CENTRE, CENTRE - height, CENTRE, CENTRE + height).stroke();
 
 			// Draw object and image
 			const objGeo = getObjectGeometry(CENTRE);
 			const imgGeo = getImageGeometry(CENTRE);
-			drawRect(c, objGeo.x1 - 2, objGeo.y1, 4, objGeo.y2 - objGeo.y1).fill();
-			drawRect(c, imgGeo.x1 - 2, imgGeo.y1, 4, imgGeo.y2 - imgGeo.y1).fill();
+			drawRect(c, objGeo.x1 - 2, objGeo.y1, 6, objGeo.y2 - objGeo.y1).fill();
+			drawRect(c, imgGeo.x1 - 2, imgGeo.y1, 6, imgGeo.y2 - imgGeo.y1).fill();
 
 
 			// Draw ray lines
@@ -135,13 +143,12 @@ window.addEventListener("load", function() {
 		}
 
 		// Draw focal points
-		drawArc(c, CENTRE + sim.mToPx(params.focal_length), CENTRE, 3, 0, 2 * Math.PI).fill();
-		drawArc(c, CENTRE - sim.mToPx(params.focal_length), CENTRE, 3, 0, 2 * Math.PI).fill();
+		drawArc(c, CENTRE + sim.mToPx(params.focal_length), CENTRE, 4, 0, 2 * Math.PI).fill();
+		drawArc(c, CENTRE - sim.mToPx(params.focal_length), CENTRE, 4, 0, 2 * Math.PI).fill();
 	};
 
 	new Knob("focallength", "Focal length", "m", params.focal_length, -0.75, 0.75, 0.05, value => params.focal_length = value);
 	new Knob("distance", "Object Distance", "m", params.object_pos, 0, 2, 0.005, value => params.object_pos = value);
-	new Knob("size", "Object Size", "m", params.object_height, 0.05, 0.3, 0.001, value => params.object_height = value);
 	new Knob("scale", "Viewing Scale", "m", sim.scale, 0.05, 5, 0.01, value => sim.scale = value);
 
 	sim.start();

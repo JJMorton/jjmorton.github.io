@@ -73,10 +73,17 @@ window.addEventListener("load", function() {
 		const typeLoc = gl.getUniformLocation(program, "u_type");
 		const newtonLoc = gl.getUniformLocation(program, "u_newton");
 
-		gl.uniform3fv(colorfgLoc, new Float32Array(hexToRGB(sim.colours.foreground)));
-		gl.uniform3fv(colorbgLoc, new Float32Array(hexToRGB(sim.colours.accent)));
-		gl.uniform3fv(coloraccentLoc, new Float32Array(hexToRGB(sim.colours.background)));
-		gl.uniform2fv(positionLoc, new Float32Array([0, 0]));
+		function setColours() {
+			gl.uniform3fv(colorfgLoc, new Float32Array(hexToRGB(sim.colours.foreground)));
+			gl.uniform3fv(colorbgLoc, new Float32Array(hexToRGB(sim.colours.accent)));
+			gl.uniform3fv(coloraccentLoc, new Float32Array(hexToRGB(sim.colours.background)));
+			gl.uniform2fv(positionLoc, new Float32Array([0, 0]));
+		}
+		setColours();
+		window.addEventListener("recolour", () => {
+			setColours();
+			state.needsRender = true;
+		});
 
 		// Add the sliders to control them
 		const playButton = new Button("playpause", "Start/stop animation", () => {

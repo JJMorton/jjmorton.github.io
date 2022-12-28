@@ -125,6 +125,7 @@ window.addEventListener("load", function() {
 		hiswap: [ -1, -1 ],
 		hicompare: [ -1, -1 ],
 		sorted: true,
+		sorting: false
 	};
 
 
@@ -154,21 +155,22 @@ window.addEventListener("load", function() {
 		return arr[lo] < arr[hi];
 	};
 
-	async function runsort(arr, method) {
-		startbutton.disabled = true;
+	async function runsort(method) {
+		startbutton.setDisabled(true);
 		state.comparisons = 0;
 		state.swaps = 0;
 		state.hiswap = [ -1, -1 ];
 		state.hicompare = [ -1, -1 ];
 		state.sorted = false;
-		state.data = arr;
+		state.sorting = true;
 
-		await method(arr);
+		await method(state.data);
 
-		startbutton.disabled = false;
+		startbutton.setDisabled(false);
 		state.hiswap = [ -1, -1 ];
 		state.hicompare = [ -1, -1 ];
 		state.sorted = true;
+		state.sorting = false;
 		state.redraw = true;
 	};
 
@@ -192,7 +194,7 @@ window.addEventListener("load", function() {
 		drawWithFillStyle(state.sorted ? sim.colours.accent : sim.ctx.fillStyle, fillStyle => {
 
 			const barwidth = sim.canvas.width / state.data.length;
-			state.data.map(h => h * sim.canvas.height).forEach((h, i) => {
+			state.data.map(h => h * sim.canvas.height * 0.9).forEach((h, i) => {
 				let barcolor = fillStyle;
 				if (state.hiswap.includes(i)) barcolor = "#ff0000";
 				else if (state.hicompare.includes(i)) barcolor = sim.colours.accent;
@@ -204,7 +206,8 @@ window.addEventListener("load", function() {
 
 		});
 	
-		sim.ctx.fillText(`comparisons: ${state.comparisons}, swaps: ${state.swaps}`, 10, 20);
+		sim.ctx.font = `${0.7 * window.devicePixelRatio}em sans-serif`;
+		sim.ctx.fillText(`comparisons: ${state.comparisons}, swaps: ${state.swaps}`, 20, 30);
 
 	};
 
@@ -212,13 +215,20 @@ window.addEventListener("load", function() {
 	/* We need to redraw the canvas when the window is resized */
 
 	window.addEventListener("resize", () => state.redraw = true);
+	window.addEventListener("recolour", () => state.redraw = true);
 
 
 	/* Create controls */
 
 	new Knob("datalength", "Data points", "", params.datalength, 10, 100, 1, value => params.datalength = value);
 
-	new ComboBox("datagen", "Data distribution", value => params.datagen = value)
+	new ComboBox("datagen", "Data distribution", value => {
+		params.datagen = value;
+		if (state.sorting) return;
+		state.data = value(params.datalength);
+		state.sorted = false;
+		state.redraw = true;
+	})
 		.addOption({name: "Random",      value: gendata.random})
 		.addOption({name: "Backwards",   value: gendata.backwards})
 		.addOption({name: "Triangle",    value: gendata.triangle})
@@ -231,7 +241,10 @@ window.addEventListener("load", function() {
 		.addOption({name: "Insertion Sort", value: sortmethods.insertion})
 		.addOption({name: "Selection Sort", value: sortmethods.selection});
 
-	const startbutton = new Button("start", "Sort", () => runsort(params.datagen(params.datalength), params.method));
+	const startbutton = new Button("start", "Sort", () => {
+		if (state.sorted) state.data = params.datagen(params.datalength);
+		runsort(params.method);
+	});
 
 	new Checkbox("showswap", "Show swaps", params.showswap, value => {
 		params.showswap = value;

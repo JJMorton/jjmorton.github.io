@@ -1,8 +1,8 @@
 [
 	{
-		"title": "Fluids",
+		"title": "Buoyancy",
 		"description": "Drop a ball in a fluid and observe the effects of drag, upthrust and the viscosity.",
-		"id": "fluids"
+		"id": "buoyancy"
 	},
 	{
 		"title": "Double Pendulum",
@@ -33,11 +33,6 @@
 		"title": "Lenses",
 		"description": "Simulate a lens with adjustable properties",
 		"id": "lenses"
-	},
-	{
-		"title": "Wave Interference",
-		"description": "See how waves interact when they interfere, and how adding many waves together can create a wave packet",
-		"id": "wavepackets"
 	},
 	{
 		"title": "Electric Field Lines",
