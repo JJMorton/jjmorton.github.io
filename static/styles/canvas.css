@@ -36,7 +36,7 @@ canvas {
 /*#controls > .left-border:hover,
 #controls > .left-border.expanded,
 .control-group:hover {
-	border-image: linear-gradient(to right, var(--text-color) 0% 1px, var(--border-color-dim) 1px, transparent 80%) 1;
+	border-image: linear-gradient(to right, var(--text-color) 0% 1px, var(--border-color) 1px, transparent 80%) 1;
 }
 */
 .control-group {
@@ -59,7 +59,7 @@ canvas {
 	height: 16px;
 	rotate: 15deg;
 	width: 1px;
-	background-color: var(--border-color-dim);
+	background-color: var(--border-color);
 	position: absolute;
 	right: -1.3em;
 	top: 0;
@@ -314,7 +314,7 @@ button::-moz-focus-inner {
 
 .input:empty::after {
 	content: "--";
-	color: var(--border-color-dim);
+	color: var(--border-color);
 	pointer-events: none;
 	font-weight: normal;
 }
