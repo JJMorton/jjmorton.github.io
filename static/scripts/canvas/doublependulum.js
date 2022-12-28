@@ -156,7 +156,7 @@ window.addEventListener("load", function() {
 		sim.ctx.clearRect(0, 0, sim.canvas.width, sim.canvas.height);
 
 		// Draw the trail
-		sim.ctx.lineWidth = 2;
+		sim.ctx.lineWidth = 3;
 		sim.ctx.strokeStyle = sim.colours.accent;
 		if (params.showtrail && state.trail.length > 0) {
 			for (let i = 1; i < state.trail.length; i++) {
@@ -170,6 +170,7 @@ window.addEventListener("load", function() {
 
 		// Draw the pendulum
 		sim.ctx.lineWidth = 3;
+		sim.ctx.strokeStyle = sim.colours.foreground;
 		const pivot_px = pivot.map(q => sim.mToPx(q));
 		const pos1_px = pos1.map(q => sim.mToPx(q));
 		const pos2_px = pos2.map(q => sim.mToPx(q));

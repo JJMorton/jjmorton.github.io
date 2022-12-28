@@ -86,6 +86,7 @@ a:active {
 	color: var(--text-color);
 }
 
+
 .list-preview {
 	padding: 0;
 	font-size: 0;
@@ -95,7 +96,8 @@ a:active {
 }
 
 .item-preview {
-	display: inline-flex;
+	/* Flex so that the content fills this container */
+	display: flex;
 	vertical-align: top;
 	list-style: none;
 	min-height: 200px;
@@ -103,26 +105,38 @@ a:active {
 	animation: zoom-fade 0.2s ease-in-out;
 }
 
-.item-preview * {
-	width: 100%;
+.item-preview.large {
+	grid-row: span 2;
 }
 
-.item-preview > :first-child {
+.item-preview.large img {
+	width: 100%;
+	border-radius: 4px;
+	border: 1px solid var(--text-color-dim);
+	background-color: var(--accent-color);
+}
+
+.item-preview > * {
 	flex: 1;
 	display: block;
-	padding: 1em 1.5em;
+	padding: var(--structure-padding);
 	box-sizing: border-box;
 	background-color: var(--accent-color);
-	text-decoration: none;
 	color: var(--text-color);
 	overflow-y: hidden;
 	text-overflow: ellipsis;
 	border-radius: 5px;
 }
 
+.item-preview * {
+	width: 100%;
+}
+
 .item-preview > a {
 	transition: background-color 200ms, color 200ms, transform 0.1s;
 	transform: scale(1, 1);
+	color: var(--text-color);
+	text-decoration: none;
 }
 
 .item-preview > a:hover {
@@ -135,7 +149,7 @@ a:active {
 	transform: scale(1, 1);
 }
 
-.item-preview > a > p {
+.item-preview > a > * {
 	color: inherit;
 }
 
@@ -171,6 +185,7 @@ a:active {
 	left: 0;
 	right: 0;
 	display: block;
+	border-radius: 4px;
 }
 
 

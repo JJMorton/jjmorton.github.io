@@ -5,14 +5,21 @@
 		"id": "buoyancy"
 	},
 	{
+		"title": "Fractals",
+		"description": "Visualisation of the Mandelbrot set, quadratic Julia sets and polynomial Newton fractals",
+		"id": "fractal",
+		"image": true
+	},
+	{
 		"title": "Double Pendulum",
 		"description": "A simulation of a double pendulum -- a system which exhibits chaotic behaviour",
 		"id": "doublependulum"
 	},
 	{
-		"title": "Fractals",
-		"description": "Visualisation of the Mandelbrot set, quadratic Julia sets and polynomial Newton fractals",
-		"id": "fractal"
+		"title": "Electric Field Lines",
+		"description": "Visualise electric field lines from multiple point sources",
+		"id": "fieldlines",
+		"image": true
 	},
 	{
 		"title": "Sorting Algorithms",
@@ -22,7 +29,8 @@
 	{
 		"title": "Ray Marching",
 		"description": "A demonstration of ray marching with basic shapes in a pixel shader. Requires WebGL2 support",
-		"id": "raymarching"
+		"id": "raymarching",
+		"image": true
 	},
 	{
 		"title": "Oscillations",
@@ -33,11 +41,6 @@
 		"title": "Lenses",
 		"description": "Simulate a lens with adjustable properties",
 		"id": "lenses"
-	},
-	{
-		"title": "Electric Field Lines",
-		"description": "Visualise electric field lines from multiple point sources",
-		"id": "fieldlines"
 	},
 	{
 		"title": "Elastic Pendulum",

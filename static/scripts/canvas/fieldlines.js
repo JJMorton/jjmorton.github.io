@@ -89,6 +89,7 @@ window.addEventListener("load", function() {
 
 			// Draw paths
 			for (const charge of state.charges) {
+				sim.ctx.strokeStyle = sim.colours.foreground;
 				c.beginPath();
 				for (const path of charge.paths) {
 					const starti = state.fullrender ? 0 : path.length - 2;

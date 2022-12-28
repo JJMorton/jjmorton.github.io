@@ -101,7 +101,7 @@ window.addEventListener("load", function() {
 		new Knob("iterations", "Iterations (level of detail)", "", 0, 5, 500, 5, value => {
 			state.iterations = value;
 			state.needsRender = true;
-		}).setValue(200);
+		}).setValue(300);
 
 		function CoeffInput(id, setter, callback) {
 			this.elt = document.getElementById(id);
