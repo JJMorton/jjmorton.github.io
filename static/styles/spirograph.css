@@ -34,7 +34,7 @@ body {
 	width: 265px;
 	min-width: 265px;
 	padding: 0 20px;
-	border-right: 1px solid var(--border-color-dim);
+	border-right: 1px solid var(--border-color);
 	display: flex;
 	flex-direction: column;
 	row-gap: 10px;
@@ -51,7 +51,7 @@ body {
 
 #controls-bar > h3 {
 	margin: 20px 0 0 0;
-	border-bottom: 1px solid var(--border-color-dim);
+	border-bottom: 1px solid var(--border-color);
 }
 
 #controls-bar > p {
@@ -64,7 +64,7 @@ a#home-link {
 	color: var(--text-color-dim);
 	transition: color 200ms;
 	text-align: center;
-	border-bottom: 1px solid var(--border-color-dim);
+	border-bottom: 1px solid var(--border-color);
 	margin: 0;
 	padding: 5px 0;
 	bottom: 0;
@@ -96,14 +96,14 @@ a#home-link::before {
 	padding: 0 10px;
 	width: var(--toolbar-size);
 	min-width: var(--toolbar-size);
-	border-left: 1px solid var(--border-color-dim);
+	border-left: 1px solid var(--border-color);
 	list-style: none;
 }
 
 #toolbar > div.separator {
 	width: 100%;
 	height: 1px;
-	background-color: var(--border-color-dim);
+	background-color: var(--border-color);
 	margin: 20px 0;
 }
 
