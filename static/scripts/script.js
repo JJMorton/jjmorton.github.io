@@ -23,8 +23,6 @@ window.addEventListener("load", function() {
 	req.send();
 
 	/* Allow changing the accent colour */
-	const col = window.localStorage.getItem("accentColor");
-	if (col) setColor(col);
 	[...document.getElementsByClassName("color-sel")].forEach(elt => {
 		const c = elt.getAttribute("color");
 		elt.style.backgroundColor = c;
@@ -39,3 +37,7 @@ window.addEventListener("pageshow", function() {
 	const col = window.localStorage.getItem("accentColor");
 	if (col) setColor(col);
 });
+
+// Update the accent colour ASAP to prevent flash of different colour
+const col = window.localStorage.getItem("accentColor");
+if (col) setColor(col);
