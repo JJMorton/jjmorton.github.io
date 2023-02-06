@@ -33,6 +33,11 @@
 		"image": true
 	},
 	{
+		"title": "Snowflakes",
+		"description": "Grow a snowflake! A local cellular automata for replicating snowflake growth",
+		"id": "snowflake"
+	},
+	{
 		"title": "Oscillations",
 		"description": "Simulate an oscillating spring with optional damping and a driving force",
 		"id": "oscillations"
