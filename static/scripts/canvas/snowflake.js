@@ -344,14 +344,14 @@ window.addEventListener("load", async function() {
 		if (!sim.timer.isPaused) playPause();
 		oneRender = true;
 	});
-	new Knob("alpha", "Diffusion (alpha)", "", params.alpha, 0.2, 2.5, 0.01, value => params.alpha = value);
+	new Knob("alpha", "Diffusion (alpha)", "", params.alpha, 0.2, 4, 0.01, value => params.alpha = value);
 	const betaKnob = new Knob("beta", "Background Vapour Level (beta)", "", params.beta, 0, 0.95, 0.01, value => {
 		params.beta = value;
 		grid.init(() => new SnowflakeCell(params.beta));
 		grid.setCell(0, 0, new SnowflakeCell(1));
 		oneRender = true;
 	});
-	new Knob("gamma", "Vapour Addition (gamma)", "", params.gamma, 0, 0.01, 0.0001, value => params.gamma = value);
+	new Knob("gamma", "Vapour Addition (gamma)", "", params.gamma, 0, 0.05, 0.0001, value => params.gamma = value);
 	new Button("reset", "Reset", () => {
 		if (!sim.timer.isPaused) playPause();
 		gridKnob.setDisabled(false);

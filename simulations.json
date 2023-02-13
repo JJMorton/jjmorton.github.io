@@ -27,20 +27,21 @@
 		"id": "sorting"
 	},
 	{
-		"title": "Ray Marching",
-		"description": "A demonstration of ray marching with basic shapes in a pixel shader. Requires WebGL2 support",
-		"id": "raymarching",
-		"image": true
-	},
-	{
 		"title": "Snowflakes",
 		"description": "Grow a snowflake! A local cellular automata for replicating snowflake growth",
-		"id": "snowflake"
+		"id": "snowflake",
+		"image": true
 	},
 	{
 		"title": "Oscillations",
 		"description": "Simulate an oscillating spring with optional damping and a driving force",
 		"id": "oscillations"
+	},
+	{
+		"title": "Ray Marching",
+		"description": "A demonstration of ray marching with basic shapes in a pixel shader. Requires WebGL2 support",
+		"id": "raymarching",
+		"image": true
 	},
 	{
 		"title": "Lenses",
