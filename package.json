@@ -11,6 +11,7 @@
   "author": "JJMorton",
   "license": "ISC",
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.279.0",
     "ejs": "^3.1.7",
     "express": "^4.16.4"
   }

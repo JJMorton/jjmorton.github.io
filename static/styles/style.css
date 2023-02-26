@@ -197,6 +197,11 @@ a:active {
 	border-radius: 4px;
 }
 
+.big-photo {
+	max-width: 100%;
+	height: auto;
+}
+
 
 .tooltip {
 	text-decoration: underline dotted;
