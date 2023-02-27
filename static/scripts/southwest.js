@@ -9,13 +9,26 @@
 	window.addEventListener("load", async function() {
 		const res = await fetchPromise;
 		const data = await res.json();
-		console.log(data);
 		const container = document.getElementById("photos");
-		for (const url of data.files) {
+		const thumbs = data.files.filter(x => x.includes("/thumb_"));
+		const fulls = data.files.filter(x => !x.includes("/thumb_"));
+		const correspondThumb = fulls.map(file => {
+			const split = file.split('/');
+			split[split.length - 1] = "thumb_" + split[split.length - 1];
+			const thumbName = split.join('/');
+			return thumbs.includes(thumbName) ? thumbName : null;
+		});
+		const withoutThumbCount = correspondThumb.filter(x => !x).length;
+		if (withoutThumbCount > 0) {
+			console.warn(`${withoutThumbCount} image(s) not displayed because of missing thumbnails!`);
+		}
+		for (let i = 0; i < fulls.length; i++) {
+			// Only show images with thumbnails
+			if (!correspondThumb[i]) continue;
 			const anchor = document.createElement("a");
-			anchor.href = url;
+			anchor.href = fulls[i];
 			const img = document.createElement("img");
-			img.src = url;
+			img.src = correspondThumb[i];
 			img.classList.add("big-photo");
 			anchor.appendChild(img);
 			container.appendChild(anchor);
