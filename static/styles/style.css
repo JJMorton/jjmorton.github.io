@@ -198,12 +198,22 @@ a:active {
 }
 
 .big-photo {
+	text-align: center;
+	margin-bottom: var(--structure-padding);
+}
+
+.big-photo a {
+	display: inline-block;
+	cursor: zoom-in;
+}
+
+.big-photo img {
 	max-width: 100%;
 	height: auto;
-	display: block;
-	left: 0;
-	right: 0;
-	margin: 0 auto var(--structure-padding) auto;
+	border: 1px solid var(--border-color);
+	border-radius: 4px;
+	outline-offset: 3px;
+	outline: 1px solid var(--border-color);
 }
 
 
