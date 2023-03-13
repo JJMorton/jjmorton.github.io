@@ -9,11 +9,12 @@ window.addEventListener("load", function() {
 	'use strict';
 
 	/* Toggle the sidebar in mobile view with a button */
-	document.getElementById("sidebar-toggle")
-	.addEventListener("click", function() {
-		document.getElementById("structure-sidebar")
-		.classList.toggle("open");
-	});
+	const sidebar = document.getElementById("structure-sidebar");
+	const sidebarBtn = document.getElementById("sidebar-toggle");
+	sidebarBtn.addEventListener("click", function() {
+			sidebar.classList.toggle("open");
+			sidebarBtn.classList.toggle("open");
+		});
 
 	/* Populate the compile date info */
 	const elt = document.getElementById("compiledate");

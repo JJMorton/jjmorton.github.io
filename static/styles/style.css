@@ -280,11 +280,19 @@ span.color-sel {
 	z-index: 0;
 }
 
+/*
+Effectively serves as a root element for all others on the page.
+So that the body can be coloured dark like the side-/nav-bar,
+which I think looks good when 'elastic' scrolling overshoots the
+top/bottom.
+*/
 #structure-outer {
 	width: 100%;
-	min-width: var(--min-page-width);
 	min-height: 100vh;
+	min-width: var(--min-page-width);
 	background-color: var(--background-color);
+	top: 0;
+	position: absolute;
 }
 
 /* LOGO */
@@ -426,7 +434,8 @@ menu#structure-navbar #sidebar-toggle .hamburger {
 	transition: rotate 300ms;
 }
 
-menu#structure-navbar #sidebar-toggle:hover .hamburger {
+menu#structure-navbar #sidebar-toggle:hover .hamburger,
+menu#structure-navbar #sidebar-toggle.open .hamburger {
 	stroke: var(--accent-color);
 	border-radius: 4px;
 	rotate: 180deg;
@@ -477,7 +486,6 @@ h1::before {
 /* MAIN CONTENT */
 
 div#structure-content-wrapper {
-	flex: 1;
 	padding: var(--structure-padding);
 }
 
@@ -525,7 +533,6 @@ div#structure-content {
 /* SMALL/MOBILE VIEW */
 @media (max-width: 800px) {
 	menu#structure-sidebar {
-		position: fixed;
 		left: calc(-1 * var(--sidebar-width));
 		top: var(--navbar-height);
 		height: calc(100vh - var(--navbar-height));
