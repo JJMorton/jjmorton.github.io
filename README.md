@@ -1,6 +1,6 @@
 ## My Personal Website
 
-Hosted with AWS at [jjmorton.com](https://jjmorton.com)
+Hosted with github pages at [jjmorton.com](http://jjmorton.com)
 
 ### Build Instructions
 The '/docs' directory is the built static version for GitHub pages, '/static' contains the static assets and '/views' contains the ejs templates.  
