@@ -200,25 +200,6 @@ a:active {
 	border-radius: var(--roundness);
 }
 
-.big-photo {
-	text-align: center;
-	margin-bottom: var(--structure-padding);
-}
-
-.big-photo a {
-	display: inline-block;
-	cursor: zoom-in;
-}
-
-.big-photo img {
-	max-width: 100%;
-	height: auto;
-	border: 1px solid var(--border-color);
-	border-radius: var(--roundness);
-	outline-offset: 3px;
-	outline: 1px solid var(--border-color);
-}
-
 
 .tooltip {
 	text-decoration: underline dotted;
