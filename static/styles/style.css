@@ -203,10 +203,6 @@ a:active {
 .big-photo {
 	max-width: 100%;
 	height: auto;
-	display: block;
-	left: 0;
-	right: 0;
-	margin: 0 auto var(--structure-padding) auto;
 }
 
 
