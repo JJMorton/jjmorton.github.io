@@ -22,14 +22,16 @@
 		if (withoutThumbCount > 0) {
 			console.warn(`${withoutThumbCount} image(s) not displayed because of missing thumbnails!`);
 		}
-		const template = document.getElementById("tmpl-big-photo");
 		for (let i = 0; i < fulls.length; i++) {
 			// Only show images with thumbnails
 			if (!correspondThumb[i]) continue;
-			const elt = template.content.cloneNode(true);
-			elt.querySelector("a").href = fulls[i];
-			elt.querySelector("img").src = correspondThumb[i];
-			container.appendChild(elt);
+			const anchor = document.createElement("a");
+			anchor.href = fulls[i];
+			const img = document.createElement("img");
+			img.src = correspondThumb[i];
+			img.classList.add("big-photo");
+			anchor.appendChild(img);
+			container.appendChild(anchor);
 		}
 
 		// if (data.continue) {
