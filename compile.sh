@@ -62,3 +62,5 @@ date > "$output_dir/compiledate"
 
 kill $(jobs -p)
 
+echo "Creating CNAME file..."
+echo "jjmorton.com" > "${output_dir}/CNAME"
