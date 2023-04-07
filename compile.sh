@@ -26,6 +26,7 @@ cp -r "$static_dir"/* "$output_dir/"
 
 urls=(
 	"/"
+	"/simulations"
 	"/about"
 	"/lmc"
 	"/spirograph"
@@ -34,6 +35,7 @@ urls=(
 
 files=(
 	"/index.html"
+	"/simulations/index.html"
 	"/about/index.html"
 	"/lmc/index.html"
 	"/spirograph/index.html"
