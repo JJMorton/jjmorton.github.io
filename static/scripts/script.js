@@ -4,7 +4,7 @@ const setColor = c => {
 	window.dispatchEvent(new Event("recolour"));
 };
 
-window.addEventListener("load", function() {
+window.addEventListener("DOMContentLoaded", function() {
 
 	'use strict';
 
@@ -31,6 +31,16 @@ window.addEventListener("load", function() {
 			setColor(c);
 		});
 	});
+
+	/* Highlight the current page in the sidebar */
+	const URLFromPath = p => new URL(p, window.location.origin).href;
+	const currentURL = URLFromPath(window.location.pathname);
+	const currentPageLink = Array.from(document.getElementById("structure-sidebar").children)
+		.filter(elt => elt.classList.contains("pagelink"))
+		.find(elt => URLFromPath(elt.querySelector("a").href) === currentURL)
+	if (currentPageLink) {
+		currentPageLink.classList.add("current");
+	}
 });
 
 // Update the accent colour, even if the page is cached (e.g. user navigated back)

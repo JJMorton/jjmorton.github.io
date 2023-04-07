@@ -9,16 +9,16 @@
 	<main>
 		<p>
 			<i>Welcome!</i><br>
-			I like making simple interactive simulations (often physics related).
-			They are all written in JavaScript, so will run in your browser.
-			If you are interested in making fun visualisations like these, check out this <a href="https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Tutorial">canvas tutorial</a> to start.
+			This is my personal website, made for fun and to learn how things work!
+			<strong>Check the menu</strong> for links to interactive simulations, visualisations, photos, and anything else that I felt like adding.
 		</p>
 	</main>
 
 	<section>
+		<h2>Simulations &#38; Visualisations</h2>
 		<ul class="list-preview">
-			<% simulations.forEach(function(item) { %>
-			<li class="item-preview <%= item.image ? 'large' : 'small' %>">
+			<% simulations.filter(s => s.image).slice(0, 2).forEach(function(item) { %>
+			<li class="item-preview large">
 				<a class="box-shadow" href="/simulations/<%= item.id %>">
 					<% if (item.image) { %>
 					<img src="/assets/<%= item.id %>.png">
@@ -29,6 +29,18 @@
 			</li>
 			<% }); %>
 		</ul>
+		<a href="/simulations"><p><strong>See all <%= simulations.length %> &#8594;</strong></p></a>
+	</section>
+
+	<section>
+		<h2>Photos</h2>
+		<iframe
+			title="Flickr gallery of photos"
+			src="//www.flickr.com/photos/jjmorton/52795308211/in/datetaken-public/player"
+			frameborder="0"
+			allowfullscreen webkitallowfullscreen mozallowfullscreen oallowfullscreen msallowfullscreen
+			class="photo-frame box-shadow"
+		>Loading...</iframe>
 	</section>
 
 	<%- include("/partials/footer") %>

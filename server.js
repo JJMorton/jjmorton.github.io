@@ -14,7 +14,7 @@ app.get("/", (req, res) => {
 });
 
 app.get("/simulations", (req, res) => {
-	res.redirect("/");
+	res.render("simulations", { title: "Simulations", simulations });
 });
 
 app.get("/lmc", (req, res) => {
@@ -23,6 +23,10 @@ app.get("/lmc", (req, res) => {
 
 app.get("/spirograph", (req, res) => {
 	res.render("spirograph", { title: "Spirograph" });
+});
+
+app.get("/photos", (req, res) => {
+	res.render("photos", { title: "Photos" });
 });
 
 app.get("/about", (req, res) => {

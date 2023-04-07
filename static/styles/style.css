@@ -112,6 +112,7 @@ a:active {
 	min-height: 200px;
 	font-size: initial;
 	animation: zoom-fade 0.2s ease-in-out;
+	position: relative;
 }
 
 .item-preview.large {
@@ -146,6 +147,10 @@ a:active {
 	transform: scale(1, 1);
 	color: var(--text-color-onaccent);
 	text-decoration: none;
+	max-width: 350px;
+	left: 0;
+	right: 0;
+	margin: 0 auto;
 }
 
 .item-preview > a:hover {
@@ -355,8 +360,13 @@ menu#structure-sidebar > li + li {
 	margin-top: 10px;
 }
 
-menu#structure-sidebar > li:hover {
+menu#structure-sidebar > li:hover,
+menu#structure-sidebar > li.current {
 	background-color: var(--background-color-sidebar-bold);
+}
+
+menu#structure-sidebar > li.current * {
+	cursor: default;
 }
 
 menu#structure-sidebar > li.title {
@@ -504,6 +514,14 @@ div#structure-content {
 	border-radius: var(--roundness);
 	box-shadow: 0 0 2px 0 var(--border-color);
 	background-color: var(--background-color);
+}
+
+
+
+.photo-frame{
+	width: 100%;
+	aspect-ratio: 4/3;
+	border-radius: var(--roundness);
 }
 
 

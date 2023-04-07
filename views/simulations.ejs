@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<%- include("/partials/head") %>
+</head>
+<body>
+
+	<%- include("/partials/header") %>
+	<main>
+		<p>
+			I like making simple interactive simulations (often physics related).
+			They are all written in JavaScript, so will run in your browser.
+			If you are interested in making fun visualisations like these, check out this <a href="https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Tutorial">canvas tutorial</a> to start.
+		</p>
+	</main>
+
+	<section>
+		<ul class="list-preview">
+			<% simulations.forEach(function(item) { %>
+			<li class="item-preview <%= item.image ? 'large' : 'small' %>">
+				<a class="box-shadow" href="/simulations/<%= item.id %>">
+					<% if (item.image) { %>
+					<img src="/assets/<%= item.id %>.png">
+					<% } %>
+					<p class="title"><%= item.title %></p>
+					<p class="description"><%= item.description %></p>
+				</a>
+			</li>
+			<% }); %>
+		</ul>
+	</section>
+
+	<%- include("/partials/footer") %>
+
+</body>
+</html>
