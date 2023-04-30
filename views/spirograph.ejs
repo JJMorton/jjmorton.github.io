@@ -12,17 +12,6 @@
 			<a href="/" id="home-link">Return to <span id="website-name"></span></a>
 			<%- include(`/partials/controls/button`, { name: "stopstart" }) %>
 			<%- include(`/partials/controls/knob`, { name: "speed" }) %>
-			<p>
-			Adjust the size ratio between the guide and drawing wheel to get different patterns.
-			More <span class="tooltip" title="i.e. ratios with a higher 'lowest common multiple' (LCM)">irregular ratios</span> give patterns that make more rotations before they complete.
-			</p>
-			<div class="control-group">
-				<%- include(`/partials/controls/knob`, { name: "ratioguide" }) %>
-				<%- include(`/partials/controls/knob`, { name: "ratiowheel" }) %>
-			</div>
-			<p>
-			This pattern completes in <strong><span id="pattern-rotations">0</span></strong> rotations.
-			</p>
 			<%- include(`/partials/controls/knob`, { name: "holenumber" }) %>
 			<%- include(`/partials/controls/checkbox`, { name: "showtools" }) %>
 			<h3>Guide</h3>
@@ -32,6 +21,10 @@
 				<%- include(`/partials/controls/knob`, { name: "guideparam" }) %>
 			</div>
 			<h3>Wheel</h3>
+			<%- include(`/partials/controls/knob`, { name: "wheelsize" }) %>
+			<p style="margin: 0;">
+			This pattern completes in <strong><span id="pattern-rotations">0</span></strong> rotations.
+			</p>
 			<div class="control-group">
 				<%- include(`/partials/controls/combo`, { name: "wheeltype" }) %>
 				<%- include(`/partials/controls/knob`, { name: "wheelparam" }) %>

@@ -661,8 +661,8 @@ window.addEventListener("load", function() {
 		inside: new Checkbox("inside", "Inside Guide", true, () => recreateWheels = true),
 		showTools: new Checkbox("showtools", "Show Tools", true, () => reRenderTools = true),
 		guideSize: new Knob("guidesize", "Size", "in", 2, 0.2, 5, 0.1, () => recreateWheels = true),
-		ratioGuide: new Knob("ratioguide", "Guide", "parts", 40, 1, 100, 1, () => recreateWheels = true),
-		ratioWheel: new Knob("ratiowheel", "Wheel", "parts", 18, 1, 100, 1, () => recreateWheels = true),
+		// ratioGuide: new Knob("ratioguide", "Guide", "parts", 40, 1, 100, 1, () => recreateWheels = true),
+		wheelPercent: new Knob("wheelsize", "Size", "%", 30, 5, 100, 5, () => recreateWheels = true),
 		guideParam: new Knob("guideparam", "Shape", "%", 50, 10, 100, 1, () => recreateWheels = true).setDisabled(true),
 		wheelParam: new Knob("wheelparam", "Shape", "%", 50, 10, 100, 1, () => recreateWheels = true).setDisabled(true),
 
@@ -734,7 +734,7 @@ window.addEventListener("load", function() {
 		} else {
 			sim.timer.pause();
 		}
-		[controls.ratioGuide, controls.ratioWheel, controls.guideType, controls.guideSize, controls.wheelType, controls.inside, controls.holeNumber]
+		[controls.wheelPercent, controls.guideType, controls.guideSize, controls.wheelType, controls.inside, controls.holeNumber]
 			.forEach(control => control.setDisabled(!sim.timer.isPaused));
 		controls.startstop.setDisabled(false);
 		controls.speed.setDisabled(false);
@@ -752,7 +752,7 @@ window.addEventListener("load", function() {
 		guide = new (controls.guideType.getValue())(...args);
 
 		// Create the drawing wheel
-		args = [guide.perimeter * controls.ratioWheel.getValue() / controls.ratioGuide.getValue()];
+		args = [guide.perimeter * controls.wheelPercent.getValue() / 100];
 		if (controls.wheelType.getValue().shape === "rod")
 			args.push({aspectratio: controls.wheelParam.getValue() / 100});
 		else if (controls.wheelType.getValue().shape === "reuleaux")
@@ -770,7 +770,7 @@ window.addEventListener("load", function() {
 
 		// Calculate the number of rotations required to complete this pattern
 		let rots = 1;
-		while ((controls.ratioGuide.getValue() * rots) % (controls.ratioWheel.getValue()) !== 0) {
+		while ((100 * rots) % (controls.wheelPercent.getValue()) !== 0) {
 			rots++;
 			if (rots > 200) {
 				console.error("max iterations");
@@ -943,11 +943,11 @@ window.addEventListener("load", function() {
 			.createStep(controls.speed.DOM, "Adjust the speed so that the pattern is drawn more quickly. Use your mouse to drag the knob upwards to do this.", ["change"])
 			.createStep(controls.startstop.DOM, "Once the pattern completes, click stop.", ["change"])
 			.createStep(controls.inside.DOM, "Move the drawing wheel outside of the ring by unchecking this box.", ["change"])
-			.createStep(controls.ratioWheel.DOM, "Make the drawing wheel smaller by adjusting the ratio of the sizes of the wheels. Only the drawing wheel is affected, the size of the ring is unchanged.", ["change"])
+			.createStep(controls.guideSize.DOM, "Change the scale of the drawing.", ["change"])
+			.createStep(controls.wheelPercent.DOM, "Change the size of the wheel.", ["change"])
 			.createStep(controls.holeNumber.DOM, "Move the pen to a different hole to create a different variation of the pattern.", ["change"])
-			.createStep(controls.guideSize.DOM, "Change the overall size of the drawing tools.", ["change"])
 			.createStep(controls.thickness1.DOM, "Use a thicker pen.", ["change"])
-			.createStep(controls.colour3.DOM, "Change the colour of the pen.", ["change"])
+			.createStep(controls.colour5.DOM, "Change the colour of the pen.", ["change"])
 			.createStep(controls.startstop.DOM, "Begin drawing again.", ["change"])
 			.createStep(controls.save.DOM, "When you're happy with the drawing you can click this button to view the image.", ["change"])
 			.nextStep();
