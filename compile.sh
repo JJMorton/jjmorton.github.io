@@ -1,10 +1,14 @@
 #!/bin/bash
 
+# Compile all typescript in the project
+tsc
+
 echo "Starting server..."
 PORT=1337
 PORT=$PORT node server.js &
 sleep 1
 
+# Only output_dir/ will be modified
 output_dir="./docs"
 static_dir="./static"
 
