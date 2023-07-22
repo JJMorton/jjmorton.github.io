@@ -1,6 +1,8 @@
 {
 	"compilerOptions": {
 		"module": "ES6",
-		"target": "ES6"
+		"target": "ES6",
+		"outDir": "static/scripts/",
+		"rootDir": "ts/"
 	}
 }

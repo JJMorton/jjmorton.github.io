@@ -1,5 +1,5 @@
 node_modules/
 /TODO
 *.sublime-workspace
-/project
 .DS_Store
+/static/scripts/
