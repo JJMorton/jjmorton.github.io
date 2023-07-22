@@ -22,8 +22,10 @@ static_dir="./static"
 # done
 # cd ../..
 
+# Remove the output directory to start from scratch
 rm -rf "$output_dir"
 
+# Copy all the static assets over
 echo "Copying static files..."
 mkdir -p "$output_dir"
 cp -r "$static_dir"/* "$output_dir/"
@@ -47,8 +49,7 @@ files=(
 )
 
 echo "Finding simulations..."
-simulations="$(grep -Eo '\"id\": \".*\"' simulations.json | sed 's/"id": //g' | sed 's/"//g')"
-readarray -t simulations <<<"$simulations"
+simulations=( $(grep -Eo '\"id\": \".*\"' simulations.json | sed 's/"id": //g' | sed 's/"//g') )
 for i in $(seq 0 $((${#simulations[@]} - 1))); do
 	urls+=("/simulations/${simulations[$i]}")
 	files+=("/simulations/${simulations[$i]}/index.html")
