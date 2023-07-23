@@ -1,4 +1,4 @@
-import {Simulation, Button, Knob, ComboBox} from './main.js';
+import {Simulation, Button, Knob, ComboBox, MouseButton} from './main.js';
 import {Mouse} from './main.js';
 import {Vector} from './vector.js';
 
@@ -183,7 +183,7 @@ window.addEventListener("load", function() {
 
 		sim.render = function() {
 
-			if (sim.mouse.pressed === Mouse.buttons.LEFT && (sim.mouse.x != state.mousePos.x || sim.mouse.y != state.mousePos.y)) {
+			if (sim.mouse.pressed === MouseButton.LEFT && (sim.mouse.x != state.mousePos.x || sim.mouse.y != state.mousePos.y)) {
 				const mousePos = new Vector([sim.mouse.x, sim.mouse.y]);
 				state.position = state.position.add(state.mousePos.sub(mousePos).divide(0.5 * sim.canvas.width * state.zoom));
 				state.mousePos = mousePos;

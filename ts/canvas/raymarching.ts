@@ -1,4 +1,4 @@
-import {Simulation, Knob, Checkbox, Button} from './main.js';
+import {Simulation, Knob, Checkbox, Button, MouseButton} from './main.js';
 import {Mouse} from './main.js';
 import {Vector} from './vector.js';
 
@@ -103,7 +103,7 @@ window.addEventListener("load", function() {
 
 		sim.render = function() {
 
-			if (sim.mouse.pressed === Mouse.buttons.LEFT && (sim.mouse.x != lastMousePos.x || sim.mouse.y != lastMousePos.y)) {
+			if (sim.mouse.pressed === MouseButton.LEFT && (sim.mouse.x != lastMousePos.x || sim.mouse.y != lastMousePos.y)) {
 				cameraangle += (sim.mouse.x - lastMousePos.x) * 2 * Math.PI / sim.canvas.width;
 				cameraheight += (sim.mouse.y - lastMousePos.y) * 5 / sim.canvas.height;
 				cameraheight = Math.max(Math.min(2, cameraheight), 0.2);

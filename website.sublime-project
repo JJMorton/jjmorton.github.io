@@ -5,7 +5,8 @@
 			"path": ".",
 			"folder_exclude_patterns":
 			[
-				"docs"
+				"docs",
+				"static/scripts"
 			],
 		}
 	],

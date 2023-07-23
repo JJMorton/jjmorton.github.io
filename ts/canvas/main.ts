@@ -1,146 +1,191 @@
-const strToElt = str => new DOMParser().parseFromString(str, "text/html").body.firstChild;
+/**
+ * Timer with play and pause functionality
+ */
+class Timer {
 
-function Timer() {
-	// Timer with play and pause functionality
+	/** Time at which the timer was paused, -1 -> not paused */
+	private timePaused: number = 0;
+	/** amounts to the amount of time spent paused */
+	private offset: number = 0;
+	/** Speed of the timer, 1 corresponds to actual time */
+	private scale: number = 1;
+	/** Whether the user explicitly paused the timer */
+	private userPaused: boolean = true;
+	/** Whether the timer is currently paused */
+	private paused: boolean = true;
 
-	let timePaused = 0; // -1 -> not paused
-	let offset = 0; // amounts to the amount of time spent paused
-	let scale = 1; // Speed of the timer, 1 corresponds to actual time
+	// Wrapper to disallow setting pause state externally
+	public get isPaused(): boolean { return this.paused; }
 
-	let userPaused = true;
-
-	this.isPaused = true;
-
-	this.start = function() {
-		if (!this.isPaused) return;
-		offset += (performance.now() - timePaused) * scale;
-		timePaused = -1;
-		this.isPaused = false;
-	};
-
-	this.pause = function() {
-		if (this.isPaused) return;
-		timePaused = performance.now();
-		this.isPaused = true;
-		userPaused = true;
-	}
-
-	this.getTimescale = function() {
-		return scale;
-	}
-
-	this.setTimescale = function(newScale) {
+	public getTimescale(): number { return this.scale; }
+	public setTimescale(newScale: number) {
 		const t = this.getTime();
-		scale = newScale;
+		this.scale = newScale;
 		this.setTime(t);
 	}
 
-	this.getTime = function() {
+	public start() {
+		if (!this.isPaused) return;
+		this.offset += (performance.now() - this.timePaused) * this.scale;
+		this.timePaused = -1;
+		this.paused = false;
+	};
+
+	public pause() {
+		if (this.isPaused) return;
+		this.timePaused = performance.now();
+		this.paused = true;
+		this.userPaused = true;
+	}
+
+	public getTime() {
 		if (this.isPaused) {
-			return (scale * timePaused - offset) / 1000;
+			return (this.scale * this.timePaused - this.offset) / 1000;
 		} else {
-			return (scale * performance.now() - offset) / 1000;
+			return (this.scale * performance.now() - this.offset) / 1000;
 		}
 	}
 
-	this.setTime = function(newTime) {
+	public setTime(newTime: number) {
 		// Adjust offset such that it is now `newTime`
 		const time = this.getTime();
-		offset += (time - newTime) * 1000;
+		this.offset += (time - newTime) * 1000;
 	}
 
-	this.reset = function() {
+	public reset() {
 		this.setTime(0);
 	}
 
-	document.addEventListener("visibilitychange", () => {
-		if (document.visibilityState === "visible") {
-			if (!userPaused) this.start();
-		} else if (!this.isPaused) {
-			this.pause();
-			userPaused = false;
-		}
-	});
+	constructor() {
+		document.addEventListener("visibilitychange", () => {
+			if (document.visibilityState === "visible") {
+				if (!this.userPaused) this.start();
+			} else if (!this.isPaused) {
+				this.pause();
+				this.userPaused = false;
+			}
+		});
+	}
 }
 
-export function Mouse(elt, onclick) {
-	// Tracks mouse position relative to element 'elt'
-
-	this.pressed = Mouse.buttons.NONE;
-	this.x = 0;
-	this.y = 0;
-
-	// These two functions are called from the event listeners when needed
-	const mousemove = ({ pageX, pageY }) => {
-		let offsetTop = elt.offsetTop;
-		let offsetLeft = elt.offsetLeft;
-		let parent = elt.offsetParent;
-		while (parent) {
-			offsetTop += parent.offsetTop;
-			offsetLeft += parent.offsetLeft;
-			parent = parent.offsetParent;
-		}
-		this.x = (pageX - offsetLeft) * window.devicePixelRatio;
-		this.y = (pageY - offsetTop) * window.devicePixelRatio;
-	};
-	const mousepress = button => {
-		if (Object.values(Mouse.buttons).includes(button)) {
-			this.pressed = button;
-			onclick(button);
-		} else {
-			// Ignore buttons that we don't care abouut
-			this.pressed = Mouse.buttons.NONE;
-		}
-	};
-
-	// Listeners for touchscreen
-	elt.addEventListener("touchstart", e => {
-		mousemove(e.changedTouches[0]);
-		mousepress(Mouse.buttons.LEFT);
-		e.preventDefault();
-	});
-	window.addEventListener("touchend", () => mousepress(Mouse.buttons.NONE));
-	window.addEventListener("touchmove", e => mousemove(e.changedTouches[0]));
-
-	// Listeners for mouse
-	elt.addEventListener("mousedown", e => {
-		mousepress(e.button);
-		e.preventDefault();
-	});
-	window.addEventListener("mouseup", () => mousepress(Mouse.buttons.NONE));
-	window.addEventListener("mousemove", e => mousemove(e));
+export enum MouseButton {
+	NONE=-1, LEFT, MIDDLE, RIGHT
 }
 
-Mouse.buttons = {
-	NONE: -1,
-	LEFT: 0,
-	MIDDLE: 1,
-	RIGHT: 2
-};
+/**
+ * Tracks mouse position relative to a DOM element
+ */
+export class Mouse {
 
+	public pressed: MouseButton = MouseButton.NONE;
+	public x: number = 0;
+	public y: number = 0;
+
+	/**
+	 * @param elt The DOM element to track the mouse relative to
+	 * @params onclick A callback function, provided with the mouse button pressed
+	 */
+	constructor(elt: HTMLElement, onclick: (mbutton: number) => void) {
+
+		// These two functions are called from the event listeners when needed
+		const mousemove = ({ pageX, pageY }: {pageX: number, pageY: number}) => {
+			let offsetTop = elt.offsetTop;
+			let offsetLeft = elt.offsetLeft;
+			let parent: HTMLElement | null = elt.offsetParent;
+			while (parent) {
+				offsetTop += parent.offsetTop;
+				offsetLeft += parent.offsetLeft;
+				parent = parent.offsetParent;
+			}
+			this.x = (pageX - offsetLeft) * window.devicePixelRatio;
+			this.y = (pageY - offsetTop) * window.devicePixelRatio;
+		};
+		const mousepress = (button: MouseButton) => {
+			if (Object.values(MouseButton).includes(button)) {
+				this.pressed = button;
+				onclick(button);
+			} else {
+				// Ignore buttons that we don't care abouut
+				this.pressed = MouseButton.NONE;
+			}
+		};
+
+		// Listeners for touchscreen
+		elt.addEventListener("touchstart", e => {
+			mousemove(e.changedTouches[0]);
+			mousepress(MouseButton.LEFT);
+			e.preventDefault();
+		});
+		window.addEventListener("touchend", () => mousepress(MouseButton.NONE));
+		window.addEventListener("touchmove", e => mousemove(e.changedTouches[0]));
+
+		// Listeners for mouse
+		elt.addEventListener("mousedown", e => {
+			mousepress(e.button);
+			e.preventDefault();
+		});
+		window.addEventListener("mouseup", () => mousepress(MouseButton.NONE));
+		window.addEventListener("mousemove", e => mousemove(e));
+	}
+}
+
+type AnyWebGLRenderingContext = WebGLRenderingContext | WebGL2RenderingContext
+function isWebGL(ctx: RenderingContext): ctx is AnyWebGLRenderingContext {
+	return (ctx instanceof WebGLRenderingContext) || (ctx instanceof WebGL2RenderingContext)
+}
+
+/**
+ * A class containing logic for a 'simulation'.
+ * Manages a HTML canvas, a mouse handler, a timer, etc.
+ */
 export class Simulation {
 
-	constructor(contextType = "2d") {
-		// This function should be set by the simulation using this class
-		this.render = null;
+	/** This function should be set by the simulation using this class */
+	public render: ((c: RenderingContext) => void) | null = null;
+	public canvas: HTMLCanvasElement;
+	public ctx: RenderingContext;
+	/** The number of metres that the canvas should cover */
+	public scale: number = 5;
+	public mouse: Mouse;
+	public timer: Timer;
+	/** Current frame number */
+	public frame: number;
+	/** Time between current frame and previous */
+	public delta: number;
+
+	public colours: {
+		background: string, foreground: string, accent: string
+	} = {
+		background: "#000", foreground: "#000", accent: "#000"
+	}
+
+	/** Set this to trigger it when the user lifts a mouse button */
+	public onmouseup?: () => void;
+	/** Set this to trigger it when the user presses down a mouse button */
+	public onmousedown?: () => void;
+
+	private offscreenCanvases: {canvas: HTMLCanvasElement, ctx: RenderingContext}[] = [];
+
+	constructor(contextType: string = "2d") {
 
 		// Get the canvas element and drawing context
-		this.contextType = contextType;
-		this.canvas = document.querySelector("canvas");
-		this.ctx = this.canvas.getContext(contextType);
+		const canvas = document.querySelector("canvas");
+		if (!canvas) throw Error("Cannot find HTMLCanvasElement");
+		this.canvas = canvas;
+		const ctx = this.canvas.getContext(contextType);
+		if (!ctx) throw Error("Cannot find HTMLCanvasElement");
+		this.ctx = ctx;
 
-		this.offscreenCanvases = [];
 		this.recolour();
 		window.addEventListener("recolour", () => this.recolour());
 
-		// The number of metres that the canvas should cover.
 		this.scale = 5;
 
 		// Track the user's mouse
 		this.mouse = new Mouse(this.canvas, button => {
-			if (button === Mouse.buttons.NONE) {
+			if (button === MouseButton.NONE) {
 				if (this.onmouseup) this.onmouseup();
-			} else if (button === Mouse.buttons.LEFT) {
+			} else if (button === MouseButton.LEFT) {
 				if (this.onmousedown) this.onmousedown();
 			}
 		});
@@ -172,6 +217,7 @@ export class Simulation {
 		// The offscreen canvases are drawn over the main canvas, in the order of their creation
 		const canvas = document.createElement("canvas");
 		const ctx = canvas.getContext("2d");
+		if (!ctx) throw Error("Failed to create offscreen canvas rendering context");
 		const obj = {canvas, ctx};
 		this.offscreenCanvases.push(obj);
 		this.resize();
@@ -180,14 +226,17 @@ export class Simulation {
 
 
 	renderOffscreenCanvases() {
+		if (!(this.ctx instanceof CanvasRenderingContext2D)) {
+			throw Error("Main canvas must have a context type of 2d to use an offscreen canvas");
+		}
 		for (const {canvas} of this.offscreenCanvases) {
 			this.ctx.drawImage(canvas, 0, 0);
 		}
 	}
 
 
-	createShaderProgram(vertFile, fragFile) {
-		if (!(this.contextType === "webgl" || this.contextType === "webgl2"))
+	createShaderProgram(vertFile: string, fragFile: string) {
+		if (!isWebGL(this.ctx))
 			throw Error("Canvas must have webgl context to add shaders");
 
 		const gl = this.ctx;
@@ -195,24 +244,27 @@ export class Simulation {
 		// Creates a shader program from vertex and fragment shader files
 		return new Promise((resolve, reject) => {
 
-			const fetchFile = path => new Promise((resolve, reject) => {
-				const request = new XMLHttpRequest();
-				request.addEventListener("load", () => {
-					if (request.status != 200) return reject(`Failed to fetch "${path}", response status ${request.status}`);
-					resolve(request.responseText);
+			const fetchFile = (path: string): Promise<string> =>
+				new Promise((resolve, reject) => {
+					const request = new XMLHttpRequest();
+					request.addEventListener("load", () => {
+						if (request.status != 200) return reject(`Failed to fetch "${path}", response status ${request.status}`);
+						resolve(request.responseText);
+					});
+					request.addEventListener("error", reject);
+					request.addEventListener("abort", reject);
+					request.open("GET", path);
+					request.send();
 				});
-				request.addEventListener("error", reject);
-				request.addEventListener("abort", reject);
-				request.open("GET", path);
-				request.send();
-			});
 
-			const compileShader = (gl, src, type) => {
+			const compileShader = (gl: AnyWebGLRenderingContext, src: string, type: number) => {
 				const shader = gl.createShader(type);
+				if (!shader) throw Error("Failed to create shader");
 				gl.shaderSource(shader, src);
 				gl.compileShader(shader);
 				if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-					console.error(`Could not compile ${type === gl.VERTEX_SHADER ? "vertex" : "fragment"} shader: ${gl.getShaderInfoLog(shader)}`)
+					const shaderType = type === gl.VERTEX_SHADER ? "vertex" : "fragment";
+					console.error(`Could not compile ${shaderType} shader: ${gl.getShaderInfoLog(shader)}`)
 					return null;
 				}
 				return shader;
@@ -228,6 +280,7 @@ export class Simulation {
 
 					// Shaders compiled correctly, create and link program
 					const program = gl.createProgram();
+					if (!program) throw Error("Failed to create shader program");
 					gl.attachShader(program, vertShader);
 					gl.attachShader(program, fragShader);
 					gl.linkProgram(program);
@@ -248,23 +301,26 @@ export class Simulation {
 	resize() {
 		// Make the canvas fill its parent element
 		const scaling = window.devicePixelRatio || 1;
-		const width = this.canvas.parentNode.clientWidth * scaling;
-		const height = this.canvas.parentNode.clientHeight * scaling;
+		const parent = this.canvas.parentElement;
+		const width = (parent ? parent.clientWidth : window.innerWidth) * scaling;
+		const height = (parent ? parent.clientHeight : window.innerHeight) * scaling;
 
-		const resizeCanvas = (canvas, ctx) => {
+		const resizeCanvas = (canvas: HTMLCanvasElement, ctx: RenderingContext) => {
 			canvas.width = width;
 			canvas.height = height;
-			// When the window is resized, stroke and fill styles are lost so we need to set them again
-			ctx.strokeStyle = this.colours.accent;
-			ctx.fillStyle = this.colours.foreground;
-			ctx.lineJoin = "round";
-			ctx.font = "bold 0.8em sans-serif";
+			if (ctx instanceof CanvasRenderingContext2D) {
+				// When the window is resized, stroke and fill styles are lost so we need to set them again
+				ctx.strokeStyle = this.colours.accent;
+				ctx.fillStyle = this.colours.foreground;
+				ctx.lineJoin = "round";
+				ctx.font = "bold 0.8em sans-serif";
+			}
 		};
 
 		resizeCanvas(this.canvas, this.ctx);
 		for (const {canvas, ctx} of this.offscreenCanvases) resizeCanvas(canvas, ctx);
 
-		if (this.contextType === "webgl2" || this.contextType === "webgl") {
+		if (isWebGL(this.ctx)) {
 			this.ctx.viewport(0, 0, width, height);
 		}
 
@@ -275,7 +331,12 @@ export class Simulation {
 	}
 
 
-	withCanvasState(f) {
+	withCanvasState(f: () => void) {
+		if (!(this.ctx instanceof CanvasRenderingContext2D)) {
+			console.warn("Can only save canvas state with 2d context");
+			f();
+			return;
+		}
 		this.ctx.save();
 		f();
 		this.ctx.restore();
@@ -324,7 +385,7 @@ export class Simulation {
 	 */
 
 	oneshot() {
-		this.render(this.ctx);
+		if (this.render) this.render(this.ctx);
 	}
 
 
@@ -332,73 +393,76 @@ export class Simulation {
 	 * Conversions between different length units
 	 */
 	
-	mToPx(metres) {
+	mToPx(metres: number) {
 		return this.canvas.height * metres / this.scale;
 	}
-	pxToM(px) {
+	pxToM(px: number) {
 		return px / this.canvas.height * this.scale;
 	}
-	percToPx(perc) {
+	percToPx(perc: number) {
 		return this.canvas.height * perc / 100;
 	}
-	pxToPerc(px) {
+	pxToPerc(px: number) {
 		return px / this.canvas.height * 100;
 	}
-	percToM(perc) {
+	percToM(perc: number) {
 		return this.pxToM(this.percToPx(perc));
 	}
-	mToPerc(m) {
+	mToPerc(m: number) {
 		return this.pxToPerc(this.mToPx(m));
 	}
 
 }
 
 
-class Control {
+class Control<T, DOMT extends HTMLElement> {
 
-	#value = null;
-	#disabled = false;
-	#onupdate = null;
+	private value: T;
+	private disabled = false;
+	private onupdate: (val: T) => void;
 
-	DOM = null;
+	DOM: DOMT;
 
-	constructor(id, onupdate = () => { return; }) {
-		this.#onupdate = onupdate;
-		this.DOM = document.getElementById(id);
-		if (!this.DOM) throw Error("Control does not exist");
+	constructor(id: string, init: T, onupdate = (val: T) => { return; }) {
+		const DOM = document.getElementById(id);
+		if (!DOM) throw Error("Control does not exist");
+		// @ts-ignore WARNING: No check to make sure that the DOM element is of the specified type
+		this.DOM = DOM;
+		this.value = init;
+		this.onupdate = onupdate;
 	}
 
-	onUpdate(func) {
-		this.#onupdate = func;
+	onUpdate(func: (val: T) => void) {
+		this.onupdate = func;
 	}
 
 	getValue() {
-		return this.#value;
+		return this.value;
 	}
-	setValue(val) {
-		this.#value = val;
-		this.#onupdate(this.#value);
+	setValue(val: T) {
+		this.value = val;
+		this.onupdate(this.value);
 		this.DOM.dispatchEvent(new Event("change"));
 		return this;
 	}
 
 	isDisabled() {
-		return this.#disabled;
+		return this.disabled;
 	}
-	setDisabled(val) {
-		this.#disabled = val;
+	setDisabled(val: boolean): Control<T, DOMT> {
+		this.disabled = val;
 		this.DOM.classList[val ? "add" : "remove"]("disabled");
 		return this;
 	}
 }
 
-export class Button extends Control {
-	constructor(id, label, onclick = undefined) {
-		super(id, onclick);
+export class Button extends Control<null, HTMLButtonElement> {
+	constructor(id: string, label: string, onclick = undefined) {
+		super(id, null, onclick);
 		this.DOM.textContent = label;
 		this.DOM.addEventListener("click", () => this.setValue(null));
 	}
-	setDisabled(val) {
+	setDisabled(val: boolean) {
 		this.DOM.disabled = val;
 		return super.setDisabled(val);
 	}
@@ -407,14 +471,22 @@ export class Button extends Control {
 	}
 }
 
-export class Knob extends Control {
+export class Knob extends Control<number, HTMLDivElement> {
 
 	// The unrounded value so that scrolling can change it at a reasonable rate
 	// instead of by a step every scroll event
-	#scrollValue = 0;
+	private scrollValue = 0;
+	public wheel: HTMLDivElement;
+	public marker: HTMLDivElement;
+	public output: HTMLOutputElement;
 
-	constructor(id, label, units, init, min, max, step, onupdate = undefined) {
-		super(id, onupdate);
+	private min: number;
+	private max: number;
+	private step: number;
+
+	constructor(id: string, label: string, units: string, init: number, min: number, max: number, step: number, onupdate: (val: number) => void) {
+		super(id, 0, onupdate);
+		// We're just going to assume these elements are present here, not worth type checking
 		this.DOM.querySelector(".name").textContent = label;
 		this.DOM.querySelector(".units").textContent = units;
 		this.wheel = this.DOM.querySelector(".wheel");
@@ -424,12 +496,10 @@ export class Knob extends Control {
 		this.max = max;
 		this.step = step;
 
-		this.#scrollValue = init;
-
 		// Input event listener
-		const listener = e => {
+		const listener = (e: MouseEvent | TouchEvent) => {
 			let pageY = 0;
-			if (e.type === "mousedown") pageY = e.pageY;
+			if (e instanceof MouseEvent) pageY = e.pageY;
 			else if (e.type === "touchstart") pageY = e.touches[0].pageY;
 			else return;
 
@@ -439,13 +509,13 @@ export class Knob extends Control {
 
 			const startY = pageY;
 			const startValue = this.getValue();
-			const moveListener = e => {
-				const pageY = e.type === "mousemove" ? e.pageY : e.touches[0].pageY;
+			const moveListener = (e: MouseEvent | TouchEvent) => {
+				const pageY = e instanceof MouseEvent ? e.pageY : e.touches[0].pageY;
 				let val = startValue + (this.max - this.min) * (startY - pageY) * 3 / window.screen.height;
 				val = Math.min(this.max, Math.max(this.min, val));
 				this.setValue(val);
 			};
-			const upListener = e => {
+			const upListener = (e: MouseEvent | TouchEvent) => {
 				if (e.type === "touchend" && e.touches.length !== 0) return;
 				window.removeEventListener("mousemove", moveListener);
 				window.removeEventListener("touchmove", moveListener);
@@ -466,8 +536,8 @@ export class Knob extends Control {
 			e.preventDefault();
 			if (this.isDisabled()) return;
 			const scale = (this.max - this.min) / 50;
-			this.#scrollValue = Math.min(this.max, Math.max(this.min, this.#scrollValue + e.deltaY/100 * scale));
-			this.setValue(this.#scrollValue);
+			this.scrollValue = Math.min(this.max, Math.max(this.min, this.scrollValue + e.deltaY/100 * scale));
+			this.setValue(this.scrollValue);
 		});
 
 		// Reset on right click
@@ -479,30 +549,36 @@ export class Knob extends Control {
 		this.setValue(init);
 	}
 
-	setDisabled(val) {
+	setDisabled(val: boolean) {
 		return super.setDisabled(val);
 	}
 
 	updateKnob() {
 		const value = this.getValue();
-		this.output.textContent = value;
+		this.output.textContent = value.toString();
 		this.wheel.style = `transform: rotate(${(value - this.min) / (this.max - this.min) * 2 * Math.PI}rad);`;
 	}
 
-	setValue(value) {
+	setValue(value: number) {
 		value = parseFloat((this.step * Math.round(value / this.step)).toFixed(10));
-		if (value === this.getValue()) return;
+		if (value === this.getValue()) return this;
 		super.setValue(value);
-		this.#scrollValue = this.getValue();
+		this.scrollValue = this.getValue();
 		this.updateKnob();
 		return this;
 	}
 }
 
-export class ComboBox extends Control {
-	constructor(id, label, onupdate = undefined) {
-		super(id, onupdate);
+export class ComboBox extends Control<{name: string, value: any} | null, HTMLDivElement> {
+
+	select: HTMLSelectElement;
+	options: {name: string, value: any}[];
+
+	constructor(id: string, label: string, onupdate = undefined) {
+		super(id, null, onupdate);
+		// @ts-ignore Assume element exists
 		this.DOM.querySelector("label").textContent = label;
+		// @ts-ignore
 		this.select = this.DOM.querySelector("select");
 		this.options = [];
 
@@ -511,17 +587,17 @@ export class ComboBox extends Control {
 		});
 	}
 
-	setDisabled(val) {
+	setDisabled(val: boolean) {
 		this.select.disabled = val;
 		return super.setDisabled(val);
 	}
 
-	setValue(val) {
+	setValue(val: any) {
 		this.select.selectedIndex = this.options.map(o => o.value).indexOf(val);
 		return super.setValue(val);
 	}
 
-	addOption({ name, value }) {
+	addOption({ name, value }: {name: string, value: any}) {
 		this.options.push({ name, value });
 		const option = document.createElement("option");
 		option.text = name;
@@ -537,10 +613,15 @@ export class ComboBox extends Control {
 	}
 }
 
-export class Checkbox extends Control {
-	constructor(id, label, init, onupdate = undefined) {
-		super(id, onupdate);
+export class Checkbox extends Control<boolean, HTMLDivElement> {
+
+	checkbox: HTMLInputElement;
+
+	constructor(id: string, label: string, init: boolean, onupdate = undefined) {
+		super(id, init, onupdate);
+		// @ts-ignore
 		this.DOM.querySelector("label").textContent = label;
+		// @ts-ignore
 		this.checkbox = this.DOM.querySelector("input");
 		this.setValue(init);
 
@@ -548,19 +629,23 @@ export class Checkbox extends Control {
 			this.setValue(this.checkbox.checked);
 		});
 	}
-	setDisabled(val) {
+	setDisabled(val: boolean) {
 		this.checkbox.disabled = val;
 		return super.setDisabled(val);
 	}
-	setValue(val) {
+	setValue(val: boolean) {
 		this.checkbox.checked = val;
 		return super.setValue(val);
 	}
 }
 
-export class Meter extends Control {
-	constructor(id, label, units, init, min, max) {
-		super(id);
+export class Meter extends Control<number, HTMLDivElement> {
+
+	meter: HTMLProgressElement;
+	output: HTMLOutputElement;
+
+	constructor(id: string, label: string, units: string, init: number, min: number, max: number) {
+		super(id, init);
 		this.DOM.querySelector(".name").textContent = label;
 		this.DOM.querySelector(".units").textContent = units;
 		this.meter = this.DOM.querySelector("progress");
@@ -568,11 +653,11 @@ export class Meter extends Control {
 		this.meter.min = min; this.meter.max = max;
 		this.setValue(init);
 	}
-	setDisabled(val) {
+	setDisabled(val: boolean) {
 		console.warn("Disabling a meter has no effect");
 		return super.setDisabled(val);
 	}
-	setValue(val) {
+	setValue(val: number) {
 		this.meter.value = val;
 		this.output.textContent = val.toString();
 		return super.setValue(val);
