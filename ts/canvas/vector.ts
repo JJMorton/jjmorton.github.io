@@ -1,4 +1,12 @@
-function parseArgument(x, N=null) {
+/**
+ * Either a vector, array, or scalar. Scalars will be treated as a uniform vector with the appropriate length.
+ */
+export type VectorLike = Vector | number[] | number
+
+/**
+ * Creates a vector from the argument, optionally enforcing a length `N`
+ */
+function parseVector(x: VectorLike, N?: number): Vector {
 	let array;
 	if (x instanceof Array) {
 		array = x;
@@ -7,122 +15,121 @@ function parseArgument(x, N=null) {
 	} else {
 		throw TypeError('Invalid argument, must be a number, array or vector');
 	}
+
 	if (N != null && array.length !== N) {
-		throw RangeError(`Vector of size ${array.length} not compatible with vector of size ${N}`);
+		throw RangeError(`Vector of size ${array.length}, wanted size ${N}`);
 	}
-	return array;
+	return new Vector().concat(array);
 }
 
+/**
+ * A very simple (and limited) zero-indexed square matrix, indended
+ * for transformations. No determinant or inverse.
+ */
 export class SquareMatrix {
-	/*
-	 * A very simple (and limited) zero-indexed square matrix, indended
-	 * for transformations. No determinant or inverse.
-	 */
 
-	N
-	#arr
+	public readonly N: number
+	private arr: number[]
 
-	constructor(arr) {
+	constructor(arr: number[]) {
 		let N = Math.sqrt(arr.length);
 		if (Math.floor(N) !== N)
 			throw Error("Matrix must be initialised with array of length N^2");
 		this.N = N;
-		this.#arr = arr;
+		this.arr = arr;
 	}
 
-	#validate_index(i) {
+	private validate_index(i: number) {
 		if (i < 0 || i >= this.N) throw Error("Invalid matrix indices");
 	}
 
-	#indices_to_arr_index(i, j) {
-		this.#validate_index(i);
-		this.#validate_index(j);
+	private indices_to_arr_index(i: number, j: number): number {
+		this.validate_index(i);
+		this.validate_index(j);
 
 		return this.N * i + j;
 	}
 
-	get(i, j) {
-		let idx = this.#indices_to_arr_index(i, j);
-		return this.#arr[idx];
+	public get(i: number, j: number): number {
+		let idx = this.indices_to_arr_index(i, j);
+		return this.arr[idx];
 	}
 
-	set(i, j, value) {
-		let idx = this.#indices_to_arr_index(i, j);
-		this.#arr[idx] = value;
+	public set(i: number, j: number, value: number) {
+		let idx = this.indices_to_arr_index(i, j);
+		this.arr[idx] = value;
 	}
 
-	get_row(i) {
-		this.#validate_index(i);
+	public get_row(i: number): Vector {
+		this.validate_index(i);
 		return new Vector(Array(this.N)).map((_, j) => this.get(i, j));
 	}
 
-	get_col(j) {
-		this.#validate_index(j);
+	public get_col(j: number): Vector {
+		this.validate_index(j);
 		return new Vector(Array(this.N)).map((_, i) => this.get(i, j));
 	}
 
-	stretch(s) {
-		if (s instanceof Vector) {
-			const vec = s
-			if (vec.length !== this.N) throw Error("Shape mismatch between matrix and vector");
-			const mat = new SquareMatrix([...this.#arr]);
-			for (let i = 0; i < mat.N; i++) {
-				mat.set(i, i, mat.get(i, i) * vec[i]);
-			}
-			return mat;
-		} else {
-			const mat = new SquareMatrix([...this.#arr]);
-			for (let i = 0; i < mat.N; i++) {
-				mat.set(i, i, mat.get(i, i) * s);
-			}
+	/**
+	 * Multiply the diagonal of the matrix by a vector (element-wise)
+	 */
+	public stretch(s: VectorLike) {
+		const arr = parseVector(s, this.N);
+		const mat = new SquareMatrix([...this.arr]);
+		for (let i = 0; i < mat.N; i++) {
+			mat.set(i, i, mat.get(i, i) * arr[i]);
 		}
+		return mat;
 	}
 
-	matmul(other) {
-		if (other instanceof SquareMatrix) {
-			// Matrix-matrix multiplication
-			let mat = other;
-			if (other.N !== this.N) throw Error("Shape mismatch between matrices");
-			let res = SquareMatrix.Identity(this.N);
-			for (let i = 0; i < this.N; i++) {
-				for (let j = 0; j < this.N; j++) {
-					res.set(i, j, this.get_row(i).dot(mat.get_col(j)));
-				}
+	/**
+	 * Matrix multiplication
+	 */
+	public matmul(mat: SquareMatrix): SquareMatrix {
+		// Matrix-matrix multiplication
+		if (mat.N !== this.N) throw Error("Shape mismatch between matrices");
+		let res = SquareMatrix.Identity(this.N);
+		for (let i = 0; i < this.N; i++) {
+			for (let j = 0; j < this.N; j++) {
+				res.set(i, j, this.get_row(i).dot(mat.get_col(j)));
 			}
-			return res;
-
-		} else if (other instanceof Vector) {
-			// Matrix-vector multiplication
-			let vec = other;
-			if (vec.length !== this.N) throw Error("Shape mismatch between matrix and vector");
-			return Vector.Zeros(this.N).map((_, i) => this.get_row(i).dot(vec));
-
-		} else {
-			throw Error("Can only use matmul() on a SquareMatrix or Vector");
 		}
+		return res;
 	}
 
-	toDOMArray() {
-		/* Returns array in the format specified here:
-		 * https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/transform
-		 * Returns a, b, c, d, e, f for a matrix:
-		 * a, c, e,
-		 * b, d, f,
-		 * 0, 0, 1
-		 */
+	/**
+	 * Applies this matrix on the vector `X`.
+	 */
+	public vecmul(vec: Vector): Vector {
+		if (vec.length !== this.N) throw Error("Shape mismatch between matrix and vector");
+		return Vector.Zeros(this.N).map((_, i) => this.get_row(i).dot(vec));
+	}
+
+	/**
+	 * Returns array in the format specified here:
+	 * https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/transform.
+	 * Returns a, b, c, d, e, f for a matrix of the form
+	 * [(a, c, e),
+	 *  (b, d, f),
+	 *  (0, 0, 1)]
+	 */
+	public toDOMArray() {
 		return [this.get(0, 0), this.get(1, 0), this.get(0, 1), this.get(1, 1), this.get(0, 2), this.get(1, 2)];
 	}
 
-	copy() {
-		return new SquareMatrix([...this.#arr]);
+	/**
+	 * Deep copy of the matrix
+	 */
+	public copy() {
+		return new SquareMatrix([...this.arr]);
 	}
 
-	toString() {
-		return this.#arr.toString()
+	public toString() {
+		return this.arr.toString()
 	}
 
 
-	static Identity(N) {
+	public static Identity(N: number): SquareMatrix {
 		if (N <= 0) throw Error("Matrix N must be > 0");
 		let mat = new SquareMatrix(new Array(N*N).fill(0));
 		for (let i = 0; i < mat.N; i++) {
@@ -131,7 +138,7 @@ export class SquareMatrix {
 		return mat;
 	}
 
-	static Rot3dX(theta) {
+	public static Rot3dX(theta: number): SquareMatrix {
 		let cos = Math.cos(theta);
 		let sin = Math.sin(theta);
 		return new SquareMatrix([
@@ -141,7 +148,7 @@ export class SquareMatrix {
 		]);
 	}
 
-	static Rot3dY(theta) {
+	static Rot3dY(theta: number): SquareMatrix {
 		let cos = Math.cos(theta);
 		let sin = Math.sin(theta);
 		return new SquareMatrix([
@@ -151,7 +158,7 @@ export class SquareMatrix {
 		]);
 	}
 
-	static Rot3dZ(theta) {
+	public static Rot3dZ(theta: number): SquareMatrix {
 		let cos = Math.cos(theta);
 		let sin = Math.sin(theta);
 		return new SquareMatrix([
@@ -163,33 +170,88 @@ export class SquareMatrix {
 
 }
 
-export class Vector extends Array {
+/**
+ * A simple vector implementation, extending the functionality of `Array` with some mathematical operations
+ */
+export class Vector extends Array<number> {
 
-	constructor(x) {
-		const arr = parseArgument(x);
-		super();
-		this.push(...arr);
+	// Force TS to see these methods as returning a Vector... because they do!
+	// Then we can use these methods elsewhere without TS complaining.
+	// @ts-ignore
+	public map<U>(callbackfn: (value: number, index: number, array: number[]) => U, thisArg?: any): Vector {
+		// @ts-ignore
+		return super.map(callbackfn, thisArg);
+	}
+	// @ts-ignore
+	public slice(start?: number | undefined, end?: number | undefined): Vector {
+		// @ts-ignore
+	    return super.slice(start, end);
+	}
+	// @ts-ignore
+	public concat(...items?: unknown[]): Vector {
+		// @ts-ignore
+	    return super.concat(...items);
 	}
 
-	getSize() {
+	constructor(x?: VectorLike) {
+		super();
+		if (!x) return;
+		this.push(...parseVector(x));
+	}
+
+	/** Compute the Euclidean length */
+	public getSize(): number {
 		return Math.hypot(...this);
 	}
 
-	getHeading() {
-		if (this.length !== 2) throw Error("Can only calculate heading of 2D vector");
+	/** Compute the angle from the +ve x-axis */
+	public getHeading(): number {
 		return Math.atan2(this.y, this.x);
 	}
 
-	get x() {
-		return (this.length >= 1 ? this[0] : null);
+	/** First component of the vector */
+	get x(): number {
+		if (this.length < 1) {
+			console.warn(`Accessing .x of vector of length ${this.length}`)
+		}
+		return (this.length >= 1 ? this[0] : 0);
 	}
 
-	get y() {
-		return (this.length >= 2 ? this[1] : null);
+	/** Second component of the vector */
+	get y(): number {
+		if (this.length < 2) {
+			console.warn(`Accessing .y of vector of length ${this.length}`)
+		}
+		return (this.length >= 2 ? this[1] : 0);
 	}
 
-	get z() {
-		return (this.length >= 3 ? this[2] : null);
+	/** Third component of the vector */
+	get z(): number {
+		if (this.length < 3) {
+			console.warn(`Accessing .z of vector of length ${this.length}`)
+		}
+		return (this.length >= 3 ? this[2] : 0);
+	}
+
+	set x(val: number) {
+		if (this.length < 1) {
+			throw Error(`Setting .x of vector of length ${this.length}`)
+		}
+		this[0] = val;
+	}
+
+	set y(val: number) {
+		if (this.length < 2) {
+			throw Error(`Setting .y of vector of length ${this.length}`)
+		}
+		this[1] = val;
+	}
+
+	set z(val: number) {
+		if (this.length < 3) {
+			throw Error(`Setting .z of vector of length ${this.length}`)
+		}
+		this[2] = val;
 	}
 
 
@@ -200,40 +262,39 @@ export class Vector extends Array {
 	 *   c. Another vector
 	 */
 
-	add(x) {
-		const arr = parseArgument(x, this.length);
+	add(x: VectorLike): Vector {
+		const arr = parseVector(x, this.length);
 		return this.map((q, i) => q + arr[i]);
 	}
 
-	sub(x) {
-		const arr = parseArgument(x, this.length);
+	sub(x: VectorLike): Vector {
+		const arr = parseVector(x, this.length);
 		return this.add(new Vector(arr).mult(-1));
 	}
 
-	mult(x) {
-		const arr = parseArgument(x, this.length);
+	mult(x: VectorLike): Vector {
+		const arr = parseVector(x, this.length);
 		return this.map((q, i) => q * arr[i]);
 	}
 
-	divide(x) {
-		const arr = parseArgument(x, this.length).map(q => 1/q);
+	divide(x: VectorLike): Vector {
+		const arr = parseVector(x, this.length).map(q => 1/q);
 		return this.mult(arr);
 	}
 
-	normalise() {
+	normalise(): Vector {
 		const size = this.getSize();
-		if (size === 0) return null;
+		if (size === 0) throw Error("Attempt to normalise null vector");
 		return this.divide(size);
 	}
 
-	dot(x) {
-		if (!(x instanceof Array) || x.length !== this.length) {
-			throw TypeError("Can only calculate dot product with vector of same length");
-		}
-		return this.reduce((acc, q, i) => acc + q*x[i], 0);
+	dot(x: VectorLike): number {
+		const arr = parseVector(x, this.length);
+		return this.reduce((acc, q, i) => acc + q*arr[i], 0);
 	}
 
-	rotate(theta) {
+	/** Rotate in 2D, or around the z-axis for 3D vectors */
+	rotate(theta: number): Vector {
 		if (this.length < 2) {
 			return this;
 		}
@@ -247,17 +308,18 @@ export class Vector extends Array {
 		}
 		// I don't need any higher dimensional rotations
 		else {
-			console.error("Rotations for vectors of dimension > 3 not supported");
-			return null;
+			throw Error("Rotations for vectors of dimension > 3 not supported");
 		}
 	}
 
-	copy() {
-		return new Vector([this]);
+	/** Deep clone this vector */
+	copy(): Vector {
+		return new Vector(this);
 	}
 
 
-	static Zeros(len) {
+	/** Create a new vector filled with zeros */
+	static Zeros(len: number): Vector {
 		if (len <= 0) throw Error("Vector length must be > 0");
 		return new Vector(new Array(len).fill(0));
 	}

@@ -1,4 +1,4 @@
-import {Simulation, Meter, Knob, ComboBox, Checkbox, Button} from './main.js';
+import {Simulation2D, Meter, Knob, ComboBox, Checkbox, Button} from './main.js';
 import {Vector} from './vector.js';
 import * as Integrators from './integrator.js';
 
@@ -6,7 +6,7 @@ window.addEventListener("load", function() {
 
 	'use strict';
 
-	const sim = new Simulation();
+	const sim = new Simulation2D();
 
 	const params = {
 		g: 9.8,
@@ -21,14 +21,14 @@ window.addEventListener("load", function() {
 		showtrail: true
 	};
 
-	const state = {
+	const state: { trail: Vector[], trailtime: number[], E0: number, dragging: number } = {
 		trail: [],
 		trailtime: [],
 		E0: 0, // The energy at the start of the simulation
 		dragging: 0 // Which pendulum the user is dragging with their mouse
 	};
 
-	function acceleration({pos, vel}) {
+	function acceleration({pos, vel}: {pos: Vector, vel: Vector}) {
 		const [theta1, theta2] = pos;
 		const [omega1, omega2] = vel;
 		const {m1, m2, l1, l2, g} = params;
@@ -45,7 +45,7 @@ window.addEventListener("load", function() {
 		]);
 	}
 
-	let integrator = new Integrators.RK4Integrator(
+	let integrator: Integrators.AnyIntegrator = new Integrators.RK4Integrator(
 		acceleration,
 		[0.8 * Math.PI, 0.9 * Math.PI],
 		[0, 0],
@@ -85,14 +85,14 @@ window.addEventListener("load", function() {
 		state.trailtime = [];
 	}
 
-	function drawline(x1, y1, x2, y2) {
+	function drawline(x1: number, y1: number, x2: number, y2: number) {
 		sim.ctx.beginPath();
 		sim.ctx.moveTo(x1, y1);
 		sim.ctx.lineTo(x2, y2);
 		sim.ctx.stroke();
 	}
 
-	function drawcircle(x, y, r) {
+	function drawcircle(x: number, y: number, r: number) {
 		sim.ctx.beginPath();
 		sim.ctx.arc(x, y, r, 0, 2 * Math.PI);
 		sim.ctx.fill();
@@ -122,12 +122,11 @@ window.addEventListener("load", function() {
 				else if (r2 < params.r2 * 2) state.dragging = 2;
 			}
 			if (state.dragging === 1) {
-				const theta = Math.atan2(...mouse.sub(pivot));
+				const theta = Math.PI/2 - mouse.sub(pivot).getHeading();
 				integrator.pos[0] = theta;
 				init();
 			} else if (state.dragging === 2) {
-				const toMouse = mouse.sub(pos1);
-				const theta = Math.atan2(...toMouse);
+				const theta = Math.PI/2 - mouse.sub(pos1).getHeading();
 				integrator.pos[1] = theta;
 				init();
 			}
@@ -163,7 +162,7 @@ window.addEventListener("load", function() {
 				sim.ctx.globalAlpha = 1 - Math.pow((time - state.trailtime[i]) / params.trailduration, 4);
 				const start = state.trail[i-1].map(q => sim.mToPx(q));
 				const end = state.trail[i].map(q => sim.mToPx(q));
-				drawline(...start, ...end);
+				drawline(start.x, start.y, end.x, end.y);
 			}
 			sim.ctx.globalAlpha = 1;
 		}
@@ -174,11 +173,11 @@ window.addEventListener("load", function() {
 		const pivot_px = pivot.map(q => sim.mToPx(q));
 		const pos1_px = pos1.map(q => sim.mToPx(q));
 		const pos2_px = pos2.map(q => sim.mToPx(q));
-		drawline(...pivot_px, ...pos1_px);
-		drawline(...pos1_px, ...pos2_px);
-		drawcircle(...pivot_px, sim.mToPx(0.02));
-		drawcircle(...pos1_px, sim.mToPx(params.r1));
-		drawcircle(...pos2_px, sim.mToPx(params.r2));
+		drawline(pivot_px.x, pivot_px.y, pos1_px.x, pos1_px.y);
+		drawline(pos1_px.x, pos1_px.y, pos2_px.x, pos2_px.y);
+		drawcircle(pivot_px.x, pivot_px.y, sim.mToPx(0.02));
+		drawcircle(pos1_px.x, pos1_px.y, sim.mToPx(params.r1));
+		drawcircle(pos2_px.x, pos2_px.y, sim.mToPx(params.r2));
 	}
 
 	new Knob("m1", "Mass 1", "kg", params.m1, 0.1, 3, 0.01, value => {
@@ -211,16 +210,22 @@ window.addEventListener("load", function() {
 		}
 	});
 
-	new ComboBox("method", "Integration method", method => {
-		integrator = new (method)(
-			integrator.funcAccel,
-			integrator.pos,
-			integrator.vel,
-			integrator.h
-		);
-	}).addOption({name: "Euler", value: Integrators.EulerIntegrator})
-	  .addOption({name: "Runge-Kutta (4th order)", value: Integrators.RK4Integrator})
-	  .setValue(Integrators.RK4Integrator);
+	// Combo box to select the integrator
+	new ComboBox<Integrators.AnyIntegratorConstructor>(
+		"method",
+		"Integration method",
+		method => {
+			if (method === null) return;
+			integrator = new (method)(
+				integrator.funcAccel,
+				integrator.pos,
+				integrator.vel,
+				integrator.h
+			);
+		}
+	).addOption({name: "Euler", value: Integrators.EulerIntegrator})
+	 .addOption({name: "Runge-Kutta (4th order)", value: Integrators.RK4Integrator})
+	 .setValue(Integrators.RK4Integrator);
 
 	sim.start();
 	init();

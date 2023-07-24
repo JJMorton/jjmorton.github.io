@@ -1,8 +1,8 @@
-import {Simulation, Button, Knob} from './main.js';
+import {SimulationGL, Button, Knob} from './main.js';
 import {Vector} from './vector.js';
 
 
-function hexToRGB(hex) {
+function hexToRGB(hex: string) {
 	if (hex.substring(0, 1) === '#') hex = hex.substring(1);
 	var bigint = parseInt(hex, 16);
 	var r = (bigint >> 16) & 255;
@@ -15,16 +15,17 @@ function hexToRGB(hex) {
 
 class GLPolygon {
 
-	vertices;
-	buffer;
-	gl;
+	vertices: Vector[] = [];
+	buffer: WebGLBuffer | null = null;
+	gl: WebGL2RenderingContext;
 
-	constructor(gl, vertices) {
+	constructor(gl: WebGL2RenderingContext, vertices?: Vector[]) {
 		this.gl = gl;
-		this.setVertices(vertices);
+		if (vertices) this.setVertices(vertices);
 	}
 
 	render() {
+		if (!(this.buffer && this.vertices)) return;
 		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.buffer);
 		this.gl.vertexAttribPointer(0, 2, this.gl.FLOAT, false, 0, 0);
 		this.gl.enableVertexAttribArray(0);
@@ -35,7 +36,7 @@ class GLPolygon {
 	/**
 	 * The number of sides/vertices that this polygon has
 	 */
-	get sides() { return this.vertices.length; }
+	get sides(): number { return this.vertices.length; }
 
 	createBuffer() {
 		this.buffer = this.gl.createBuffer();
@@ -49,10 +50,13 @@ class GLPolygon {
 	 * for the vertices of the triangles than fan from the first point.
 	 * Returns a FLoat32Array.
 	 */
-	asPositionArray() { return new Float32Array(this.vertices.flat()); }
+	asPositionArray() {
+		const vertArr: number[] = this.vertices.map(v => Array.from(v)).flat();
+		return new Float32Array(vertArr);
+	}
 
-	setVertices(vertices) {
-		this.vertices = vertices.map(vert => new Vector(vert));
+	setVertices(vertices: Vector[]) {
+		this.vertices = vertices;
 		this.createBuffer();
 		return this;
 	}
@@ -61,7 +65,7 @@ class GLPolygon {
 
 class GLHexagon extends GLPolygon {
 
-	constructor(gl) {
+	constructor(gl: WebGL2RenderingContext) {
 		const N = 6;
 		const vertices = new Array(N)
 			.fill(0)
@@ -76,7 +80,7 @@ class GLInstanced extends GLPolygon {
 
 	nInstances;
 
-	constructor({gl, vertices}, nInstances) {
+	constructor({gl, vertices}: {gl: WebGL2RenderingContext, vertices: Vector[]}, nInstances: number) {
 		super(gl, vertices);
 		this.nInstances = nInstances;
 	}
@@ -93,17 +97,20 @@ class GLInstanced extends GLPolygon {
 
 class GLProgram {
 
-	gl;
-	program;
+	gl: WebGL2RenderingContext;
+	program: WebGLProgram;
 	uniforms = new Map();
 	attributes = new Map();
 
-	constructor(gl, program) {
+	constructor(gl: WebGL2RenderingContext, program: WebGLProgram) {
 		this.gl = gl;
 		this.program = program;
 	}
 
-	addUniform(name, setter) {
+	/**
+	 * @param setter should be one of gl.uniform3fv, gl.uniform1i, etc.
+	 */
+	addUniform(name: string, setter: Function) {
 		this.uniforms.set(name, {
 			location: this.gl.getUniformLocation(this.program, "u_" + name),
 			setter: setter.bind(this.gl),
@@ -111,10 +118,13 @@ class GLProgram {
 		return this;
 	}
 
-	setUniform(name, value) {
+	/**
+	 * @param value should match the value required by the setter given to `addUniform`
+	 */
+	setUniform(name: string, value: any) {
 		if (!this.uniforms.has(name)) {
 			console.error("Attempted to set non-existent uniform", name);
-			return;
+			return this;
 		}
 		const uni = this.uniforms.get(name);
 		this.gl.useProgram(this.program);
@@ -122,7 +132,11 @@ class GLProgram {
 		return this;
 	}
 
-	addAttribute(name, usage, size, type, stride, divisor=0, offset=0) {
+	/**
+	 * @param usage e.g. gl.DYNAMIC_DRAW.
+	 * @param type e.g. gl.FLOAT.
+	 */
+	addAttribute(name: string, usage: number, size: number, type: number, stride: number, divisor=0, offset=0) {
 		const loc = this.gl.getAttribLocation(this.program, "a_" + name);
 		const buffer = this.gl.createBuffer();
 		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, buffer);
@@ -133,7 +147,7 @@ class GLProgram {
 		return this;
 	}
 
-	setAttribute(name, data) {
+	setAttribute(name: string, data: Float32Array) {
 		if (!this.attributes.has(name)) {
 			console.error("Attempted to set non-existent attribute", name);
 			return;
@@ -146,18 +160,22 @@ class GLProgram {
 }
 
 
+/**
+ * A hexagonal grid with the axial coordinate system, explained here:
+ * https://www.redblobgames.com/grids/hexagons/#coordinates-axial
+ */
 class HexagonGrid {
 
 	// The number of hexagonal 'layers' from the centre (not including centre piece)
-	radius;
-	cells;
+	radius: number;
+	cells: Map<string, SnowflakeCell>;
 
-	constructor(radius) {
+	constructor(radius: number) {
 		this.radius = radius;
 		this.cells = new Map();
 	}
 
-	init(initFunc) {
+	init(initFunc: (q: number, r: number) => SnowflakeCell): this {
 		for (const [q, r] of this) {
 			this.setCell(q, r, initFunc(q, r), true);
 		}
@@ -168,12 +186,12 @@ class HexagonGrid {
 	/**
 	 * Total number of cells in the grid
 	 */
-	get cellCount() {
-		const sumN = N => N * (N + 1) / 2;
+	get cellCount(): number {
+		const sumN = (N: number) => N * (N + 1) / 2;
 		return 1 + sumN(this.radius) * 6;
 	}
 
-	get cellArray() {
+	get cellArray(): SnowflakeCell[] {
 		const arr = [];
 		// Cartesian coordinates (i, j)
 		for (let i = -this.radius; i <= this.radius; i++) {
@@ -182,22 +200,23 @@ class HexagonGrid {
 				const q = j - (i + (i & 1)) / 2;
 			    const r = i;
 			    const cell = this.getCell(q, r);
-			    if (cell !== undefined) arr.push(cell);
+			    if (cell) arr.push(cell);
 			}
 		}
 		return arr;
 	}
 
-	#axialHash(q, r) {
+	#axialHash(q: number, r: number): string {
 		return q.toString() + ',' + r.toString();
 	}
 
-	getCell(q, r) {
+	getCell(q: number, r: number): SnowflakeCell | null {
 		const hash = this.#axialHash(q, r);
-		return this.cells.get(hash);
+		const cell = this.cells.get(hash);
+		return cell ? cell : null;
 	}
 
-	setCell(q, r, value, canCreate=false) {
+	setCell(q: number, r: number, value: SnowflakeCell, canCreate=false) {
 		if (Math.abs(q) > this.radius || Math.abs(r) > this.radius) {
 			// Not a valid cell
 			console.warn(`Attempted to set invalid cell (${q}, ${r})`);
@@ -211,11 +230,12 @@ class HexagonGrid {
 		this.cells.set(hash, value);
 	}
 
-	hasCell(q, r) {
+	hasCell(q: number, r: number): boolean {
 		return this.cells.has(this.#axialHash(q, r));
 	}
 
-	neighboursOf(q, r) {
+	neighboursOf(q: number, r: number): SnowflakeCell[] {
+		// @ts-ignore TS can't understand that all of these cells definitely exist
 		return [
 			[q, r+1],
 			[q, r-1],
@@ -223,7 +243,7 @@ class HexagonGrid {
 			[q-1, r],
 			[q+1, r-1],
 			[q-1, r+1]
-		].filter(([q, r]) => this.hasCell(q, r));
+		].filter(([q, r]) => this.hasCell(q, r)).map(([q, r]) => this.getCell(q, r));
 	}
 
 	*[Symbol.iterator]() {
@@ -239,11 +259,16 @@ class HexagonGrid {
 }
 
 
+/**
+ * A single hexagonal grid cell, with a saturation value, as described in
+ * https://doi.org/10.1016/j.chaos.2004.06.071
+ */
 class SnowflakeCell {
 
 	u = 0; v = 0; u_next = 0; v_next = 0;
 
-	constructor(s) {
+	/** @param s saturation */
+	constructor(s: number) {
 		this.v = s;
 	}
 
@@ -252,10 +277,11 @@ class SnowflakeCell {
 }
 
 
-function evolveSnowflake(hexgrid, alpha, beta, gamma) {
+function evolveSnowflake(hexgrid: HexagonGrid, alpha: number, beta: number, gamma: number) {
 	for (const [q, r] of hexgrid) {
 		const cell = hexgrid.getCell(q, r);
-		const neighbours = hexgrid.neighboursOf(q, r).map(([q, r]) => hexgrid.getCell(q, r));
+		if (!cell) continue;
+		const neighbours = hexgrid.neighboursOf(q, r);
 
 		const receptive = cell.frozen || neighbours.some(c => c.frozen);
 		if (receptive) {
@@ -273,7 +299,8 @@ function evolveSnowflake(hexgrid, alpha, beta, gamma) {
 
 	for (const [q, r] of hexgrid) {
 		const cell = hexgrid.getCell(q, r);
-		const neighbours = hexgrid.neighboursOf(q, r).map(([q, r]) => hexgrid.getCell(q, r));
+		if (!cell) continue;
+		const neighbours = hexgrid.neighboursOf(q, r);
 		const receptive = cell.frozen || neighbours.some(c => c.frozen);
 
 		if (neighbours.length < 6) {
@@ -297,6 +324,7 @@ function evolveSnowflake(hexgrid, alpha, beta, gamma) {
 	let maximum = 1;
 	for (const [q, r] of hexgrid) {
 		const cell = hexgrid.getCell(q, r);
+		if (!cell) continue;
 		cell.u = cell.u_next;
 		cell.v = cell.v_next;
 		maximum = Math.max(maximum, cell.s);
@@ -308,7 +336,7 @@ function evolveSnowflake(hexgrid, alpha, beta, gamma) {
 
 window.addEventListener("load", async function() {
 
-	const sim = new Simulation("webgl2");
+	const sim = new SimulationGL();
 	const gl = sim.ctx;
 	const program = await sim.createShaderProgram("/shaders/snowflake.vs", "/shaders/snowflake.fs");
 
@@ -383,6 +411,7 @@ window.addEventListener("load", async function() {
 
 		if (sim.timer.isPaused && !oneRender) return;
 
+		// @ts-ignore
 		gl.clearColor(...hexToRGB(sim.colours.accent).map(x => x/255), 1.0);
 		gl.clear(gl.COLOR_BUFFER_BIT);
 
@@ -399,12 +428,6 @@ window.addEventListener("load", async function() {
 
 		oneRender = false;
 	};
-
-	window.addEventListener("keypress", e => {
-		if (e.code === "Enter") {
-			console.log(grid.getCell(grid.radius, 0).s);
-		}
-	});
 
 	sim.start();
 	playPause();

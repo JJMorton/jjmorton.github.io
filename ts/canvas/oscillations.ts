@@ -1,4 +1,4 @@
-import {Simulation, Knob} from './main.js';
+import {Simulation2D, Knob} from './main.js';
 import {Vector} from './vector.js';
 import * as Integrators from './integrator.js';
 
@@ -6,7 +6,7 @@ window.addEventListener("load", function() {
 
 	'use strict';
 
-	const sim = new Simulation();
+	const sim = new Simulation2D();
 	
 	// Initial parameters
 	const params = {
@@ -23,13 +23,13 @@ window.addEventListener("load", function() {
 		getSize: () => Math.cbrt(params.m / params.density)
 	};
 
-	const getDriverPos = time =>
+	const getDriverPos = (time: number) =>
 		params.d_a * Math.cos(2 * Math.PI * params.d_f * time + params.d_phi) + params.d_l;
 
-	const getEquilibrium = time =>
+	const getEquilibrium = (time: number) =>
 		params.l + params.m * params.g / params.k + getDriverPos(time);
 
-	function getAcc({time, pos, vel}) {
+	function getAcc({time, pos, vel}: {time: number, pos: Vector, vel: Vector}) {
 		const d_pos = getDriverPos(time);
 		const spring_force = -params.k * (pos.x - d_pos);
 		const damping_force = -params.b * vel.x;

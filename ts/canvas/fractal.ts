@@ -1,8 +1,7 @@
-import {Simulation, Button, Knob, ComboBox, MouseButton} from './main.js';
-import {Mouse} from './main.js';
+import {SimulationGL, Button, Knob, ComboBox, MouseButton} from './main.js';
 import {Vector} from './vector.js';
 
-function hexToRGB(hexString) {
+function hexToRGB(hexString: string) {
 	if (hexString.startsWith('#')) hexString = hexString.substring(1);
 	if (hexString.length === 3) hexString = hexString.split('').map(c => c + c).join('');
 	if (hexString.length !== 6) return [0, 0, 0];
@@ -10,12 +9,45 @@ function hexToRGB(hexString) {
 	return [0, 2, 4].map(i => parseInt(hexString.substring(i, i + 2), 16) / 255);
 }
 
+enum FractalType {
+	MANDELBROT, JULIA, TRICORN, BURNINGSHIP, NEWTON
+}
+
+// TODO: Implement this in main, like all the other controls
+/**
+ * A 'span' element with text entry, for inputting a number
+ */
+class CoeffInput {
+	elt: HTMLSpanElement;
+	constructor(id: string, private generator: (() => number), callback: ((v: number) => void)) {
+		const elt = document.getElementById(id);
+		if (!(elt && elt instanceof HTMLSpanElement)){
+			console.log(elt);
+			throw Error(`CoeffInput: Couldn't find an <input> element with id '${id}'`);
+		}
+		this.elt = elt;
+		elt.addEventListener("input", () => {
+			const v = this.getValue();
+			if (v !== null) callback(v);
+		});
+		elt.addEventListener("blur", () => this.update());
+	}
+	public getValue(): number | null {
+		const t = this.elt.textContent;
+		console.log(t);
+		if (t === null) return null;
+		return parseFloat(t);
+	}
+	public update() {
+		this.elt.textContent = this.generator().toString();
+	}
+}
 
 window.addEventListener("load", function() {
 
 	'use strict';
 
-	const sim = new Simulation("webgl2");
+	const sim = new SimulationGL();
 	const gl = sim.ctx;
 
 	sim.createShaderProgram("/shaders/passthrough.vs", "/shaders/fractal.fs").then(program => {
@@ -39,21 +71,13 @@ window.addEventListener("load", function() {
 
 		gl.useProgram(program);
 
-		const type = {
-			MANDELBROT: 0,
-			JULIA: 1,
-			TRICORN: 2,
-			BURNINGSHIP: 3,
-			NEWTON: 4
-		}
-
 		const state = {
 			needsRender: true,
 			position: new Vector([0, 0]),
 			zoom: 0.5,
 			iterations: 100,
 			mousePos: new Vector([0, 0]),
-			coeffs: new Vector([0, 0, 0, 0]),
+			coeffs: [0, 0, 0, 0],
 			newton: [-1, 0, 0, 1, 0, 0, 0, 0, 0],
 			type: 0
 		};
@@ -103,23 +127,12 @@ window.addEventListener("load", function() {
 			state.needsRender = true;
 		}).setValue(300);
 
-		function CoeffInput(id, setter, callback) {
-			this.elt = document.getElementById(id);
-			this.getValue = () => parseFloat(this.elt.textContent) || null;
-			this.update = () => this.elt.textContent = setter();
-			this.elt.addEventListener("input", () => callback(this.getValue()));
-			this.elt.addEventListener("blur", () => this.update());
-
-			this.update();
-			callback(this.getValue());
-		}
-
 		const coeffElts = new Array(state.coeffs.length).fill(0).map((_, i) => new CoeffInput(
 			"coeff" + i,
 			() => state.coeffs[i],
 			val => {
 				state.coeffs[i] = val || 0;
-				playButton.disabled = state.coeffs[2] === 0;
+				playButton.setDisabled(state.coeffs[2] === 0);
 				state.needsRender = true;
 			}
 		));
@@ -138,31 +151,33 @@ window.addEventListener("load", function() {
 			state.type = value === 0 ? 0 : 1;
 
 			switch (value) {
-				case 0: state.coeffs = [2, 0, 0, 0]; state.type = type.MANDELBROT; break;
-				case 1: state.coeffs = [7, 0, 0, 0]; state.type = type.MANDELBROT; break;
-				case 2: state.coeffs = [2, -0.38197, 0.61803, 0.01]; state.type = type.JULIA; break;
-				case 3: state.coeffs = [2, 0.285, 0.01, 0.001]; state.type = type.JULIA; break;
-				case 4: state.coeffs = [2, -0.8, 0.156, 0.001]; state.type = type.JULIA; break;
-				case 5: state.coeffs = [6, 0.736, -0.417355, 0]; state.type = type.JULIA; break;
-				case 6: state.coeffs = [1.5, -0.1948, 0, 0]; state.type = type.JULIA; break;
-				case 7: state.coeffs = [0, 0, 0, 0]; state.type = type.TRICORN; break;
-				case 8: state.coeffs = [0, 0, 0, 0]; state.type = type.BURNINGSHIP; break;
-				case 9: state.coeffs = [0, 0, 0, 0]; state.type = type.NEWTON; break;
+				case 0: state.coeffs = [2, 0, 0, 0]; state.type = FractalType.MANDELBROT; break;
+				case 1: state.coeffs = [7, 0, 0, 0]; state.type = FractalType.MANDELBROT; break;
+				case 2: state.coeffs = [2, -0.38197, 0.61803, 0.01]; state.type = FractalType.JULIA; break;
+				case 3: state.coeffs = [2, 0.285, 0.01, 0.001]; state.type = FractalType.JULIA; break;
+				case 4: state.coeffs = [2, -0.8, 0.156, 0.001]; state.type = FractalType.JULIA; break;
+				case 5: state.coeffs = [6, 0.736, -0.417355, 0]; state.type = FractalType.JULIA; break;
+				case 6: state.coeffs = [1.5, -0.1948, 0, 0]; state.type = FractalType.JULIA; break;
+				case 7: state.coeffs = [0, 0, 0, 0]; state.type = FractalType.TRICORN; break;
+				case 8: state.coeffs = [0, 0, 0, 0]; state.type = FractalType.BURNINGSHIP; break;
+				case 9: state.coeffs = [0, 0, 0, 0]; state.type = FractalType.NEWTON; break;
 			}
 			for (let i = 0; i < state.coeffs.length; i++) {
 				coeffElts[i].update();
 			}
 
-			const hideElts = className => [...document.getElementsByClassName(className)].forEach(elt => elt.setAttribute("hidden", ""));
-			const showElts = className => [...document.getElementsByClassName(className)].forEach(elt => elt.removeAttribute("hidden"));
+			const hideElts = (className: string) =>
+				Array.from(document.getElementsByClassName(className)).forEach(elt => elt.setAttribute("hidden", ""));
+			const showElts = (className: string) =>
+				Array.from(document.getElementsByClassName(className)).forEach(elt => elt.removeAttribute("hidden"));
 			hideElts("julia-custom");
 			hideElts("mandelbrot-custom");
 			hideElts("newton-custom");
-			if (state.type === type.MANDELBROT) showElts("mandelbrot-custom");
-			else if (state.type === type.JULIA) showElts("julia-custom");
-			else if (state.type === type.NEWTON) showElts("newton-custom");
+			if (state.type === FractalType.MANDELBROT) showElts("mandelbrot-custom");
+			else if (state.type === FractalType.JULIA) showElts("julia-custom");
+			else if (state.type === FractalType.NEWTON) showElts("newton-custom");
 
-			playButton.disabled = state.coeffs[3] === 0;
+			playButton.setDisabled(state.coeffs[3] === 0);
 			state.needsRender = true;
 
 		})	.addOption({name: "Mandelbrot", value: 0})

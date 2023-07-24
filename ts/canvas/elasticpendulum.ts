@@ -1,4 +1,4 @@
-import {Simulation, Meter, Knob, Checkbox, ComboBox} from './main.js';
+import {Simulation2D, Meter, Knob, Checkbox, ComboBox} from './main.js';
 import {Vector} from './vector.js';
 import * as Integrators from './integrator.js';
 
@@ -6,7 +6,7 @@ window.addEventListener("load", function() {
 
 	'use strict';
 
-	const sim = new Simulation();
+	const sim = new Simulation2D();
 
 	const params = {
 		g: 9.81,
@@ -18,13 +18,13 @@ window.addEventListener("load", function() {
 		showtrail: true
 	};
 
-	const state = {
+	const state: {lastupdate: number, trail: Vector[], E0: number} = {
 		lastupdate: 0,
 		trail: [],
 		E0: 0
 	};
 
-	function acceleration({pos, vel}) {
+	function acceleration({pos, vel}: {pos: Vector, vel: Vector}) {
 		const [theta, x] = pos;
 		const [omega, vx] = vel;
 		return new Vector([
@@ -35,7 +35,7 @@ window.addEventListener("load", function() {
 		]);
 	}
 
-	let integrator = new Integrators.RK4Integrator(
+	let integrator: Integrators.AnyIntegrator = new Integrators.RK4Integrator(
 		acceleration,
 		[-Math.PI/4, params.m * params.g / params.k * 0.8],
 		[0, 0],
@@ -68,14 +68,14 @@ window.addEventListener("load", function() {
 		return [sim.pxToM(sim.canvas.width / 2), sim.pxToM(sim.canvas.height / 8)];
 	}
 
-	function drawline(x1, y1, x2, y2) {
+	function drawline(x1: number, y1: number, x2: number, y2: number) {
 		sim.ctx.beginPath();
 		sim.ctx.moveTo(x1, y1);
 		sim.ctx.lineTo(x2, y2);
 		sim.ctx.stroke();
 	}
 
-	function drawcircle(x, y, r) {
+	function drawcircle(x: number, y: number, r: number) {
 		sim.ctx.beginPath();
 		sim.ctx.arc(x, y, r, 0, 2 * Math.PI);
 		sim.ctx.fill();
@@ -108,7 +108,7 @@ window.addEventListener("load", function() {
 
 		const x = (params.l + integrator.pos[1]) * Math.sin(integrator.pos[0]) + midx;
 		const y = (params.l + integrator.pos[1]) * Math.cos(integrator.pos[0]) + midy;
-		state.trail.push([x, y]);
+		state.trail.push(new Vector([x, y]));
 		while (state.trail.length > params.traillength) state.trail.shift();
 
 		sim.ctx.clearRect(0, 0, sim.canvas.width, sim.canvas.height);
@@ -151,7 +151,8 @@ window.addEventListener("load", function() {
 	});
 	new Checkbox("trail", "Show Trail", params.showtrail, value => params.showtrail = value);
 	new Knob("timestep", "Integration Timestep", "s", integrator.h, 0.001, 0.1, 0.001, value => integrator.h = value);
-	new ComboBox("method", "Integration method", method => {
+	new ComboBox<Integrators.AnyIntegratorConstructor>("method", "Integration method", method => {
+		if (method === null) return;
 		integrator = new (method)(
 			integrator.funcAccel,
 			integrator.pos,

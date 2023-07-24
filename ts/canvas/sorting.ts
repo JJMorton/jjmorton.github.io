@@ -1,24 +1,27 @@
-import {Simulation, ComboBox, Checkbox, Knob, Button} from './main.js';
+import {Simulation2D, ComboBox, Checkbox, Knob, Button} from './main.js';
+
+type SortMethod = (arr: number[]) => Promise<void>;
+type DataGenerator = (n: number) => number[];
 
 window.addEventListener("load", function() {
 
 	'use strict';
 
-	const sim = new Simulation();
+	const sim = new Simulation2D();
 
 	const gendata = {
-		sorted: n => new Array(n)
+		sorted: (n: number) => new Array(n)
 			.fill(1)
 			.map((x, i) => i / (n - 1)),
-		random: n => gendata.sorted(n)
+		random: (n: number) => gendata.sorted(n)
 			.map(val => [val, Math.random()])
 			.sort((a, b) => a[1] - b[1])
 			.map(arr => arr[0]),
-		backwards: n => gendata.sorted(n)
+		backwards: (n: number) => gendata.sorted(n)
 			.reverse(),
-		triangle: n => gendata.sorted(n)
+		triangle: (n: number) => gendata.sorted(n)
 			.map(x => Math.min(2 * x, 2 * (1 - x))),
-		singleswap: n => {
+		singleswap: (n: number) => {
 			const arr = gendata.sorted(n);
 			let i = Math.floor(Math.random() * n/2),
 			    j = Math.floor(n/2 + Math.random() * n/2);
@@ -29,7 +32,7 @@ window.addEventListener("load", function() {
 
 	const sortmethods = {
 
-		bubble: async (arr) => {
+		bubble: async (arr: number[]) => {
 			let sorted = false;
 			while (!sorted) {
 				sorted = true;
@@ -42,7 +45,7 @@ window.addEventListener("load", function() {
 			}
 		},
 
-		insertion: async (arr) => {
+		insertion: async (arr: number[]) => {
 			for (let i = 1; i < arr.length; i++) {
 				let j = i;
 				while (j > 0 && await islessthan(arr, j, j - 1)) {
@@ -52,7 +55,7 @@ window.addEventListener("load", function() {
 			}
 		},
 
-		selection: async (arr) => {
+		selection: async (arr: number[]) => {
 			for (let i = 0; i < arr.length - 1; i++) {
 				let minimum = i;
 				for (let j = i + 1; j < arr.length; j++) {
@@ -62,9 +65,9 @@ window.addEventListener("load", function() {
 			}
 		},
 
-		quick: async (arr) => {
+		quick: async (arr: number[]) => {
 
-			const partition = async (lo, hi) => {
+			const partition = async (lo: number, hi: number) => {
 				let p = Math.floor((lo + hi) / 2);
 				let i = lo - 1,
 				    j = hi + 1;
@@ -95,7 +98,7 @@ window.addEventListener("load", function() {
 
 			};
 
-			const sort = async (lo, hi) => {
+			const sort = async (lo: number, hi: number) => {
 				if (lo < hi) {
 					const p = await partition(lo, hi);
 					await sort(lo, p);
@@ -117,7 +120,18 @@ window.addEventListener("load", function() {
 		method: sortmethods.bubble
 	};
 
-	const state = {
+	const state: {
+		arr: number[],
+		data: number[],
+		comparisons: number,
+		swaps: number,
+		redraw: boolean,
+		hiswap: number[],
+		hicompare: number[],
+		sorted: boolean,
+		sorting: boolean
+	} = {
+		arr: [],
 		data: gendata.sorted(params.datalength),
 		comparisons: 0,
 		swaps: 0,
@@ -133,7 +147,7 @@ window.addEventListener("load", function() {
 		return new Promise(res => setTimeout(res, params.delay));
 	};
 
-	async function swap(arr, i, j) {
+	async function swap(arr: number[], i: number, j: number) {
 		await delay();
 		[ arr[i], arr[j] ] = [ arr[j], arr[i] ];
 		state.swaps++;
@@ -145,7 +159,7 @@ window.addEventListener("load", function() {
 	};
 
 	// Tests that arr[lo] < arr[hi]
-	async function islessthan(arr, lo, hi) {
+	async function islessthan(arr: number[], lo: number, hi: number) {
 		await delay();
 		state.comparisons++;
 		if (params.showcompare) {
@@ -155,7 +169,7 @@ window.addEventListener("load", function() {
 		return arr[lo] < arr[hi];
 	};
 
-	async function runsort(method) {
+	async function runsort(method: SortMethod) {
 		startbutton.setDisabled(true);
 		state.comparisons = 0;
 		state.swaps = 0;
@@ -174,13 +188,6 @@ window.addEventListener("load", function() {
 		state.redraw = true;
 	};
 
-	function drawWithFillStyle(fillStyle, drawFunc) {
-		const fillStyleOrig = sim.ctx.fillStyle;
-		sim.ctx.fillStyle = fillStyle;
-		drawFunc(fillStyle);
-		sim.ctx.fillStyle = fillStyleOrig;
-	};
-
 
 	/* Main render loop */
 
@@ -191,17 +198,18 @@ window.addEventListener("load", function() {
 
 		sim.ctx.clearRect(0, 0, sim.canvas.width, sim.canvas.height);
 
-		drawWithFillStyle(state.sorted ? sim.colours.accent : sim.ctx.fillStyle, fillStyle => {
+		sim.withCanvasState(() => {
 
+			sim.ctx.fillStyle = state.sorted ? sim.colours.accent : sim.ctx.fillStyle;
 			const barwidth = sim.canvas.width / state.data.length;
 			state.data.map(h => h * sim.canvas.height * 0.9).forEach((h, i) => {
-				let barcolor = fillStyle;
+				let barcolor = sim.ctx.fillStyle;
 				if (state.hiswap.includes(i)) barcolor = "#ff0000";
 				else if (state.hicompare.includes(i)) barcolor = sim.colours.accent;
-				drawWithFillStyle(
-					barcolor,
-					() => sim.ctx.fillRect(barwidth * i, sim.canvas.height - h, barwidth, h)
-				);
+				sim.withCanvasState(() => {
+					sim.ctx.fillStyle = barcolor;
+					sim.ctx.fillRect(barwidth * i, sim.canvas.height - h, barwidth, h);
+				});
 			});
 
 		});
@@ -222,7 +230,8 @@ window.addEventListener("load", function() {
 
 	new Knob("datalength", "Data points", "", params.datalength, 10, 100, 1, value => params.datalength = value);
 
-	new ComboBox("datagen", "Data distribution", value => {
+	new ComboBox<DataGenerator>("datagen", "Data distribution", value => {
+		if (!value) return;
 		params.datagen = value;
 		if (state.sorting) return;
 		state.data = value(params.datalength);
@@ -235,7 +244,10 @@ window.addEventListener("load", function() {
 		.addOption({name: "Single Swap", value: gendata.singleswap})
 		.addOption({name: "Sorted",      value: gendata.sorted});
 
-	new ComboBox("method", "Sorting Method", value => params.method = value)
+	new ComboBox<SortMethod>("method", "Sorting Method", value => {
+		if (!value) return;
+		params.method = value
+	})
 		.addOption({name: "Bubble Sort", value: sortmethods.bubble})
 		.addOption({name: "Quick Sort", value: sortmethods.quick})
 		.addOption({name: "Insertion Sort", value: sortmethods.insertion})

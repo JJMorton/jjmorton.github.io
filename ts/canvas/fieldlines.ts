@@ -1,11 +1,13 @@
-import {Simulation, Button, Knob} from './main.js';
+import {Simulation2D, Button, Knob} from './main.js';
 import {Vector} from './vector.js';
+
+type Charge = {pos: Vector, strength: number, paths: Vector[][]}
 
 window.addEventListener("load", function() {
 
 	'use strict';
 
-	const sim = new Simulation();
+	const sim = new Simulation2D();
 
 	const params = {
 		particlecount: 30,
@@ -14,15 +16,16 @@ window.addEventListener("load", function() {
 		chargeradius: 0.05
 	};
 
-	const state = {
+	const state:
+	{fullrender: boolean, charges: Charge[], moving: boolean, selected: Charge | null} =
+	{
 		fullrender: true,
-		partialrender: 0,
 		charges: [],
 		moving: false,
 		selected: null // The selected charge
 	};
 
-	function createPaths(charge) {
+	function createPaths(charge: Charge) {
 		charge.paths = [];
 		// Paths begin in a circle around the charge
 		const dtheta = 2 * Math.PI / params.particlecount;
@@ -45,7 +48,7 @@ window.addEventListener("load", function() {
 		return charge;
 	}
 
-	function addToPaths(charge) {
+	function addToPaths(charge: Charge) {
 		// Adds one step to every particle's path
 		const particlecharge = -Math.sign(charge.strength);
 
@@ -104,7 +107,7 @@ window.addEventListener("load", function() {
 			}
 		}
 
-		if (state.moving) {
+		if (state.moving && state.selected) {
 			state.selected.pos = new Vector([sim.pxToM(sim.mouse.x), sim.pxToM(sim.mouse.y)]);
 		}
 
@@ -146,7 +149,7 @@ window.addEventListener("load", function() {
 			state.charges.forEach(charge => createPaths(charge));
 			state.fullrender = true;
 		});
-		const selectCharge = charge => {
+		const selectCharge = (charge: Charge) => {
 			state.selected = charge;
 			sliderStrength.setValue(charge.strength);
 		};

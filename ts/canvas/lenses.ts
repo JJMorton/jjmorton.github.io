@@ -1,10 +1,10 @@
-import {Simulation, Knob} from './main.js';
+import {Simulation2D, Knob} from './main.js';
 
 window.addEventListener("load", function() {
 	
 	'use strict';
 
-	const sim = new Simulation();
+	const sim = new Simulation2D();
 
 	sim.scale = 1.5;
 
@@ -15,7 +15,7 @@ window.addEventListener("load", function() {
 		object_height: 0.1
 	};
 	
-	const getObjectGeometry = function(centre) {
+	const getObjectGeometry = function(centre: number) {
 		return {
 			x1: sim.mToPx(-params.object_pos) + centre,
 			y1: centre,
@@ -24,7 +24,7 @@ window.addEventListener("load", function() {
 		};
 	}
 
-	const getImageGeometry = function(centre) {
+	const getImageGeometry = function(centre: number) {
 		const image_pos = 1 / (1/params.focal_length - 1/params.object_pos);
 		const image_size = image_pos / params.object_pos * params.object_height;
 		return {
@@ -35,7 +35,7 @@ window.addEventListener("load", function() {
 		};
 	}
 
-	const getLensGeometry = function(height, focal_length) {
+	const getLensGeometry = function(height: number, focal_length: number) {
 		let radius = sim.mToPx((params.ref_index - 1) * 2 * focal_length);
 		let theta = Math.atan(height / radius); // Angle from centre to top
 		let width = radius * (1 - Math.cos(theta)); // From centre to edge
@@ -45,25 +45,25 @@ window.addEventListener("load", function() {
 		return { radius: radius * scale, width: width * scale, theta };
 	}
 
-	const getGradient = function(x1, y1, x2, y2) {
+	const getGradient = function(x1: number, y1: number, x2: number, y2: number) {
 		return (y2 - y1) / (x2 - x1);
 	}
 
-	const drawLine = function(c, x1, y1, x2, y2) {
+	const drawLine = function(c: CanvasRenderingContext2D, x1: number, y1: number, x2: number, y2: number) {
 		c.beginPath();
 		c.moveTo(x1, y1); c.lineTo(x2, y2);
 		c.closePath();
 		return c;
 	};
 
-	const drawArc = function(c, x, y, r, start, end) {
+	const drawArc = function(c: CanvasRenderingContext2D, x: number, y: number, r: number, start: number, end: number) {
 		c.beginPath();
 		c.arc(x, y, r, start, end);
 		c.closePath();
 		return c;
 	}
 
-	const drawRect = function(c, x, y, w, h) {
+	const drawRect = function(c: CanvasRenderingContext2D, x: number, y: number, w: number, h: number) {
 		c.beginPath();
 		c.rect(x, y, w, h);
 		c.closePath();

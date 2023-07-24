@@ -1,4 +1,6 @@
-import {Simulation, ComboBox, Button, Knob, Checkbox} from './main.js';
+import {Simulation2D, ComboBox, Button, Knob, Checkbox} from './main.js';
+
+type Wave = {amp: number, freq: number, wavelength: number, offset: number, reverse: boolean};
 
 window.addEventListener("load", function() {
 
@@ -7,12 +9,12 @@ window.addEventListener("load", function() {
 
 	/* Initialise stuff */
 
-	const sim = new Simulation();
+	const sim = new Simulation2D();
 
-	const state = {
+	const state: {waves: Wave[], selectedIndex: number, selected: Wave | null, scale: number} = {
 		waves: [],
 		selectedIndex: 0,
-		selected: {},
+		selected: null,
 		scale: 10
 	};
 
@@ -27,7 +29,8 @@ window.addEventListener("load", function() {
 
 	const scaleSlider = new Knob("scale", "Viewing Scale", "m", sim.scale, 1, 20, 0.1, value => sim.scale = value);
 
-	const selectCombo = new ComboBox("select", "Selected Wave", index => {
+	const selectCombo = new ComboBox<number>("select", "Selected Wave", index => {
+		if (index === null) return;
 		// Set the selected wave and update the sliders associated with its properties
 		console.log("Selecting wave index", index);
 		state.selectedIndex = index;
@@ -37,6 +40,7 @@ window.addEventListener("load", function() {
 			return;
 		}
 		for (const prop in sliders) {
+			// @ts-ignore TS doesn't understand `.hasOwnProperty()`?
 			if (sliders.hasOwnProperty(prop)) sliders[prop].setValue(state.selected[prop]);
 		}
 	});
@@ -46,6 +50,7 @@ window.addEventListener("load", function() {
 	});
 
 	const dupeBtn = new Button("duplicate", "Duplicate Wave", () => {
+		if (!state.selected) return;
 		addWave(createWave(state.selected));
 	});
 
@@ -59,11 +64,18 @@ window.addEventListener("load", function() {
 
 	const sliders = {
 		wavelength: new Knob("wavelength", "Wavelength", "m", 0, 0.1, 10, 0.01, value => {
+			if (!state.selected) return;
 			state.selected.wavelength = value;
 			state.selected.freq = 1 / value;
 		}),
-		amp: new Knob("amplitude", "Amplitude", "m", 0, 0.1, 5, 0.01, value => state.selected.amp = value),
-		offset: new Knob("offset", "Phase Offset", "degrees", 0, 0, 360, 1, value => state.selected.offset = value * Math.PI / 180)
+		amp: new Knob("amplitude", "Amplitude", "m", 0, 0.1, 5, 0.01, value => {
+			if (!state.selected) return;
+			state.selected.amp = value;
+		}),
+		offset: new Knob("offset", "Phase Offset", "degrees", 0, 0, 360, 1, value => {
+			if (!state.selected) return;
+			state.selected.offset = value * Math.PI / 180
+		})
 	};
 
 	sliders.wavelength.DOM.addEventListener("mousedown", () => {
@@ -83,25 +95,28 @@ window.addEventListener("load", function() {
 	sliders.wavelength.DOM.addEventListener("wheel", () => sim.timer.reset());
 
 
-	new Checkbox("reverse", "Reverse direction", false, value => state.selected.reverse = value);
+	new Checkbox("reverse", "Reverse direction", false, value => {
+		if (!state.selected) return;
+		state.selected.reverse = value
+	});
 
 
 
 	/* Modify array of waves, keeping sliders and selector in sync */
 
-	function createWave({ amp, freq, wavelength, offset, reverse }) {
+	function createWave({ amp, freq, wavelength, offset, reverse }: Wave) {
 		return { amp, freq, wavelength, offset, reverse };
 	}
 
-	function addWave(wave) {
+	function addWave(wave: Wave) {
 		state.waves.push(wave);
 		selectCombo.addOption({name: "Wave " + state.waves.length, value: state.waves.length - 1});
-// 		selectCombo.setOptions(state.waves.map((_, i) => `Wave ${i + 1}`));
+		// selectCombo.setOptions(state.waves.map((_, i) => `Wave ${i + 1}`));
 		selectCombo.setValue(state.waves.length - 1);
 		remBtn.setDisabled(state.waves.length <= 1);
 	}
 
-	function drawWave(c, points) {
+	function drawWave(c: CanvasRenderingContext2D, points: number[]) {
 		c.beginPath();
 		c.moveTo(0, points[0]);
 		for (let x = 1; x < points.length; x++) {
@@ -114,9 +129,9 @@ window.addEventListener("load", function() {
 
 	/* Funcs for calculations */
 
-	const getAngFreq = wave => 2 * Math.PI * wave.freq;
-	const getWaveNum = wave => 2 * Math.PI / wave.wavelength;
-	const getDisplacement = (wave, x, t) =>
+	const getAngFreq = (wave: Wave) => 2 * Math.PI * wave.freq;
+	const getWaveNum = (wave: Wave) => 2 * Math.PI / wave.wavelength;
+	const getDisplacement = (wave: Wave, x: number, t: number) =>
 		wave.amp * Math.cos(getAngFreq(wave) * t + (wave.reverse ? 1 : -1) * getWaveNum(wave) * x + wave.offset);
 
 

@@ -68,6 +68,7 @@ class Timer {
 	}
 }
 
+
 export enum MouseButton {
 	NONE=-1, LEFT, MIDDLE, RIGHT
 }
@@ -129,55 +130,70 @@ export class Mouse {
 	}
 }
 
-type AnyWebGLRenderingContext = WebGLRenderingContext | WebGL2RenderingContext
-function isWebGL(ctx: RenderingContext): ctx is AnyWebGLRenderingContext {
-	return (ctx instanceof WebGLRenderingContext) || (ctx instanceof WebGL2RenderingContext)
-}
+// Shorthand for either of the WebGL renderers
+type AnyWebGLRenderingContext = WebGLRenderingContext | WebGL2RenderingContext;
 
 /**
  * A class containing logic for a 'simulation'.
  * Manages a HTML canvas, a mouse handler, a timer, etc.
  */
-export class Simulation {
+abstract class Simulation<ContextType extends CanvasRenderingContext2D | AnyWebGLRenderingContext> {
 
-	/** This function should be set by the simulation using this class */
-	public render: ((c: RenderingContext) => void) | null = null;
+	/** The canvas DOM element in the browser */
 	public canvas: HTMLCanvasElement;
-	public ctx: RenderingContext;
+	/** The rendering context for this simulation */
+	public ctx: ContextType;
 	/** The number of metres that the canvas should cover */
 	public scale: number = 5;
+	/** The user's mouse */
 	public mouse: Mouse;
+	/** The world time for the simulation */
 	public timer: Timer;
 	/** Current frame number */
 	public frame: number;
 	/** Time between current frame and previous */
 	public delta: number;
 
+	/** The colours from the webpage's CSS */
 	public colours: {
 		background: string, foreground: string, accent: string
 	} = {
 		background: "#000", foreground: "#000", accent: "#000"
 	}
 
-	/** Set this to trigger it when the user lifts a mouse button */
+	/** USER: Set this to the function to be called each frame */
+	public render: ((c: ContextType) => void) | null = null;
+	/** USER: Set this to trigger it when the user lifts a mouse button */
 	public onmouseup?: () => void;
-	/** Set this to trigger it when the user presses down a mouse button */
+	/** USER: Set this to trigger it when the user presses down a mouse button */
 	public onmousedown?: () => void;
 
-	private offscreenCanvases: {canvas: HTMLCanvasElement, ctx: RenderingContext}[] = [];
+	protected offscreenCanvases: {canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D}[] = [];
 
-	constructor(contextType: string = "2d") {
+	protected abstract createContext(): ContextType | null;
+	public abstract renderOffscreenCanvases(): void;
+
+	constructor() {
 
 		// Get the canvas element and drawing context
 		const canvas = document.querySelector("canvas");
 		if (!canvas) throw Error("Cannot find HTMLCanvasElement");
 		this.canvas = canvas;
-		const ctx = this.canvas.getContext(contextType);
-		if (!ctx) throw Error("Cannot find HTMLCanvasElement");
+		const ctx = this.createContext();
+		if (!ctx) throw Error("Could not create canvas rendering context");
 		this.ctx = ctx;
 
-		this.recolour();
-		window.addEventListener("recolour", () => this.recolour());
+		// Get colours defined on root element in css, and redo this when needed
+		const recolour = (): void => {
+			const style = window.getComputedStyle(document.documentElement);
+			this.colours = {
+				background: style.getPropertyValue("--background-color"),
+				foreground: style.getPropertyValue("--text-color"),
+				accent: style.getPropertyValue("--accent-color")
+			};
+		}
+		recolour();
+		window.addEventListener("recolour", () => recolour());
 
 		this.scale = 5;
 
@@ -201,18 +217,7 @@ export class Simulation {
 	}
 
 
-	recolour() {
-		// Get colours defined on root element in css
-		const style = window.getComputedStyle(document.documentElement);
-		this.colours = {
-			background: style.getPropertyValue("--background-color"),
-			foreground: style.getPropertyValue("--text-color"),
-			accent: style.getPropertyValue("--accent-color")
-		};
-	}
-
-
-	createOffscreenCanvas() {
+	public createOffscreenCanvas(): {canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D} {
 		// Creates a separate canvas (with the 2d context) that is automatically drawn to the main canvas each frame
 		// The offscreen canvases are drawn over the main canvas, in the order of their creation
 		const canvas = document.createElement("canvas");
@@ -225,19 +230,148 @@ export class Simulation {
 	}
 
 
-	renderOffscreenCanvases() {
-		if (!(this.ctx instanceof CanvasRenderingContext2D)) {
-			throw Error("Main canvas must have a context type of 2d to use an offscreen canvas");
+	public resize() {
+		// Make the canvas fill its parent element
+		const scaling = window.devicePixelRatio || 1;
+		const parent = this.canvas.parentElement;
+		const width = (parent ? parent.clientWidth : window.innerWidth) * scaling;
+		const height = (parent ? parent.clientHeight : window.innerHeight) * scaling;
+
+		// Resize a canvas to the correct size, and set all the styles again (lost when resizing)
+		const resizeCanvas = (canvas: HTMLCanvasElement, ctx: RenderingContext) => {
+			canvas.width = width;
+			canvas.height = height;
+			if (ctx instanceof CanvasRenderingContext2D) {
+				// When the window is resized, stroke and fill styles are lost so we need to set them again
+				ctx.strokeStyle = this.colours.accent;
+				ctx.fillStyle = this.colours.foreground;
+				ctx.lineJoin = "round";
+				ctx.font = "bold 0.8em sans-serif";
+			}
+		};
+
+		// Set the correct sizes of the main and offscreen canvases
+		resizeCanvas(this.canvas, this.ctx);
+		for (const {canvas, ctx} of this.offscreenCanvases) resizeCanvas(canvas, ctx);
+
+		// Set the correct CSS styling
+		this.canvas.style.width = `${width / scaling}px`;
+		this.canvas.style.height = `${height / scaling}px`;
+	}
+
+
+	/**
+	 * Begin the main animation loop
+	 */
+	public start() {
+
+		let prevTime = 0;
+		this.delta = 0;
+
+		const render = () => {
+			// We want all the units in seconds, to make other units more realistic
+			const time = performance.now() / 1000;
+			this.delta = time - prevTime;
+			prevTime = time;
+
+			/*
+			 * Calculations are not done if the framerate is less than
+			 * 10 per second. This is to counter the issue of the
+			 * mass 'jumping' if the script goes idle for any substantial
+			 * amount of time (e.g. if the user switches to another tab
+			 * and back).
+			 * If the rendering is running less than 10 times per
+			 * second, nothing will animate. But things would get weird
+			 * at very low framerates anyway.
+			 */
+			if (this.render && 1 / this.delta >= 10) {
+				this.render(this.ctx);
+				this.frame++;
+			}
+			window.requestAnimationFrame(render);
 		}
+
+		// Start animation loop
+		this.timer.start();
+		window.requestAnimationFrame(render);
+	}
+
+	/**
+	 * Render a single frame, manually
+	 */
+	oneshot() {
+		if (this.render) this.render(this.ctx);
+	}
+
+
+	/*
+	 * Conversions between different length units.
+	 * m -- world units.
+	 * perc -- percentage of the canvas width.
+	 * px -- onscreen pixels.
+	 */
+	
+	mToPx(metres: number): number {
+		return this.canvas.height * metres / this.scale;
+	}
+	pxToM(px: number): number {
+		return px / this.canvas.height * this.scale;
+	}
+	percToPx(perc: number): number {
+		return this.canvas.height * perc / 100;
+	}
+	pxToPerc(px: number): number {
+		return px / this.canvas.height * 100;
+	}
+	percToM(perc: number): number {
+		return this.pxToM(this.percToPx(perc));
+	}
+	mToPerc(m: number): number {
+		return this.pxToPerc(this.mToPx(m));
+	}
+
+}
+
+export class Simulation2D extends Simulation<CanvasRenderingContext2D> {
+
+	protected createContext(): CanvasRenderingContext2D | null {
+		return this.canvas.getContext("2d");
+	}
+
+	public renderOffscreenCanvases() {
 		for (const {canvas} of this.offscreenCanvases) {
 			this.ctx.drawImage(canvas, 0, 0);
 		}
 	}
 
+	/**
+	 * Execute the callback, restoring the canvas state back afterwards.
+	 */
+	public withCanvasState(f: () => void) {
+		this.ctx.save();
+		f();
+		this.ctx.restore();
+	}
 
-	createShaderProgram(vertFile: string, fragFile: string) {
-		if (!isWebGL(this.ctx))
-			throw Error("Canvas must have webgl context to add shaders");
+}
+
+export class SimulationGL extends Simulation<WebGL2RenderingContext> {
+
+	protected createContext(): WebGL2RenderingContext | null {
+		return this.canvas.getContext("webgl2");
+	}
+
+	public renderOffscreenCanvases(): void {
+		throw Error("Cannot render offscreen canvases on a WebGL context");
+	}
+
+	public resize(): void {
+		super.resize();
+		// Set the WebGL viewport size when resizing
+		this.ctx.viewport(0, 0, this.canvas.width, this.canvas.height);
+	}
+
+	public createShaderProgram(vertFile: string, fragFile: string): Promise<WebGLProgram> {
 
 		const gl = this.ctx;
 
@@ -296,122 +430,6 @@ export class Simulation {
 
 		});
 	}
-
-
-	resize() {
-		// Make the canvas fill its parent element
-		const scaling = window.devicePixelRatio || 1;
-		const parent = this.canvas.parentElement;
-		const width = (parent ? parent.clientWidth : window.innerWidth) * scaling;
-		const height = (parent ? parent.clientHeight : window.innerHeight) * scaling;
-
-		const resizeCanvas = (canvas: HTMLCanvasElement, ctx: RenderingContext) => {
-			canvas.width = width;
-			canvas.height = height;
-			if (ctx instanceof CanvasRenderingContext2D) {
-				// When the window is resized, stroke and fill styles are lost so we need to set them again
-				ctx.strokeStyle = this.colours.accent;
-				ctx.fillStyle = this.colours.foreground;
-				ctx.lineJoin = "round";
-				ctx.font = "bold 0.8em sans-serif";
-			}
-		};
-
-		resizeCanvas(this.canvas, this.ctx);
-		for (const {canvas, ctx} of this.offscreenCanvases) resizeCanvas(canvas, ctx);
-
-		if (isWebGL(this.ctx)) {
-			this.ctx.viewport(0, 0, width, height);
-		}
-
-		this.canvas.style.width = `${width / scaling}px`;
-		this.canvas.style.height = `${height / scaling}px`;
-
-		return this.canvas;
-	}
-
-
-	withCanvasState(f: () => void) {
-		if (!(this.ctx instanceof CanvasRenderingContext2D)) {
-			console.warn("Can only save canvas state with 2d context");
-			f();
-			return;
-		}
-		this.ctx.save();
-		f();
-		this.ctx.restore();
-	}
-
-
-	/*
-	 * A wrapper for the main animation loop
-	 */
-
-	start() {
-
-		let prevTime = 0;
-		this.delta = 0;
-
-		const render = () => {
-			// We want all the units in seconds, to make other units more realistic
-			const time = performance.now() / 1000;
-			this.delta = time - prevTime;
-			prevTime = time;
-
-			/*
-			 * Calculations are not done if the framerate is less than
-			 * 10 per second. This is to counter the issue of the
-			 * mass 'jumping' if the script goes idle for any substantial
-			 * amount of time (e.g. if the user switches to another tab
-			 * and back).
-			 * If the rendering is running less than 10 times per
-			 * second, nothing will animate. But things would get weird
-			 * at very low framerates anyway.
-			 */
-			if (this.render && 1 / this.delta >= 10) {
-				this.render(this.ctx);
-				this.frame++;
-			}
-			window.requestAnimationFrame(render);
-		}
-
-		// Start animation loop
-		this.timer.start();
-		window.requestAnimationFrame(render);
-	}
-
-	/*
-	 * Render a single frame, manually
-	 */
-
-	oneshot() {
-		if (this.render) this.render(this.ctx);
-	}
-
-
-	/*
-	 * Conversions between different length units
-	 */
-	
-	mToPx(metres: number) {
-		return this.canvas.height * metres / this.scale;
-	}
-	pxToM(px: number) {
-		return px / this.canvas.height * this.scale;
-	}
-	percToPx(perc: number) {
-		return this.canvas.height * perc / 100;
-	}
-	pxToPerc(px: number) {
-		return px / this.canvas.height * 100;
-	}
-	percToM(perc: number) {
-		return this.pxToM(this.percToPx(perc));
-	}
-	mToPerc(m: number) {
-		return this.pxToPerc(this.mToPx(m));
-	}
-
 }
 
 
@@ -457,7 +475,7 @@ class Control<T, DOMT extends HTMLElement> {
 }
 
 export class Button extends Control<null, HTMLButtonElement> {
-	constructor(id: string, label: string, onclick = undefined) {
+	constructor(id: string, label: string, onclick?: () => void) {
 		super(id, null, onclick);
 		this.DOM.textContent = label;
 		this.DOM.addEventListener("click", () => this.setValue(null));
@@ -569,12 +587,13 @@ export class Knob extends Control<number, HTMLDivElement> {
 	}
 }
 
-export class ComboBox extends Control<{name: string, value: any} | null, HTMLDivElement> {
+type ComboOption<T> = {name: string, value: T}
+export class ComboBox<T> extends Control<T | null, HTMLDivElement> {
 
 	select: HTMLSelectElement;
-	options: {name: string, value: any}[];
+	options: ComboOption<T>[];
 
-	constructor(id: string, label: string, onupdate = undefined) {
+	constructor(id: string, label: string, onupdate?: (val: T | null) => void) {
 		super(id, null, onupdate);
 		// @ts-ignore Assume element exists
 		this.DOM.querySelector("label").textContent = label;
@@ -592,12 +611,12 @@ export class ComboBox extends Control<{name: string, value: any} | null, HTMLDiv
 		return super.setDisabled(val);
 	}
 
-	setValue(val: any) {
+	setValue(val: T) {
 		this.select.selectedIndex = this.options.map(o => o.value).indexOf(val);
 		return super.setValue(val);
 	}
 
-	addOption({ name, value }: {name: string, value: any}) {
+	addOption({ name, value }: ComboOption<T>) {
 		this.options.push({ name, value });
 		const option = document.createElement("option");
 		option.text = name;
@@ -617,7 +636,7 @@ export class Checkbox extends Control<boolean, HTMLDivElement> {
 
 	checkbox: HTMLInputElement;
 
-	constructor(id: string, label: string, init: boolean, onupdate = undefined) {
+	constructor(id: string, label: string, init: boolean, onupdate?: (val: boolean) => void) {
 		super(id, init, onupdate);
 		// @ts-ignore
 		this.DOM.querySelector("label").textContent = label;

@@ -1,12 +1,11 @@
-import {Simulation, Knob, Checkbox, Button, MouseButton} from './main.js';
-import {Mouse} from './main.js';
+import {SimulationGL, Knob, Checkbox, Button, MouseButton} from './main.js';
 import {Vector} from './vector.js';
 
 window.addEventListener("load", function() {
 
 	'use strict';
 
-	const sim = new Simulation("webgl2");
+	const sim = new SimulationGL();
 	const gl = sim.ctx;
 
 	sim.createShaderProgram("/shaders/passthrough.vs", "/shaders/raymarching.fs").then(program => {

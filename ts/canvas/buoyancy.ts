@@ -1,15 +1,12 @@
-import {Simulation, Knob, Checkbox, Meter} from './main.js';
+import {Simulation2D, Knob, Checkbox, Meter} from './main.js';
 import {Vector} from './vector.js';
 import * as Integrators from './integrator.js';
-
-window.areaLog = [];
-window.zLog = [];
 
 window.addEventListener("load", function() {
 
 	'use strict';
 
-	const sim = new Simulation();
+	const sim = new Simulation2D();
 
 	// Initial parameters
 	const params = {
@@ -73,7 +70,7 @@ window.addEventListener("load", function() {
 	state.E0 = kineticEnergy() + potentialEnergy();
 
 
-	function getVolumeIntersect(pos, radius) {
+	function getVolumeIntersect(pos: Vector, radius: number) {
 		// Made complicated by handling the cases where the ball is not fully submerged
 
 		// Is the top of the ball above the surface?
@@ -88,7 +85,7 @@ window.addEventListener("load", function() {
 		}
 	}
 
-	function getFluidDrag(vel, radius, area) {
+	function getFluidDrag(vel: Vector, radius: number, area: number) {
 		const speed = vel.getSize();
 		if (speed > 0) {
 			let drag = 6 * Math.PI * params.f_viscosity * radius
@@ -98,7 +95,7 @@ window.addEventListener("load", function() {
 		return new Vector([0, 0]);
 	}
 
-	function accelerationCalculator({pos, vel, time}) {
+	function accelerationCalculator({pos, vel}: {pos: Vector, vel: Vector}) {
 
 		let drag = new Vector([0, 0]);
 		let upthrust = new Vector([0, 0]);
@@ -136,7 +133,7 @@ window.addEventListener("load", function() {
 	}
 
 
-	function drawArrow(x1, y1, lx, ly) {
+	function drawArrow(x1: number, y1: number, lx: number, ly: number) {
 		// Uses pixel coordinates
 		if (lx === 0 && ly === 0) return;
 		const p1 = new Vector([x1, y1]);
@@ -156,7 +153,7 @@ window.addEventListener("load", function() {
 	};
 
 
-	let mouseDownPos = null;
+	let mouseDownPos = Vector.Zeros(2);
 
 	sim.render = function() {
 
@@ -256,7 +253,7 @@ window.addEventListener("load", function() {
 		state.drag = state.drag.mult(0);
 	};
 	sim.onmouseup = function() {
-		mouseDownPos = null;
+		mouseDownPos = Vector.Zeros(2);
 	};
 
 	

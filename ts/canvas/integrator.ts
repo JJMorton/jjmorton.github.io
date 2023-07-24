@@ -1,13 +1,23 @@
-import {Vector} from './vector.js';
+import {Vector, VectorLike} from './vector.js';
 
-class Integrator {
+export type AnyIntegratorConstructor = typeof EulerIntegrator | typeof RK4Integrator;
+export type AnyIntegrator = EulerIntegrator | RK4Integrator;
+export type AccelFunc = ({}: {pos: Vector, vel: Vector, time: number}) => Vector;
 
-	funcAccel = null;
-	pos = new Vector([]);
-	vel = new Vector([]);
-	h = 1e-5;
+export abstract class Integrator {
 
-	constructor(funcAccel, x, v, h) {
+	/** Function to calculate the current acceleration */
+	public funcAccel: AccelFunc;
+	/** Current position */
+	public pos: Vector;
+	/** Current velocity */
+	public vel: Vector;
+	/** Integration timestep */
+	public h: number;
+
+	protected numDims: number;
+
+	constructor(funcAccel: AccelFunc, x: VectorLike, v: VectorLike, h: number) {
 
 		x = new Vector(x);
 		v = new Vector(v);
@@ -17,6 +27,7 @@ class Integrator {
 		if (h <= 0)
 			throw Error("The timestep, h, must be > 0");
 
+		// Make sure the acceleration function returns a valid vector
 		const testAccel = funcAccel({pos: x, vel: v, time: 0})
 		if (!(testAccel instanceof Vector))
 			throw Error("Acceleration function must return a vector");
@@ -27,9 +38,11 @@ class Integrator {
 		this.vel = v;
 		this.funcAccel = funcAccel;
 		this.h = h;
+		this.numDims = x.length;
 	}
 
-	integrateFixed(tStart, tEnd) {
+	/** Integrate from tStart until tEnd with a fixed timestep */
+	public integrateFixed(tStart: number, tEnd: number) {
 		let t = tStart;
 		while (t < tEnd) {
 			// Make sure we end exactly at tEnd
@@ -39,29 +52,24 @@ class Integrator {
 		}
 	}
 
-	// Should be implemented by a sub-class
-	integrator(t, timestep) {
-		throw new Error("Not Implemented");
-	}
+	/**
+	 * Integrates from `t` to `t + timestep`.
+	 */
+	protected abstract integrator(t: number, timestep: number): void;
 
 }
 
 
-/*
+/**
  * Basic Euler integration
  */
-
 export class EulerIntegrator extends Integrator {
 
-	constructor(funcAccel, x, v, h) {
-		super(funcAccel, x, v, h);
-	}
-
-	integrator(t, timestep) {
+	protected integrator(t: number, timestep: number): void {
 		// v = v + ha
 		this.vel = this.funcAccel({pos: this.pos, vel: this.vel, time: t})
-			.mult(timestep)
-			.add(this.vel);
+		.mult(timestep)
+		.add(this.vel);
 		// x = x + hv
 		this.pos = this.vel.mult(timestep).add(this.pos);
 	}
@@ -75,18 +83,13 @@ export class EulerIntegrator extends Integrator {
 
 export class RK4Integrator extends Integrator {
 
-	constructor(funcAccel, x, v, h) {
-		super(funcAccel, x, v, h);
-		this.numDims = this.pos.length;
-	}
-
-	integrator(t, timestep) {
+	 protected integrator(t: number, timestep: number): void {
 
 		// q is the system as a whole in phase space, e.g. [x0, x1, v0, v1]
 		let q = this.pos.concat(this.vel);
 
 		// The equation of motion for q
-		const eom = (t, q) => {
+		const eom = (t: number, q: Vector) => {
 			// Split q into position and velocity, so we can call funcAccel
 			const x = q.slice(0, this.numDims);
 			const v = q.slice(this.numDims);
