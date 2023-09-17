@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<%- include("/partials/head") %>
+</head>
+<body>
+
+	<%- include("/partials/header") %>
+
+	<main>
+
+	</main>
+
+	<section>
+		<div class="gallery">
+			<ul class="gallery-row">
+				<li>
+					<a href="https://www.flickr.com/photos/jjmorton/53193817485/in/album-72177720311265534/" target="__blank">
+						<img class="image-framed box-shadow" src="https://live.staticflickr.com/65535/53193817485_85381af0b1_o_d.png"/>
+					</a>
+				</li>
+			</ul>
+			<ul class="gallery-row">
+				<li>
+					<h2>Fractal Trees</h2>
+				</li>
+			</ul>
+			<ul class="gallery-row">
+				<li>
+					<p>
+						These trees are fractals, a repeating pattern that could repeat itself infinitely.
+						They are generated using <a href="https://en.wikipedia.org/wiki/L-system" target="__blank">L-systems</a>.
+						All that is required is an initial 'state' (in the case of these trees, the initial state is the trunk), and a rule to evolve it.
+						For all of these trees, the trunk evolves to produce two new branches from the top, both of which evolve in the same way.
+						Each evolution also creates the additional branches with some rotation and changes to size and/or colour.
+						In addition, the 'painted' effect is just many translucent rectangles drawn randomly over the branches.
+					</p>
+					<p>
+						These L-systems were taken from <a href="http://algorithmicbotany.org/papers/sigcourse.2003/2-1-lsystems.pdf" target="__blank">Prusinkiewicz et al. (2003)</a>, see the paper for more details.
+					</p>
+				</li>
+				<li>
+					<img src="https://s11.gifyu.com/images/S47ye.gif"/>
+				</li>
+			</ul>
+		</div>
+		<div class="gallery">
+			<ul class="gallery-row">
+				<li>
+					<a href="https://www.flickr.com/photos/jjmorton/53192996632/in/album-72177720311265534/" target="__blank">
+						<img class="image-framed box-shadow" src="https://live.staticflickr.com/65535/53192996632_203718130b_o_d.png"/>
+					</a>
+				</li>
+			</ul>
+			<ul class="gallery-row">
+				<li>
+					<h2>Succulent</h2>
+					<p>
+						This uses a similar 'painted' effect to that used for the trees above.
+						The shape of the leaves was modelled with <a href="https://www.desmos.com/calculator/fwn74ual3y" target="__blank">Desmos</a>, and then many of them are rendered with randomly varying shapes to make it look more natural.
+					</p>
+				</li>
+			</ul>
+		</div>
+		<div class="gallery">
+			<ul class="gallery-row">
+				<li>
+					<a href="https://www.flickr.com/photos/jjmorton/53193656890/in/album-72177720311265534/" target="__blank">
+						<img class="image-framed box-shadow" src="https://live.staticflickr.com/65535/53193656890_c71dbcf9ec_o_d.png"/>
+					</a>
+				</li>
+			</ul>
+			<ul class="gallery-row">
+				<li>
+					<h2>Watercolour Mountains</h2>
+					<p>
+						The shape of these mountains is created with <a href="https://en.wikipedia.org/wiki/Perlin_noise" target="__blank">Perlin noise</a>, a way of generating random numbers that vary smoothly.
+						The textured background is also created using perlin noise, multiplied by a function that varies periodically along the diagonal.
+						A watercolour effect here is achieved with many slightly deformed shapes, drawn over the top of each other, see <a href="https://openprocessing.org/sketch/846117/" target="__blank">here</a> for an example.
+					</p>
+				</li>
+			</ul>
+		</div>
+	</section>
+	
+	<%- include("/partials/footer") %>
+
+</body>
+</html>

@@ -29,6 +29,10 @@ app.get("/photos", (req, res) => {
 	res.render("photos", { title: "Photos" });
 });
 
+app.get("/art", (req, res) => {
+	res.render("art", { title: "Art With Code" });
+});
+
 app.get("/about", (req, res) => {
 	res.render("about", { title: "About" });
 });
