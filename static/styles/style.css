@@ -529,9 +529,6 @@ div#structure-content {
 
 .gallery {
 	margin-bottom: var(--structure-padding);
-}
-
-.gallery:not(:first-of-type) {
 	border-top: 1px dashed var(--border-color);
 	padding-top: var(--structure-padding);
 }
