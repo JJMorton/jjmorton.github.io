@@ -47,6 +47,8 @@ files=(
 	"/about/index.html"
 	"/lmc/index.html"
 	"/spirograph/index.html"
+	"/photos/index.html"
+	"/art/index.html"
 	"/404.html"
 )
 
