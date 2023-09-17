@@ -36,6 +36,8 @@ urls=(
 	"/about"
 	"/lmc"
 	"/spirograph"
+	"/photos"
+	"/art"
 	"/404"
 )
 
