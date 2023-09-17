@@ -533,29 +533,17 @@ div#structure-content {
 	padding-top: var(--structure-padding);
 }
 
+.gallery img {
+	max-width: 100%;
+}
+
 .gallery p,
 .gallery h2 {
-	margin: 0;
+	margin: var(--structure-padding) 0 0 0;
 }
 
-ul.gallery-row {
-	width: 100%;
-	display: flex;
-	flex-direction: row;
-	padding: 0;
-	box-sizing: border-box;
-	gap: var(--structure-padding);
-	margin: 0 0 5px 0;
-}
-
-ul.gallery-row > li {
-	flex: 1;
-	list-style: none;
-}
-
-ul.gallery-row > *,
-ul.gallery-row img {
-	width: 100%;
+.gallery h2 {
+	text-align: center;
 }
 
 
