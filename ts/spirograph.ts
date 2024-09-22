@@ -1,5 +1,5 @@
 
-import {Simulation, Button, Knob, ComboBox, Checkbox} from './canvas/main.js';
+import {Simulation2D, Button, Knob, ComboBox, Checkbox} from './canvas/main.js';
 import {Vector} from './canvas/vector.js';
 
 /*
@@ -24,7 +24,7 @@ class ParametricShape {
 	 * and `t` is the parametric coordinate
 	 */
 
-	static name = "";
+	static shapeName = "";
 
 	constructor() {
 	}
@@ -159,7 +159,7 @@ class ParametricShape {
 
 	// Checks that `s` is equivalent to physical distance
 	test() {
-		console.log("===========", "Testing shape", this.constructor.name, "===========");
+		console.log("===========", "Testing shape", this.constructor.shapeName, "===========");
 		console.log("Perimeter:", this.perimeter);
 		let lengths = [];
 		const step = 0.01;
@@ -183,7 +183,7 @@ class ParametricShape {
 			shape = shapeCreator(r);
 			perimeter = shape.perimeter;
 			if (Math.abs(perimeter - perim) <= epsilon) {
-				console.log(`Found ${shape.constructor.name} with specified perimeter in ${i} iterations`);
+				console.log(`Found ${shape.constructor.shapeName} with specified perimeter in ${i} iterations`);
 				return shape;
 			}
 			if (perimeter > perim) {
@@ -195,7 +195,7 @@ class ParametricShape {
 				r = 0.5 * (r + rmax);
 			}
 		}
-		console.error(`Failed to find ${shape.constructor.name} with specified perimeter after ${maxIterations} iterations`)
+		console.error(`Failed to find ${shape.constructor.shapeName} with specified perimeter after ${maxIterations} iterations`)
 		return shape;
 	}
 
@@ -638,7 +638,7 @@ window.addEventListener("load", function() {
 
 	'use strict';
 
-	const sim = new Simulation();
+	const sim = new Simulation2D();
 	const drawCtx = sim.createOffscreenCanvas().ctx;
 	const toolCtx = sim.createOffscreenCanvas().ctx;
 	sim.scale = 10; // 10 inches in height
