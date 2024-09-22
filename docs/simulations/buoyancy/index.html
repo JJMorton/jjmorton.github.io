@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>Buoyancy - JJMorton</title>
+<link rel="stylesheet" type="text/css" href="/styles/animations.css">
+<link rel="stylesheet" type="text/css" href="/styles/style.css">
+<script src="/scripts/script.js"></script>
+<!-- <div id="background"></div> -->
+	<link rel="stylesheet" type="text/css" href="/styles/canvas.css"/>
+	<script type="module" src="/scripts/canvas/buoyancy.js"></script>
+</head>
+<body>
+	<div id="structure-outer" class="tiled-bg">
+		<menu id="structure-navbar">
+			<li id="sidebar-toggle"><!-- <svg
+	class="hamburger"
+	viewBox="0 0 310 259.34375"
+	width="310"
+	height="259.34375">
+    <g transform="translate(10.015625,-803.03125)">
+      <path
+         d="m 19.668179,1032.694 250.646101,0 0,0"
+         style="fill:none;stroke-width:49.33635712;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
+      <path
+         d="m 19.668179,932.694 250.646101,0 0,0"
+         style="fill:none;stroke-width:49.33635712;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
+      <path
+         d="m 19.668179,832.694 250.646101,0 0,0"
+         style="fill:none;stroke-width:49.33635712;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
+    </g>
+</svg>
+ -->
+
+<svg
+	class="hamburger"
+    <g viewBox="0 0 64 64" width="64" height="64">
+      <path d="M 5 10 H 59" style="stroke-width: 10; stroke-linecap: round;"/>
+      <path d="M 5 32 H 59" style="stroke-width: 10; stroke-linecap: round;"/>
+      <path d="M 5 54 H 59" style="stroke-width: 10; stroke-linecap: round;"/>
+    </g>
+</svg>
+</li>
+			<li class="title"><a class="logo" href="/">jjmorton</a></li>
+		</menu>
+		<menu id="structure-sidebar">
+			<li class="title"><a class="logo tiled-bg" href="/">jjmorton</a></li>
+			<li class="pagelink"><a href="/simulations">Simulations</a></li>
+			<li class="pagelink"><a href="/lmc">LMC</a></li>
+			<li class="pagelink"><a href="/spirograph">Spirograph</a></li>
+			<li class="pagelink"><a href="/photos">Photos</a></li>
+			<li class="pagelink"><a href="/art">Art With Code</a></li>
+			<li class="pagelink"><a href="/about">About</a></li>
+			<li><a id="sidebar-footer" href="https://github.com/JJMorton/jjmorton.github.io" target="_blank"><svg fill="" width="64px" height="64px" viewBox="0 0 16.00 16.00" xmlns="http://www.w3.org/2000/svg" stroke="">
+	<g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+	<g id="SVGRepo_iconCarrier">
+		<g>
+			<path d="M15,5.6,10.4,1A3.4,3.4,0,0,0,5.78.86L7.66,2.74a1.25,1.25,0,0,1,1.67,1.2V4a1.23,1.23,0,0,1-.08.38l2.45,2.4a1.17,1.17,0,0,1,.37-.08A1.3,1.3,0,1,1,10.77,8h0a1.17,1.17,0,0,1,.08-.37L8.6,5.38v5.23a1.28,1.28,0,0,1,.73,1.15,1.3,1.3,0,0,1-2.6,0,1.27,1.27,0,0,1,.67-1.11V5.07A1.27,1.27,0,0,1,6.73,4a1.17,1.17,0,0,1,.08-.37l-1.9-1.9L1,5.6a3.38,3.38,0,0,0,0,4.79H1L5.6,15a3.38,3.38,0,0,0,4.79,0h0L15,10.4a3.38,3.38,0,0,0,0-4.79Z"></path>
+		</g>
+	</g>
+</svg>View source on GitHub</a></li>
+		</menu>
+		<div id="structure-content-wrapper" class="tiled-bg">
+			<div id="structure-content">
+				<h1>Buoyancy</h1>
+
+
+	<main>
+	<p>Drop a ball in a fluid and observe the effects of drag, upthrust and the viscosity.</p>
+	</main>
+
+	<section id="sec-simulation">
+		<noscript>Please enable JavaScript to view this.</noscript>
+<div class="canvas-container box-shadow">
+	<canvas>Sorry, the canvas element is not supported by your browser.</canvas>
+</div>
+
+	</section>
+
+	<section id="controls">
+		<h3>Physical properties</h3>
+		<div class="control-group">
+			<div class="knob left-border" id="ballmass">
+	<div class="wheel" id="ballmass-knob" title="Scroll or drag me up and down, double click to reset">
+		<div class="marker"></div>
+	</div>
+	<label class="value" for="ballmass-knob">
+		<p class="name">Knob</p>
+		<p><output for="ballmass-knob">0</output> <span class="units">units</span></p>
+	</label>
+</div>
+
+			<div class="knob left-border" id="balldensity">
+	<div class="wheel" id="balldensity-knob" title="Scroll or drag me up and down, double click to reset">
+		<div class="marker"></div>
+	</div>
+	<label class="value" for="balldensity-knob">
+		<p class="name">Knob</p>
+		<p><output for="balldensity-knob">0</output> <span class="units">units</span></p>
+	</label>
+</div>
+
+			<div class="knob left-border" id="liquiddensity">
+	<div class="wheel" id="liquiddensity-knob" title="Scroll or drag me up and down, double click to reset">
+		<div class="marker"></div>
+	</div>
+	<label class="value" for="liquiddensity-knob">
+		<p class="name">Knob</p>
+		<p><output for="liquiddensity-knob">0</output> <span class="units">units</span></p>
+	</label>
+</div>
+
+			<div class="knob left-border" id="liquidviscosity">
+	<div class="wheel" id="liquidviscosity-knob" title="Scroll or drag me up and down, double click to reset">
+		<div class="marker"></div>
+	</div>
+	<label class="value" for="liquidviscosity-knob">
+		<p class="name">Knob</p>
+		<p><output for="liquidviscosity-knob">0</output> <span class="units">units</span></p>
+	</label>
+</div>
+
+			<div class="knob left-border" id="gravity">
+	<div class="wheel" id="gravity-knob" title="Scroll or drag me up and down, double click to reset">
+		<div class="marker"></div>
+	</div>
+	<label class="value" for="gravity-knob">
+		<p class="name">Knob</p>
+		<p><output for="gravity-knob">0</output> <span class="units">units</span></p>
+	</label>
+</div>
+
+		</div>
+		<h3>Visualisation</h3>
+		<div class="meter left-border" id="energy">
+	<label for="energy-progress">
+		<span class="name">Meter</span>
+		<output for="energy-progress">0</output>
+		<span class="units">units</span>
+	</label>
+	<progress id="energy-progress"></progress>
+</div>
+
+		<div class="meter left-border" id="potential">
+	<label for="potential-progress">
+		<span class="name">Meter</span>
+		<output for="potential-progress">0</output>
+		<span class="units">units</span>
+	</label>
+	<progress id="potential-progress"></progress>
+</div>
+
+		<div class="meter left-border" id="kinetic">
+	<label for="kinetic-progress">
+		<span class="name">Meter</span>
+		<output for="kinetic-progress">0</output>
+		<span class="units">units</span>
+	</label>
+	<progress id="kinetic-progress"></progress>
+</div>
+
+		<div class="checkbox left-border" id="arrows" title="Toggle me on or off">
+	<input type="checkbox" id="arrows-input"></input>
+	<label for="arrows-input">Checkbox</label>
+</div>
+
+	</section>
+
+	<section id="about">
+		<h3>About this simulation</h3>
+		<p>
+			This is an approximate model of the upthrust (buoyancy) and drag on a sphere in a fluid.
+			<br>
+			The <strong>upthrust</strong> is simply equal to the weight of the displaced fluid:
+			<img class="latex-block" src="/tex/fluids-upthrust.png"/>
+			where the subscript <i>f</i> refers to the fluid, and <i>V</i> is the volume of the sphere which is submerged.
+			By comparing this with the weight of the sphere, you can conclude that objects sink if they are more dense than the fluid they are in, and float if they are less dense.
+		</p>
+		<p>
+			The <strong>drag</strong> is in theory much more complicated, as for an accurate model, one would need to account for the profile of the object and the turbulence of the fluid flow, among other things.
+			For the sake of simplicity, I opted for <a href="https://en.wikipedia.org/wiki/Stokes%27_law">Stokes' drag</a> alongside the <a href="https://en.wikipedia.org/wiki/Drag_equation">drag equation</a>.
+			<img class="latex-block" src="/tex/fluids-drag.png"/>
+			The first term in this equation for the drag force is the Stokes' drag, which depends on the viscosity of the fluid.
+			It assumes a spherical object (perfect for this case) and very small Reynolds numbers, which implies next to no turbulence in the fluid.
+			These assumptions result in this very simple expression for the viscous drag on a sphere.
+			<br>
+			The second term is the drag equation, and depends on the profile (i.e. size, shape and inclination) of the object.
+			Here, the shape of the object (in this case a sphere) is accounted for in the <a href="https://en.wikipedia.org/wiki/Drag_coefficient">drag coefficient</a>, <i>C<sub>d</sub></i>, and its size is represented by the area <i>A</i>.
+			As you would imagine, more aerodynamic objects such as the wing of an aeroplane have a small coefficient, while objects such as this sphere have a larger one and experiece more drag as a result.
+			In reality, the drag coefficient <a href="https://www.me.psu.edu/cimbala/me325web_Spring_2012/Labs/Drag/intro.pdf">varies with the Reynolds number</a> of the fluid, but I won't talk about this here.
+			Notice that the drag equation term is proportional to the square of velocity, while the Stokes' drag is linear in velocity.
+			<br>
+			Of course, both of these drag forces act in the opposite direction to the velocity, <strong><i>v</i></strong> of the object, hence the minus sign and proportionality to the object's velocity.
+		</p>
+	</section>
+	
+				<footer>
+				<p>
+					<span>
+						Compiled at <tt id="compiledate"></tt>
+					</span>
+					<span style="text-align: right">
+						<span class="color-sel" color="#99c6ff"></span>
+						<span class="color-sel" color="#ff89aa"></span>
+						<span class="color-sel" color="#e7dba0"></span>
+						<span class="color-sel" color="#cf9ee9"></span>
+						<span class="color-sel" color="#acdeaa"></span>
+					</span>
+				</p>
+			</footer>
+		</div>
+	</div>
+</div>
+
+</body>
+</html>
